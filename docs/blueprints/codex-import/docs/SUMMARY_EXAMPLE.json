@@ -1,0 +1,113 @@
+{
+  "schema": "asdev.audit.summary.v1",
+  "generatedAt": "2026-02-21T10:00:00.000Z",
+  "run": {
+    "id": "cuid_xxx",
+    "inputUrl": "example.com",
+    "normalizedUrl": "https://example.com/",
+    "finalUrl": "https://example.com/",
+    "depth": "QUICK",
+    "status": "SUCCEEDED",
+    "durationMs": 48210
+  },
+  "scores": {
+    "performance": 62,
+    "accessibility": 88,
+    "bestPractices": 92,
+    "seo": 84
+  },
+  "vitals": {
+    "lcpMs": 3100,
+    "inpMs": 220,
+    "cls": 0.08,
+    "ttfbMs": 950
+  },
+  "dependencies": {
+    "firstPartyHosts": [
+      "example.com"
+    ],
+    "thirdParty": {
+      "count": 2,
+      "hosts": [
+        {
+          "host": "fonts.googleapis.com",
+          "requestCount": 2,
+          "kinds": {
+            "style": 2
+          },
+          "tags": [
+            "google-fonts"
+          ],
+          "examples": [
+            "https://fonts.googleapis.com/css2?family=..."
+          ]
+        },
+        {
+          "host": "www.google.com",
+          "requestCount": 1,
+          "kinds": {
+            "script": 1
+          },
+          "tags": [
+            "recaptcha"
+          ],
+          "examples": [
+            "https://www.google.com/recaptcha/api.js"
+          ]
+        }
+      ],
+      "highRiskHosts": [
+        "fonts.googleapis.com",
+        "www.google.com"
+      ]
+    }
+  },
+  "security": {
+    "https": true,
+    "mixedContent": {
+      "count": 0,
+      "examples": []
+    },
+    "headers": {
+      "csp": "missing",
+      "hsts": "missing",
+      "xContentTypeOptions": "present",
+      "referrerPolicy": "present",
+      "permissionsPolicy": "missing"
+    }
+  },
+  "seoBasics": {
+    "title": "present",
+    "metaDescription": "missing",
+    "canonical": "missing",
+    "openGraph": "present"
+  },
+  "findings": [
+    {
+      "code": "THIRD_PARTY_FONTS",
+      "category": "RESILIENCE",
+      "severity": "HIGH",
+      "title": "فونت‌های خارجی (Third‑party) در صفحه شناسایی شد",
+      "recommendation": "فونت‌ها را self-host کنید، preload بگذارید و fallback فونت تعریف کنید.",
+      "evidence": {
+        "count": 2,
+        "examples": [
+          "https://fonts.googleapis.com/css2?..."
+        ]
+      }
+    }
+  ],
+  "highlights": {
+    "topFixes": [
+      {
+        "code": "THIRD_PARTY_FONTS",
+        "impact": "HIGH",
+        "effort": "MEDIUM",
+        "why": "فونت‌های خارجی باعث ریسک پایداری/کندی می‌شوند",
+        "steps": [
+          "فونت‌ها را self-host کنید و preload انجام دهید."
+        ]
+      }
+    ]
+  }
+}

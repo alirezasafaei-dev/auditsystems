@@ -1,0 +1,38 @@
+{
+  "name": "asdev-audit-ir",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "check": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "worker:dev": "tsx src/worker/index.ts",
+    "jobs:enqueue:sample": "tsx src/scripts/enqueue-sample.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.2",
+    "next": "^15.3.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@eslint/eslintrc": "^3.3.1",
+    "eslint": "^9.34.0",
+    "eslint-config-next": "^15.5.12",
+    "prisma": "^6.16.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.9"
+  }
+}

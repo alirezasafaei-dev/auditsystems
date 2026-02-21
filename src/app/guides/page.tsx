@@ -3,20 +3,22 @@ import { guides } from "../../content/guides";
 
 export default function GuidesIndexPage() {
   return (
-    <main className="grid">
-      <section className="card">
-        <h1>Guides</h1>
-        <p>Programmatic SEO guides for audit, performance, and security operations.</p>
+    <main>
+      <section className="card hero">
+        <h1>Growth & Technical Guides</h1>
+        <p>Curated playbooks for audit quality, web performance, security posture, and conversion operations.</p>
       </section>
 
-      <section className="card">
-        <ul>
-          {guides.map((guide) => (
-            <li key={guide.slug}>
-              <Link href={`/guides/${guide.slug}`}>{guide.title}</Link>
-            </li>
-          ))}
-        </ul>
+      <section className="guide-grid">
+        {guides.map((guide) => (
+          <article key={guide.slug} className="guide-item">
+            <h2>{guide.title}</h2>
+            <p>{guide.summary}</p>
+            <p>
+              <Link href={`/guides/${guide.slug}`}>Read Guide</Link>
+            </p>
+          </article>
+        ))}
       </section>
     </main>
   );

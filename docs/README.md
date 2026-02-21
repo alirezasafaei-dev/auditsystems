@@ -14,6 +14,11 @@
 - `FINDINGS_10_RULES.md`: قواعد اولیه Findings
 - `ROADMAP_AUTOMATION.md`: اتوماسیون اجرای roadmap و گزارش‌گیری
 - `AUTO_GENERATED_STATUS.md`: گزارش خودکار وضعیت پروژه (تولیدشده توسط اسکریپت)
+- `PRODUCTION_ENV.md`: baseline تنظیمات env برای production
+- `EXECUTION_1_TO_10.md`: وضعیت اجرای عملی ۱۰ مورد نهایی
+- `RELEASE_RUNBOOK.md`: چک‌لیست release
+- `ROLLBACK_RUNBOOK.md`: چک‌لیست rollback
+- `DEPLOYMENT_NO_DOCKER.md`: الگوی استقرار واقعی بدون Docker (PM2 + Nginx)
 
 ## Planning
 - `PHASES.md`: فازبندی اجرایی

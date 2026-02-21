@@ -1,0 +1,18 @@
+[Unit]
+Description=AsDev Audit IR Worker
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/dev/Project_Me/asdev-audit-ir
+Environment=NODE_ENV=production
+EnvironmentFile=/home/dev/Project_Me/asdev-audit-ir/.env
+ExecStart=/usr/bin/env pnpm run worker:dev
+Restart=always
+RestartSec=5
+User=dev
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -17,10 +17,7 @@ pnpm install
 ```bash
 cp .env.example .env
 ```
-3. اجرای دیتابیس (در صورت استفاده از docker):
-```bash
-docker compose up -d
-```
+3. اجرای دیتابیس PostgreSQL (بدون Docker) و تنظیم `DATABASE_URL` معتبر در `.env`.
 4. مایگریشن و Prisma Client:
 ```bash
 pnpm run db:migrate
@@ -58,10 +55,17 @@ pnpm run docs:generate
 pnpm run payment:preflight
 pnpm run payment:zarinpal:smoke
 pnpm run automation:run
+pnpm run lighthouse:local
 ```
 - `payment:preflight`: بررسی آماده‌بودن env/redis/provider پرداخت
 - `payment:zarinpal:smoke`: تست واقعی اتصال request/verify به Zarinpal (با merchant id)
 - `automation:run`: اجرای یکپارچه quality + roadmap + docs + preflight
+- `lighthouse:local`: اجرای Lighthouse روی مسیرهای اصلی (`/`, `/audit`, `/guides`) و تولید artifact در `logs/lighthouse`
+
+## Deployment Guard
+- Deploy روی سرور واقعی نیازمند تایید مستقیم است.
+- برای آماده‌سازی runtime از فایل‌های `ops/systemd/*` و `ops/pm2/ecosystem.config.cjs` استفاده کنید.
+- الگوی رسمی no-docker deploy: `docs/DEPLOYMENT_NO_DOCKER.md`
 
 ## Environment Variables
 - `DATABASE_URL`
@@ -79,3 +83,8 @@ pnpm run automation:run
 - اتوماسیون roadmap: `docs/ROADMAP_AUTOMATION.md`
 - گزارش خودکار وضعیت: `docs/AUTO_GENERATED_STATUS.md`
 - نقش‌ها و مهارت‌ها: `docs/ROLES_AND_SKILLS_SETUP.md`
+- env پروداکشن: `docs/PRODUCTION_ENV.md`
+- اجرای ۱ تا ۱۰: `docs/EXECUTION_1_TO_10.md`
+- release: `docs/RELEASE_RUNBOOK.md`
+- rollback: `docs/ROLLBACK_RUNBOOK.md`
+- دیپلوی بدون Docker: `docs/DEPLOYMENT_NO_DOCKER.md`

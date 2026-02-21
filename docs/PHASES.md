@@ -22,18 +22,20 @@
 - mock order و event ثبت می‌شود.
 - unlock برای گزارش آماده‌نشده رد می‌شود.
 
-## Phase E — Security/Ops Hardening (In Progress)
+## Phase E — Security/Ops Hardening (Done)
 - rate limit روی create run
 - error sanitization
 - request-id و structured logs
 - no-store برای APIهای حساس
+- `/api/metrics` برای observability
 
-## Phase F — Monetization (Planned)
-- payment provider واقعی
+## Phase F — Monetization (Done)
+- payment provider واقعی (Zarinpal abstraction)
 - callback handling
 - download flow برای گزارش paid
 
-## Phase G — SEO Scale (Planned)
+## Phase G — SEO Scale (Done)
 - guide content pipeline
-- crawl depth expansion
-- findings پیشرفته‌تر SEO
+- crawl depth expansion baseline
+- findings پیشرفته‌تر SEO baseline
+- sitemap/robots/canonical

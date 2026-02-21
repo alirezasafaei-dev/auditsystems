@@ -1,0 +1,54 @@
+name: deploy-vps-manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options: [staging, production]
+      release_ref:
+        description: "Git ref (tag/branch/SHA)"
+        required: true
+        default: "main"
+      approved:
+        description: "Type YES to confirm real deployment"
+        required: true
+        default: "NO"
+
+jobs:
+  deploy:
+    if: github.event.inputs.approved == 'YES'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.release_ref }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build artifact
+        run: |
+          pnpm run check
+          tar -czf /tmp/asdev-audit-ir-${{ github.run_id }}.tar.gz .
+
+      - name: Deployment gate notice
+        run: |
+          echo "Manual deploy workflow is prepared."
+          echo "Real SSH transfer/deploy command must be added with server secrets."
+          echo "No automatic production deployment is executed in this repository by default."

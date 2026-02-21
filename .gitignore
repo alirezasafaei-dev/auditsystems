@@ -10,3 +10,4 @@ logs/roadmap/last-run.json
 logs/roadmap/last-run.md
 logs/preflight/payment-preflight.json
 logs/preflight/zarinpal-smoke.json
+logs/lighthouse/*.json

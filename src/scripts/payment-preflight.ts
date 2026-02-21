@@ -47,11 +47,11 @@ async function checkRedis(): Promise<Check> {
   if (!url || !token) {
     return {
       id: "redis-config",
-      level: requireDistributed ? "error" : "warn",
-      ok: false,
+      level: requireDistributed ? "error" : "info",
+      ok: !requireDistributed,
       message: requireDistributed
         ? "UPSTASH_REDIS_REST_URL/TOKEN are required but missing."
-        : "UPSTASH_REDIS_REST_URL/TOKEN are not set; distributed rate-limit disabled."
+        : "UPSTASH_REDIS_REST_URL/TOKEN are not set; distributed rate-limit is intentionally disabled."
     };
   }
 

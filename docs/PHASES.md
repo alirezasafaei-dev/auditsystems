@@ -39,3 +39,8 @@
 - crawl depth expansion baseline
 - findings پیشرفته‌تر SEO baseline
 - sitemap/robots/canonical
+
+## Phase H — Excellence / Momtaz (Done)
+- دو‌زبانه‌سازی مسیرهای اصلی (`fa/en`) با UX هم‌راستا
+- SEO چندزبانه (canonical + hreflang + sitemap bilingual)
+- hardening لایه edge + health probes (`/api/live`, `/api/ready`)

@@ -7,6 +7,7 @@
 - Prisma + PostgreSQL
 - Worker اختصاصی با queue در DB
 - Vitest + ESLint
+- Bilingual product surface (`fa/en`) with RTL/LTR support
 
 ## Quick Start
 1. نصب وابستگی‌ها:
@@ -69,6 +70,13 @@ pnpm run lighthouse:local
 - health endpoints:
   - `GET /api/live` for liveness
   - `GET /api/ready` for dependency-aware readiness (`200/503`)
+
+## Momtaz Phase
+- فاز ممتاز (`Phase H`) تکمیل شده است:
+  - UI/UX دوزبانه
+  - SEO چندزبانه
+  - security hardening + readiness model
+- مرجع: `docs/PHASE_EXCELLENCE.md`, `docs/ROADMAP_MOMTAZ.md`
 
 ## Environment Variables
 - `DATABASE_URL`

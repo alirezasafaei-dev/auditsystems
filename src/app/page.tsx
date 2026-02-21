@@ -1,19 +1,32 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+const baseUrl = process.env.APP_BASE_URL ?? "http://localhost:3000";
+
+export const metadata: Metadata = {
+  title: "پلتفرم تحلیل فنی و سئوی وب‌سایت",
+  description: "اجرای audit فنی، تحلیل یافته‌ها، و تبدیل گزارش به جریان پرداخت و تحویل حرفه‌ای.",
+  alternates: {
+    canonical: `${baseUrl}/`,
+    languages: {
+      "fa-IR": `${baseUrl}/`,
+      en: `${baseUrl}/en`
+    }
+  }
+};
 
 export default function HomePage() {
   return (
     <main>
       <section className="card hero">
-        <h1>Website Audit Platform for Growth Teams</h1>
-        <p>
-          Run technical audits, analyze findings, and convert reports into paid delivery workflows with production-ready automation.
-        </p>
+        <h1>پلتفرم Audit وب‌سایت برای تیم‌های رشد</h1>
+        <p>تحلیل فنی، بررسی سئو، کنترل امنیت و تبدیل گزارش به جریان تحویل پولی با اتوماسیون Production-Ready.</p>
         <div className="hero-actions">
           <Link className="button" href="/audit">
-            Start New Audit
+            شروع Audit جدید
           </Link>
           <Link className="button secondary" href="/guides">
-            Explore Guides
+            مشاهده راهنماها
           </Link>
         </div>
       </section>
@@ -21,32 +34,32 @@ export default function HomePage() {
       <section className="kpi-grid">
         <article className="kpi">
           <strong>17/17</strong>
-          <p>Roadmap checks passing in automation</p>
-        </article>
-        <article className="kpi">
-          <strong>8</strong>
-          <p>Implemented API routes</p>
+          <p>عبور کامل چک‌های نقشه راه در اتوماسیون</p>
         </article>
         <article className="kpi">
           <strong>10</strong>
-          <p>SEO-ready static and dynamic pages</p>
+          <p>مسیر API عملیاتی و مستندسازی‌شده</p>
         </article>
         <article className="kpi">
-          <strong>3</strong>
-          <p>CI pipelines for roadmap, docs, production readiness</p>
+          <strong>20+</strong>
+          <p>صفحات سئو-آماده در دو زبان فارسی و انگلیسی</p>
+        </article>
+        <article className="kpi">
+          <strong>4</strong>
+          <p>پایپلاین CI برای roadmap، docs، readiness و main gate</p>
         </article>
       </section>
 
       <section className="grid-2">
         <article className="card grid">
-          <h2>Core Flows</h2>
-          <p>Audit run creation, queued worker execution, tokenized report sharing, checkout callbacks, and paid PDF delivery.</p>
-          <Link href="/sample-report">Open Sample Report Entry</Link>
+          <h2>جریان‌های اصلی</h2>
+          <p>ایجاد run، اجرای worker در صف، اشتراک‌گذاری tokenized، callback پرداخت، و تحویل PDF پولی.</p>
+          <Link href="/sample-report">مشاهده ورودی گزارش نمونه</Link>
         </article>
         <article className="card grid">
-          <h2>Operational Tooling</h2>
-          <p>Roadmap automation, docs generation, payment preflight checks, and production readiness workflow are all integrated.</p>
-          <Link href="/pillar/iran-readiness-audit">Read Platform Pillar</Link>
+          <h2>ابزارهای عملیاتی</h2>
+          <p>اتوماسیون roadmap، تولید مستندات، preflight پرداخت و workflow آماده‌سازی Production یکپارچه شده‌اند.</p>
+          <Link href="/pillar/iran-readiness-audit">مطالعه صفحه راهبردی</Link>
         </article>
       </section>
     </main>

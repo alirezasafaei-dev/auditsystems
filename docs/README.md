@@ -19,6 +19,8 @@
 - `RELEASE_RUNBOOK.md`: چک‌لیست release
 - `ROLLBACK_RUNBOOK.md`: چک‌لیست rollback
 - `DEPLOYMENT_NO_DOCKER.md`: الگوی استقرار واقعی بدون Docker (PM2 + Nginx)
+- `PHASE_EXCELLENCE.md`: فاز ممتاز (UI/UX + SEO + Security excellence)
+- `ROADMAP_MOMTAZ.md`: نقشه راه اجرایی فاز ممتاز
 
 ## Planning
 - `PHASES.md`: فازبندی اجرایی

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 
-export default function AuditPage() {
+export default function AuditPageEn() {
   const [url, setUrl] = useState("https://example.com");
   const [depth, setDepth] = useState<"QUICK" | "DEEP">("QUICK");
   const [message, setMessage] = useState("");
@@ -11,7 +11,7 @@ export default function AuditPage() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
-    setMessage("در حال ثبت درخواست تحلیل...");
+    setMessage("Submitting audit run...");
     setReportPath(null);
 
     const response = await fetch("/api/audit/runs", {
@@ -26,44 +26,40 @@ export default function AuditPage() {
       return;
     }
 
-    const nextPath = `/audit/r/${body.token}`;
+    const nextPath = `/en/audit/r/${body.token}`;
     setReportPath(nextPath);
-    setMessage(`Run ایجاد شد: ${body.runId}`);
+    setMessage(`Run created: ${body.runId}`);
   }
 
   return (
     <main>
       <section className="card hero">
-        <h1>ایجاد Audit جدید</h1>
-        <p>آدرس هدف را ارسال کنید تا token گزارش تولید شود. اجرای worker بعد از enqueue به‌صورت خودکار شروع می‌شود.</p>
+        <h1>Run a New Audit</h1>
+        <p>Submit a target URL and get a shareable report token. Worker execution starts automatically after enqueue.</p>
       </section>
 
       <section className="grid-2">
         <section className="card">
           <form onSubmit={onSubmit} className="grid">
             <label>
-              آدرس هدف
+              Target URL
               <input value={url} onChange={(e) => setUrl(e.target.value)} required />
             </label>
             <label>
-              عمق تحلیل
+              Depth
               <select value={depth} onChange={(e) => setDepth(e.target.value as "QUICK" | "DEEP") }>
-                <option value="QUICK">سریع (Quick)</option>
-                <option value="DEEP">عمیق (Deep)</option>
+                <option value="QUICK">Quick</option>
+                <option value="DEEP">Deep</option>
               </select>
             </label>
-            <button type="submit">ثبت Audit</button>
+            <button type="submit">Create Audit Run</button>
           </form>
         </section>
 
         <section className="card grid">
-          <h2>وضعیت Run</h2>
-          <p>{message || "هنوز درخواستی ثبت نشده است."}</p>
-          {reportPath ? (
-            <p>
-              <Link href={reportPath}>باز کردن گزارش</Link>
-            </p>
-          ) : null}
+          <h2>Run Status</h2>
+          <p>{message || "No run submitted yet."}</p>
+          {reportPath ? <p><Link href={reportPath}>Open Report</Link></p> : null}
         </section>
       </section>
     </main>

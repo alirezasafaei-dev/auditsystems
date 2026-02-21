@@ -45,10 +45,23 @@ function withSecurityHeaders(request: NextRequest, response: NextResponse): Next
 }
 
 export function middleware(request: NextRequest): NextResponse {
-  return withSecurityHeaders(request, NextResponse.next());
+  const requestHeaders = new Headers(request.headers);
+  const pathname = request.nextUrl.pathname;
+  const locale = pathname === "/en" || pathname.startsWith("/en/") ? "en" : "fa";
+
+  requestHeaders.set("x-asdev-locale", locale);
+  requestHeaders.set("x-asdev-pathname", pathname);
+
+  return withSecurityHeaders(
+    request,
+    NextResponse.next({
+      request: {
+        headers: requestHeaders
+      }
+    })
+  );
 }
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot)$).*)"]
 };
-

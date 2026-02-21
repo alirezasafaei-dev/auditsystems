@@ -53,3 +53,10 @@ Status: Done
 - [x] Pillar page for audit positioning
 - [x] Sitemap and robots routes
 - [x] Canonical/open graph metadata for guide pages
+
+## Phase H — Excellence / Momtaz
+Status: Done
+- [x] Bilingual product routes (`/` + `/en/*`) for core flow and report flow
+- [x] Locale-aware shell (`lang/dir/navigation/footer`) in unified layout
+- [x] Multi-language SEO coverage (hreflang alternates + bilingual sitemap)
+- [x] Edge security headers and liveness/readiness API model

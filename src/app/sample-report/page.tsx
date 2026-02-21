@@ -4,13 +4,13 @@ export default function SampleReportPage() {
   return (
     <main className="grid">
       <section className="card">
-        <h1>Sample Report</h1>
-        <p>Use this page as a public sample entry point for marketing and SEO.</p>
+        <h1>گزارش نمونه</h1>
+        <p>از این صفحه به‌عنوان ورودی عمومی نمونه برای بازاریابی و سئو استفاده کنید.</p>
       </section>
 
       <section className="card">
         <p>
-          To view a real report, create a run in <Link href="/audit">/audit</Link> and open the generated token URL.
+          برای مشاهده گزارش واقعی، یک run در <Link href="/audit">/audit</Link> ایجاد کنید و URL ساخته‌شده را باز کنید.
         </p>
       </section>
     </main>

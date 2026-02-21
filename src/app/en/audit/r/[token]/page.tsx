@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { prisma } from "../../../../lib/db";
-import { isReportShareAccessible } from "../../../../lib/reportShare";
+import { prisma } from "../../../../../lib/db";
+import { isReportShareAccessible } from "../../../../../lib/reportShare";
 
 function severityClass(severity: string): string {
   const s = severity.toUpperCase();
@@ -14,26 +14,20 @@ function statusClass(status: string): string {
   return status === "FAILED" ? "status-failed" : "";
 }
 
-export default async function ReportPage({ params }: { params: Promise<{ token: string }> }) {
+export default async function ReportPageEn({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
 
   const share = await prisma.reportShare.findUnique({
     where: { token },
-    include: {
-      run: {
-        include: {
-          findings: { orderBy: { createdAt: "asc" } }
-        }
-      }
-    }
+    include: { run: { include: { findings: { orderBy: { createdAt: "asc" } } } } }
   });
 
   if (!share || !isReportShareAccessible(share)) {
     return (
       <main>
         <section className="card">
-          <h1>گزارش پیدا نشد</h1>
-          <p>این token معتبر نیست یا گزارش در دسترس نیست.</p>
+          <h1>Report not found</h1>
+          <p>This token is invalid or the report is unavailable.</p>
         </section>
       </main>
     );
@@ -42,19 +36,17 @@ export default async function ReportPage({ params }: { params: Promise<{ token: 
   return (
     <main>
       <section className="card hero">
-        <h1>گزارش Audit</h1>
-        <p>هدف: {share.run.normalizedUrl ?? share.run.url}</p>
+        <h1>Audit Report</h1>
+        <p>Target: {share.run.normalizedUrl ?? share.run.url}</p>
         <div className="hero-actions">
           <span className={`badge ${statusClass(share.run.status)}`}>{share.run.status}</span>
-          <Link className="button secondary" href={`/audit/r/${token}/unlock`}>
-            فعال‌سازی تحویل کامل
-          </Link>
+          <Link className="button secondary" href={`/en/audit/r/${token}/unlock`}>Unlock Full Delivery</Link>
         </div>
       </section>
 
       <section className="card grid">
-        <h2>یافته‌ها ({share.run.findings.length})</h2>
-        {share.run.findings.length === 0 ? <p>هنوز یافته‌ای ثبت نشده است.</p> : null}
+        <h2>Findings ({share.run.findings.length})</h2>
+        {share.run.findings.length === 0 ? <p>No findings yet.</p> : null}
         {share.run.findings.map((finding) => (
           <article key={finding.id} className="finding">
             <div className="finding-header">
@@ -62,7 +54,7 @@ export default async function ReportPage({ params }: { params: Promise<{ token: 
               <span className={`badge ${severityClass(finding.severity)}`}>{finding.severity}</span>
             </div>
             <p>{finding.title}</p>
-            {finding.recommendation ? <p>پیشنهاد: {finding.recommendation}</p> : null}
+            {finding.recommendation ? <p>Recommendation: {finding.recommendation}</p> : null}
           </article>
         ))}
       </section>

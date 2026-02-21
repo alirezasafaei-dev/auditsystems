@@ -1,18 +1,18 @@
 # Auto Generated Project Status
 
-Generated at: 2026-02-21T19:38:51.244Z
+Generated at: 2026-02-21T19:55:31.611Z
 
 ## Overview
 - API routes: 10
-- Page routes: 10
+- Page routes: 20
 - Test files: 6
 - NPM scripts: 22
 
 ## Roadmap Phases
-- Done: 7
+- Done: 8
 - In Progress: 0
 - Planned: 0
-- Last automation run: 2026-02-21T19:22:56.731Z
+- Last automation run: 2026-02-21T19:55:07.310Z
 - Last run results: passed=17, failed=0, skipped=0
 
 ## API Routes
@@ -33,6 +33,16 @@ Generated at: 2026-02-21T19:38:51.244Z
 - `/audit/r/[token]`
 - `/audit/r/[token]/success`
 - `/audit/r/[token]/unlock`
+- `/en`
+- `/en/audit`
+- `/en/audit/r/[token]`
+- `/en/audit/r/[token]/success`
+- `/en/audit/r/[token]/unlock`
+- `/en/failed`
+- `/en/guides`
+- `/en/guides/[slug]`
+- `/en/pillar/iran-readiness-audit`
+- `/en/sample-report`
 - `/failed`
 - `/guides`
 - `/guides/[slug]`
@@ -63,6 +73,7 @@ Generated at: 2026-02-21T19:38:51.244Z
 | E | Security and Ops Hardening | done | 4 |
 | F | Monetization and Delivery | done | 3 |
 | G | SEO Scale | done | 2 |
+| H | Excellence / Momtaz | done | 3 |
 
 ## Key Commands
 - `pnpm run dev` -> `next dev`

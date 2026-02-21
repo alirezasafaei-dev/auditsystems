@@ -149,6 +149,13 @@ body {
   background: #f0f6f4;
 }
 
+.nav a.lang-switch {
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--brand-strong);
+  font-weight: 700;
+}
+
 .page-shell {
   padding-top: 1.2rem;
   padding-bottom: 2rem;
@@ -391,6 +398,14 @@ a {
   justify-content: space-between;
   gap: 0.7rem;
   flex-wrap: wrap;
+}
+
+html[dir="ltr"] .topbar-inner {
+  direction: ltr;
+}
+
+html[dir="ltr"] .footer {
+  direction: ltr;
 }
 
 .footer-inner {

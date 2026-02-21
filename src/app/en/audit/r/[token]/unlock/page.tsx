@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
-export default function UnlockPage() {
+export default function UnlockPageEn() {
   const router = useRouter();
   const params = useParams<{ token: string }>();
   const token = params.token;
@@ -27,37 +27,37 @@ export default function UnlockPage() {
     }
 
     if (body.downloadUrl) {
-      setMessage(`این سفارش قبلاً پرداخت شده. دانلود برای سفارش ${body.orderId} آماده است.`);
-      router.push(`/audit/r/${token}/success?orderId=${body.orderId}&downloadUrl=${encodeURIComponent(body.downloadUrl)}`);
+      setMessage(`Order already paid. Download ready for order ${body.orderId}.`);
+      router.push(`/en/audit/r/${token}/success?orderId=${body.orderId}&downloadUrl=${encodeURIComponent(body.downloadUrl)}`);
       return;
     }
 
     if (body.redirectUrl) {
-      setMessage(`در حال انتقال به درگاه پرداخت برای سفارش ${body.orderId}...`);
+      setMessage(`Redirecting to payment gateway for order ${body.orderId}...`);
       window.location.href = body.redirectUrl;
       return;
     }
 
-    setMessage(`سفارش ایجاد شد: ${body.orderId}`);
+    setMessage(`Order created: ${body.orderId}`);
   }
 
   return (
     <main>
       <section className="card">
-        <h1>فعال‌سازی گزارش</h1>
+        <h1>Unlock Report</h1>
         <form onSubmit={onSubmit} className="grid">
           <label>
-            ایمیل
+            Email
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </label>
           <label>
-            درگاه پرداخت
+            Payment Provider
             <select value={provider} onChange={(event) => setProvider(event.target.value as "MOCK" | "ZARINPAL")}>
-              <option value="MOCK">آزمایشی (Mock)</option>
+              <option value="MOCK">Mock</option>
               <option value="ZARINPAL">Zarinpal</option>
             </select>
           </label>
-          <button type="submit">ادامه</button>
+          <button type="submit">Submit</button>
         </form>
         {message ? <p>{message}</p> : null}
       </section>

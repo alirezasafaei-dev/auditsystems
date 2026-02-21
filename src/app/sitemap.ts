@@ -10,7 +10,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/audit",
     "/guides",
     "/sample-report",
-    "/pillar/iran-readiness-audit"
+    "/pillar/iran-readiness-audit",
+    "/en",
+    "/en/audit",
+    "/en/guides",
+    "/en/sample-report",
+    "/en/pillar/iran-readiness-audit"
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: now,
@@ -25,5 +30,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.65
   }));
 
-  return [...staticRoutes, ...guideRoutes];
+  const guideRoutesEn: MetadataRoute.Sitemap = guides.map((guide) => ({
+    url: `${baseUrl}/en/guides/${guide.slug}`,
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.63
+  }));
+
+  return [...staticRoutes, ...guideRoutes, ...guideRoutesEn];
 }

@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { ReactNode } from "react";
 import Link from "next/link";
+import { headers } from "next/headers";
 
 const appBaseUrl = process.env.APP_BASE_URL ?? "http://localhost:3000";
 
@@ -21,7 +22,11 @@ export const metadata: Metadata = {
     "iran readiness audit"
   ],
   alternates: {
-    canonical: "/"
+    canonical: "/",
+    languages: {
+      "fa-IR": "/",
+      en: "/en"
+    }
   },
   openGraph: {
     type: "website",
@@ -55,7 +60,84 @@ export const viewport: Viewport = {
   colorScheme: "light"
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+type LayoutCopy = {
+  brand: string;
+  nav: { audit: string; guides: string; sample: string; pillar: string };
+  skipToContent: string;
+  footer: {
+    aboutTitle: string;
+    aboutText: string;
+    location: string;
+    quickTitle: string;
+    creatorTitle: string;
+    contactTitle: string;
+    contactText: string;
+    messageCta: string;
+    rights: string;
+    builtBy: string;
+    langSwitch: string;
+  };
+};
+
+const faCopy: LayoutCopy = {
+  brand: "Asdev Audit",
+  nav: { audit: "شروع Audit", guides: "راهنماها", sample: "گزارش نمونه", pillar: "صفحه راهبردی" },
+  skipToContent: "رفتن به محتوای اصلی",
+  footer: {
+    aboutTitle: "ASDEV",
+    aboutText: "Asdev Audit Platform برای تحلیل فنی، سئو، امنیت و بهبود نرخ تبدیل.",
+    location: "تهران — همکاری حضوری/ریموت در سراسر ایران",
+    quickTitle: "لینک‌های سریع",
+    creatorTitle: "اتصال به سازنده",
+    contactTitle: "تماس",
+    contactText: "برای همکاری، ارزیابی زیرساخت یا اجرای فاز Production تماس بگیرید.",
+    messageCta: "ارسال پیام",
+    rights: "تمامی حقوق محفوظ است. Asdev Audit",
+    builtBy: "ساخته شده توسط",
+    langSwitch: "English"
+  }
+};
+
+const enCopy: LayoutCopy = {
+  brand: "Asdev Audit",
+  nav: { audit: "Start Audit", guides: "Guides", sample: "Sample Report", pillar: "Pillar" },
+  skipToContent: "Skip to main content",
+  footer: {
+    aboutTitle: "ASDEV",
+    aboutText: "Asdev Audit Platform for technical audits, SEO growth, security, and conversion performance.",
+    location: "Tehran — Remote and on-site collaboration",
+    quickTitle: "Quick Links",
+    creatorTitle: "Creator",
+    contactTitle: "Contact",
+    contactText: "For production rollout and infrastructure consulting, get in touch.",
+    messageCta: "Send Message",
+    rights: "All rights reserved. Asdev Audit",
+    builtBy: "Built by",
+    langSwitch: "فارسی"
+  }
+};
+
+function withLocalePath(path: string, locale: "fa" | "en"): string {
+  if (locale === "fa") return path;
+  if (path === "/") return "/en";
+  return `/en${path}`;
+}
+
+function toOtherLocalePath(pathname: string, locale: "fa" | "en"): string {
+  if (locale === "fa") {
+    if (pathname === "/") return "/en";
+    return `/en${pathname}`;
+  }
+  if (pathname === "/en") return "/";
+  if (pathname.startsWith("/en/")) return pathname.slice(3);
+  return "/";
+}
+
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const h = await headers();
+  const locale = h.get("x-asdev-locale") === "en" ? "en" : "fa";
+  const pathname = h.get("x-asdev-pathname") ?? "/";
+  const copy = locale === "en" ? enCopy : faCopy;
   const currentYear = new Date().getFullYear();
   const jsonLd = {
     "@context": "https://schema.org",
@@ -69,7 +151,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         "@type": "WebSite",
         name: "Asdev Audit Platform",
         url: appBaseUrl,
-        inLanguage: "fa-IR"
+        inLanguage: locale === "en" ? "en-US" : "fa-IR"
       },
       {
         "@type": "SoftwareApplication",
@@ -86,7 +168,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   };
 
   return (
-    <html lang="fa" dir="rtl">
+    <html lang={locale === "en" ? "en" : "fa"} dir={locale === "en" ? "ltr" : "rtl"}>
       <head>
         <link rel="preload" href="/fonts/Vazirmatn-Variable.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/IRANSansX-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
@@ -101,18 +183,21 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <a href="#main-content" className="skip-link">
-          رفتن به محتوای اصلی
+          {copy.skipToContent}
         </a>
         <header className="topbar">
           <div className="container topbar-inner">
-            <Link href="/" className="brand">
-              Asdev Audit
+            <Link href={withLocalePath("/", locale)} className="brand">
+              {copy.brand}
             </Link>
             <nav className="nav">
-              <Link href="/audit">Audit</Link>
-              <Link href="/guides">Guides</Link>
-              <Link href="/sample-report">Sample Report</Link>
-              <Link href="/pillar/iran-readiness-audit">Pillar</Link>
+              <Link href={withLocalePath("/audit", locale)}>{copy.nav.audit}</Link>
+              <Link href={withLocalePath("/guides", locale)}>{copy.nav.guides}</Link>
+              <Link href={withLocalePath("/sample-report", locale)}>{copy.nav.sample}</Link>
+              <Link href={withLocalePath("/pillar/iran-readiness-audit", locale)}>{copy.nav.pillar}</Link>
+              <Link className="lang-switch" href={toOtherLocalePath(pathname, locale)}>
+                {copy.footer.langSwitch}
+              </Link>
             </nav>
           </div>
         </header>
@@ -123,31 +208,31 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <div className="container footer-content">
             <section className="footer-grid">
               <article>
-                <h2>ASDEV</h2>
-                <p>Asdev Audit Platform برای تحلیل فنی، سئو، امنیت و بهبود نرخ تبدیل.</p>
-                <p>تهران — همکاری حضوری/ریموت در سراسر ایران</p>
+                <h2>{copy.footer.aboutTitle}</h2>
+                <p>{copy.footer.aboutText}</p>
+                <p>{copy.footer.location}</p>
               </article>
 
-              <nav aria-label="لینک‌های سریع">
-                <h3>لینک‌های سریع</h3>
+              <nav aria-label={copy.footer.quickTitle}>
+                <h3>{copy.footer.quickTitle}</h3>
                 <ul>
                   <li>
-                    <Link href="/">خانه</Link>
+                    <Link href={withLocalePath("/", locale)}>{locale === "en" ? "Home" : "خانه"}</Link>
                   </li>
                   <li>
-                    <Link href="/audit">شروع Audit</Link>
+                    <Link href={withLocalePath("/audit", locale)}>{copy.nav.audit}</Link>
                   </li>
                   <li>
-                    <Link href="/guides">راهنماها</Link>
+                    <Link href={withLocalePath("/guides", locale)}>{copy.nav.guides}</Link>
                   </li>
                   <li>
-                    <Link href="/sample-report">گزارش نمونه</Link>
+                    <Link href={withLocalePath("/sample-report", locale)}>{copy.nav.sample}</Link>
                   </li>
                 </ul>
               </nav>
 
               <section>
-                <h3>اتصال به سازنده</h3>
+                <h3>{copy.footer.creatorTitle}</h3>
                 <ul>
                   <li>
                     <Link href="https://alirezasafaeisystems.ir" target="_blank" rel="noopener noreferrer">
@@ -163,18 +248,20 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               </section>
 
               <section>
-                <h3>تماس</h3>
-                <p>برای همکاری، ارزیابی زیرساخت یا اجرای فاز Production تماس بگیرید.</p>
+                <h3>{copy.footer.contactTitle}</h3>
+                <p>{copy.footer.contactText}</p>
                 <a className="button" href="mailto:team@alirezasafaeisystems.ir">
-                  ارسال پیام
+                  {copy.footer.messageCta}
                 </a>
               </section>
             </section>
 
             <div className="footer-bottom">
-              <p>تمامی حقوق محفوظ است. Asdev Audit © {currentYear}</p>
               <p>
-                ساخته شده توسط{" "}
+                {copy.footer.rights} © {currentYear}
+              </p>
+              <p>
+                {copy.footer.builtBy}{" "}
                 <Link href="https://alirezasafaeisystems.ir" target="_blank" rel="noopener noreferrer">
                   Alireza Safaei Systems
                 </Link>

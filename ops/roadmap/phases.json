@@ -135,6 +135,28 @@
           "command": "test -f src/app/sitemap.ts && test -f src/app/robots.ts"
         }
       ]
+    },
+    {
+      "id": "H",
+      "title": "Excellence / Momtaz",
+      "status": "done",
+      "checks": [
+        {
+          "id": "bilingual-routes",
+          "description": "Bilingual product routes exist",
+          "command": "test -f src/app/en/page.tsx && test -f src/app/en/audit/page.tsx && test -f src/app/en/guides/page.tsx && test -f src/app/en/guides/[slug]/page.tsx"
+        },
+        {
+          "id": "edge-security-middleware",
+          "description": "Global security headers middleware is enabled",
+          "command": "test -f middleware.ts && rg -n \"Content-Security-Policy|X-Frame-Options|Strict-Transport-Security\" middleware.ts"
+        },
+        {
+          "id": "health-probe-model",
+          "description": "Liveness and readiness probes are present",
+          "command": "test -f src/app/api/live/route.ts && test -f src/app/api/ready/route.ts && test -f src/lib/health.ts"
+        }
+      ]
     }
   ]
 }

@@ -12,15 +12,15 @@ export default async function SuccessPage({ params, searchParams }: { params: Pr
   return (
     <main>
       <section className="card">
-        <h1>Payment success</h1>
-        <p>Your order completed successfully.</p>
-        {orderId ? <p>Order: {orderId}</p> : null}
+        <h1>پرداخت موفق</h1>
+        <p>سفارش شما با موفقیت تکمیل شد.</p>
+        {orderId ? <p>شناسه سفارش: {orderId}</p> : null}
         {downloadHref ? (
           <p>
-            <Link href={downloadHref}>Download PDF report</Link>
+            <Link href={downloadHref}>دانلود گزارش PDF</Link>
           </p>
         ) : (
-          <p>Download link will be available after payment verification.</p>
+          <p>لینک دانلود پس از تایید پرداخت در دسترس خواهد بود.</p>
         )}
       </section>
     </main>

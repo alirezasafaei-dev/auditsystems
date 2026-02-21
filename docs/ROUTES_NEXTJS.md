@@ -2,15 +2,25 @@
 
 ## Pages
 - `GET /`
+- `GET /en`
 - `GET /audit`
+- `GET /en/audit`
 - `GET /audit/r/[token]`
+- `GET /en/audit/r/[token]`
 - `GET /audit/r/[token]/unlock`
+- `GET /en/audit/r/[token]/unlock`
 - `GET /audit/r/[token]/success`
+- `GET /en/audit/r/[token]/success`
 - `GET /failed`
+- `GET /en/failed`
 - `GET /guides`
+- `GET /en/guides`
 - `GET /guides/[slug]`
+- `GET /en/guides/[slug]`
 - `GET /pillar/iran-readiness-audit`
+- `GET /en/pillar/iran-readiness-audit`
 - `GET /sample-report`
+- `GET /en/sample-report`
 
 ## SEO Metadata Routes
 - `GET /sitemap.xml`

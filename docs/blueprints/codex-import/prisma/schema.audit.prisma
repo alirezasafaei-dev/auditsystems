@@ -1,0 +1,185 @@
+// 01-audit/prisma/schema.audit.prisma
+// این فایل یک snippet است. محتوا را داخل schema.prisma اصلی خود paste کنید.
+//
+// توصیه: مدل Job (Queue) در 03-shared است و جداگانه اضافه می‌شود.
+
+enum AuditStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+enum AuditDepth {
+  QUICK
+  DEEP
+}
+
+enum FindingSeverity {
+  INFO
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum FindingCategory {
+  RESILIENCE
+  PERFORMANCE
+  SEO
+  SECURITY
+  UX
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELED
+  EXPIRED
+}
+
+enum PaymentProvider {
+  ZARINPAL
+  IDPAY
+  PAYPING
+  MOCK
+}
+
+model AuditRun {
+  id            String      @id @default(cuid())
+  url           String
+  normalizedUrl String
+  depth         AuditDepth  @default(QUICK)
+  status        AuditStatus @default(QUEUED)
+
+  // lightweight telemetry (privacy-aware)
+  ipHash        String?
+  userAgent     String?
+  locale        String?
+
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  errorCode     String?
+  errorMessage  String?
+
+  // results
+  summary       Json?
+  lighthouse    Json?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  findings      AuditFinding[]
+  resources     AuditResource[]
+  shares        ReportShare[]
+  leads         AuditLead[]
+  orders        AuditOrder[]
+
+  @@index([normalizedUrl, createdAt])
+  @@index([status, createdAt])
+}
+
+model AuditFinding {
+  id             String          @id @default(cuid())
+  runId          String
+  category       FindingCategory
+  severity       FindingSeverity
+  code           String          // e.g. "THIRD_PARTY_FONTS"
+  title          String
+  description    String?
+  recommendation String?
+  evidence       Json?
+
+  createdAt      DateTime @default(now())
+
+  run            AuditRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId, category, severity])
+  @@index([code])
+}
+
+model AuditResource {
+  id           String   @id @default(cuid())
+  runId        String
+  kind         String   // "script" | "style" | "font" | "img" | "other"
+  url          String
+  host         String?
+  isThirdParty Boolean  @default(false)
+  riskTag      String?
+  sizeBytes    Int?
+
+  createdAt    DateTime @default(now())
+
+  run          AuditRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId, isThirdParty])
+  @@index([host])
+}
+
+model ReportShare {
+  id         String   @id @default(cuid())
+  runId      String
+  token      String   @unique
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime?
+  revokedAt  DateTime?
+
+  run        AuditRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId])
+}
+
+model AuditLead {
+  id        String   @id @default(cuid())
+  runId     String
+
+  email     String
+  name      String?
+  phone     String?
+  company   String?
+  note      String?
+
+  createdAt DateTime @default(now())
+
+  run       AuditRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([email, createdAt])
+  @@index([runId, createdAt])
+}
+
+model AuditOrder {
+  id           String          @id @default(cuid())
+  runId        String
+
+  email        String
+  amountToman  Int
+  status       OrderStatus     @default(PENDING)
+
+  provider     PaymentProvider @default(MOCK)
+  providerRef  String?
+  callbackRef  String?
+
+  createdAt    DateTime @default(now())
+  paidAt       DateTime?
+  canceledAt   DateTime?
+
+  run          AuditRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  events       AuditOrderEvent[]
+
+  @@index([runId, status])
+  @@index([email, createdAt])
+}
+
+model AuditOrderEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  kind      String   // "CHECKOUT_CREATED" | "CALLBACK_RECEIVED" | "PAID" | "FAILED"
+  payload   Json?
+
+  createdAt DateTime @default(now())
+
+  order     AuditOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+}

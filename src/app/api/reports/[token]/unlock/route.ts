@@ -1,0 +1,86 @@
+import { prisma } from "../../../../../lib/db";
+import { createRequestId, logEvent, respondJson } from "../../../../../lib/observability";
+import { isReportShareAccessible } from "../../../../../lib/reportShare";
+import { normalizeEmail } from "../../../../../lib/validators";
+
+export async function POST(request: Request, context: { params: Promise<{ token: string }> }) {
+  const requestId = createRequestId();
+  const startedAt = Date.now();
+
+  try {
+    const { token } = await context.params;
+    const body = await request.json();
+    const email = normalizeEmail(body.email);
+
+    const share = await prisma.reportShare.findUnique({ where: { token }, include: { run: { select: { status: true } } } });
+    if (!share || !isReportShareAccessible(share)) {
+      logEvent("warn", "unlock_not_found", { requestId, token });
+      return respondJson({ error: "NOT_FOUND", requestId }, requestId, { status: 404, headers: { "Cache-Control": "no-store" } });
+    }
+    if (share.run.status !== "SUCCEEDED") {
+      logEvent("warn", "unlock_report_not_ready", { requestId, runId: share.runId });
+      return respondJson({ error: "REPORT_NOT_READY", requestId }, requestId, {
+        status: 409,
+        headers: { "Cache-Control": "no-store" }
+      });
+    }
+
+    const existingOrder = await prisma.auditOrder.findFirst({
+      where: { runId: share.runId, email, status: { in: ["PENDING", "PAID"] } },
+      orderBy: { createdAt: "desc" }
+    });
+
+    if (existingOrder) {
+      logEvent("info", "unlock_order_reused", { requestId, runId: share.runId, orderId: existingOrder.id });
+      return respondJson({ orderId: existingOrder.id, reused: true, requestId }, requestId, {
+        status: 200,
+        headers: { "Cache-Control": "no-store" }
+      });
+    }
+
+    const [lead, order] = await prisma.$transaction([
+      prisma.auditLead.create({ data: { runId: share.runId, email } }),
+      prisma.auditOrder.create({
+        data: {
+          runId: share.runId,
+          email,
+          provider: "MOCK",
+          amountToman: 290000,
+          status: "PENDING"
+        }
+      })
+    ]);
+
+    await prisma.auditOrderEvent.create({
+      data: {
+        orderId: order.id,
+        kind: "CHECKOUT_CREATED",
+        payload: { source: "unlock-route", leadId: lead.id }
+      }
+    });
+
+    logEvent("info", "unlock_order_created", {
+      requestId,
+      runId: share.runId,
+      orderId: order.id,
+      durationMs: Date.now() - startedAt
+    });
+    return respondJson({ leadId: lead.id, orderId: order.id, reused: false, requestId }, requestId, {
+      headers: { "Cache-Control": "no-store" }
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === "INVALID_EMAIL") {
+      logEvent("warn", "unlock_invalid_email", { requestId });
+      return respondJson({ error: "INVALID_EMAIL", requestId }, requestId, {
+        status: 400,
+        headers: { "Cache-Control": "no-store" }
+      });
+    }
+
+    logEvent("error", "unlock_failed", { requestId, durationMs: Date.now() - startedAt });
+    return respondJson({ error: "INTERNAL_ERROR", requestId }, requestId, {
+      status: 500,
+      headers: { "Cache-Control": "no-store" }
+    });
+  }
+}

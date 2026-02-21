@@ -1,0 +1,82 @@
+:root {
+  --bg: #f8f9fb;
+  --surface: #ffffff;
+  --text: #10212b;
+  --muted: #4f616d;
+  --accent: #0f7c73;
+  --danger: #b82f2f;
+  --border: #d7e0e5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top right, #d8efe8, transparent 45%), var(--bg);
+  color: var(--text);
+}
+
+main {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+input,
+select,
+button,
+textarea {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+button {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 0;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+a {
+  color: var(--accent);
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e4f4f1;
+  color: #0a615a;
+  font-size: 12px;
+}
+
+.finding {
+  border-left: 4px solid var(--border);
+  padding-left: 12px;
+  margin-bottom: 10px;
+}

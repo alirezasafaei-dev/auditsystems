@@ -1,0 +1,63 @@
+{
+  "schema": "asdev.audit.summary.v1",
+  "generatedAt": "2026-02-21T00:00:00.000Z",
+  "run": {
+    "id": "run_sample_001",
+    "inputUrl": "example.com",
+    "normalizedUrl": "https://example.com/",
+    "finalUrl": "https://example.com/",
+    "depth": "QUICK",
+    "status": "SUCCEEDED",
+    "durationMs": 892
+  },
+  "dependencies": {
+    "firstPartyHosts": ["example.com"],
+    "thirdParty": {
+      "count": 1,
+      "hosts": [
+        {
+          "host": "fonts.gstatic.com",
+          "requestCount": 2,
+          "kinds": { "font": 2 },
+          "examples": ["https://fonts.gstatic.com/s/roboto.woff2"]
+        }
+      ]
+    }
+  },
+  "security": {
+    "headers": {
+      "csp": "missing",
+      "hsts": "present",
+      "xContentTypeOptions": "present",
+      "referrerPolicy": "present",
+      "permissionsPolicy": "missing"
+    }
+  },
+  "seoBasics": {
+    "title": "present",
+    "metaDescription": "present",
+    "canonical": "present",
+    "openGraph": "missing"
+  },
+  "findings": [
+    {
+      "code": "THIRD_PARTY_FONTS",
+      "category": "RESILIENCE",
+      "severity": "HIGH",
+      "title": "Third-party fonts detected",
+      "recommendation": "Self-host critical fonts and preload only what is required.",
+      "evidence": { "count": 2 }
+    }
+  ],
+  "highlights": {
+    "topFixes": [
+      {
+        "code": "THIRD_PARTY_FONTS",
+        "impact": "HIGH",
+        "effort": "MEDIUM",
+        "why": "Third-party fonts detected",
+        "steps": ["Self-host critical fonts and preload only what is required."]
+      }
+    ]
+  }
+}

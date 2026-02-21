@@ -1,0 +1,79 @@
+import { logEvent } from "./observability";
+
+export type RateLimitResult = {
+  allowed: boolean;
+  remaining: number;
+  limit: number;
+  resetSec: number;
+  backend: "upstash-redis" | "disabled" | "error";
+};
+
+function getRedisConfig(): { url: string; token: string } | null {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!url || !token) return null;
+  return { url, token };
+}
+
+export async function consumeDistributedRateLimit(input: {
+  key: string;
+  limit: number;
+  windowSec: number;
+}): Promise<RateLimitResult> {
+  const cfg = getRedisConfig();
+  if (!cfg) {
+    return {
+      allowed: true,
+      remaining: input.limit,
+      limit: input.limit,
+      resetSec: input.windowSec,
+      backend: "disabled"
+    };
+  }
+
+  try {
+    const response = await fetch(`${cfg.url}/pipeline`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${cfg.token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify([
+        ["INCR", input.key],
+        ["EXPIRE", input.key, String(input.windowSec), "NX"],
+        ["TTL", input.key]
+      ])
+    });
+
+    if (!response.ok) {
+      throw new Error(`UPSTASH_HTTP_${response.status}`);
+    }
+
+    const body = (await response.json()) as Array<{ result?: unknown }>;
+    const count = Number(body[0]?.result ?? 0);
+    const ttl = Math.max(0, Number(body[2]?.result ?? input.windowSec));
+    const allowed = count <= input.limit;
+    const remaining = Math.max(0, input.limit - count);
+
+    return {
+      allowed,
+      remaining,
+      limit: input.limit,
+      resetSec: ttl,
+      backend: "upstash-redis"
+    };
+  } catch (error) {
+    logEvent("error", "rate_limit_backend_error", {
+      code: error instanceof Error ? error.message : String(error)
+    });
+
+    return {
+      allowed: true,
+      remaining: input.limit,
+      limit: input.limit,
+      resetSec: input.windowSec,
+      backend: "error"
+    };
+  }
+}

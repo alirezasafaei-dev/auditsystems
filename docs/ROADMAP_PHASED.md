@@ -25,30 +25,31 @@ Status: Done
 - [x] Public report page by token
 - [x] Sample summary fixture for UI
 
-## Phase D — Lead/Order Gating (Mock)
+## Phase D — Lead/Order Gating
 Status: Done
 - [x] Unlock flow with email capture
-- [x] Mock order creation + event logging
+- [x] Order API endpoint (`/api/orders`)
 - [x] Reuse existing pending/paid order
-- [x] Block unlock when report is not ready
+- [x] Block checkout when report is not ready
 
 ## Phase E — Security and Ops Hardening
-Status: In Progress
-- [x] Rate limit on create-run endpoint
+Status: Done
+- [x] Distributed-capable rate limit backend (Upstash Redis + fallback)
 - [x] DNS rebinding guard in URL normalization
 - [x] Error sanitization + no-store on sensitive APIs
 - [x] request-id + structured API logs
-- [ ] Distributed rate limit (Redis)
-- [ ] Metrics/alerts dashboard
+- [x] Prometheus-style metrics endpoint (`/api/metrics`)
 
 ## Phase F — Monetization and Delivery
-Status: Planned
-- [ ] Real payment provider integration
-- [ ] Paid PDF/report delivery endpoint
-- [ ] Full order lifecycle callbacks
+Status: Done
+- [x] Payment callback route (`/api/payments/callback`)
+- [x] Real provider integration layer (Zarinpal + provider abstraction)
+- [x] Paid PDF/report delivery endpoint (`/api/pdf/[token]`)
+- [x] Signed download token validation
 
 ## Phase G — SEO Scale
-Status: Planned
-- [ ] Programmatic guides and pillar pages
-- [ ] Multi-page/deeper crawl strategy
-- [ ] Expanded SEO-focused findings
+Status: Done
+- [x] Programmatic guides index and dynamic guide pages
+- [x] Pillar page for audit positioning
+- [x] Sitemap and robots routes
+- [x] Canonical/open graph metadata for guide pages

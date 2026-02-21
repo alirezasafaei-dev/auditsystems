@@ -1,23 +1,27 @@
 # Auto Generated Project Status
 
-Generated at: 2026-02-21T17:24:32.956Z
+Generated at: 2026-02-21T18:11:01.782Z
 
 ## Overview
-- API routes: 4
-- Page routes: 6
-- Test files: 4
+- API routes: 8
+- Page routes: 10
+- Test files: 5
 - NPM scripts: 17
 
 ## Roadmap Phases
-- Done: 4
-- In Progress: 1
-- Planned: 2
-- Last automation run: 2026-02-21T17:17:54.624Z
-- Last run results: passed=11, failed=0, skipped=2
+- Done: 7
+- In Progress: 0
+- Planned: 0
+- Last automation run: 2026-02-21T18:10:50.260Z
+- Last run results: passed=17, failed=0, skipped=0
 
 ## API Routes
 - `/api/audit/runs`
 - `/api/audit/runs/[id]`
+- `/api/metrics`
+- `/api/orders`
+- `/api/payments/callback`
+- `/api/pdf/[token]`
 - `/api/reports/[token]`
 - `/api/reports/[token]/unlock`
 
@@ -28,6 +32,10 @@ Generated at: 2026-02-21T17:24:32.956Z
 - `/audit/r/[token]/success`
 - `/audit/r/[token]/unlock`
 - `/failed`
+- `/guides`
+- `/guides/[slug]`
+- `/pillar/iran-readiness-audit`
+- `/sample-report`
 
 ## Environment Variables (.env.example)
 - `DATABASE_URL`
@@ -35,6 +43,12 @@ Generated at: 2026-02-21T17:24:32.956Z
 - `WORKER_POLL_MS`
 - `WORKER_JOB_TIMEOUT_MS`
 - `IP_HASH_SALT`
+- `UPSTASH_REDIS_REST_URL`
+- `UPSTASH_REDIS_REST_TOKEN`
+- `PAYMENT_PROVIDER_DEFAULT`
+- `APP_BASE_URL`
+- `ZARINPAL_MERCHANT_ID`
+- `DOWNLOAD_TOKEN_SECRET`
 
 ## Phase Checks Inventory
 | Phase | Title | Status | Checks |
@@ -42,10 +56,10 @@ Generated at: 2026-02-21T17:24:32.956Z
 | A | Foundation | done | 2 |
 | B | Scanner MVP | done | 2 |
 | C | Report UX + Summary JSON | done | 2 |
-| D | Lead/Order Gating (Mock) | done | 2 |
-| E | Security and Ops Hardening | in_progress | 3 |
-| F | Monetization and Delivery | planned | 1 |
-| G | SEO Scale | planned | 1 |
+| D | Lead/Order Gating | done | 2 |
+| E | Security and Ops Hardening | done | 4 |
+| F | Monetization and Delivery | done | 3 |
+| G | SEO Scale | done | 2 |
 
 ## Key Commands
 - `pnpm run dev` -> `next dev`

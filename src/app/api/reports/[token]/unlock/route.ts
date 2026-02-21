@@ -1,4 +1,5 @@
 import { prisma } from "../../../../../lib/db";
+import { observeApiRequest } from "../../../../../lib/metrics";
 import { createRequestId, logEvent, respondJson } from "../../../../../lib/observability";
 import { isReportShareAccessible } from "../../../../../lib/reportShare";
 import { normalizeEmail } from "../../../../../lib/validators";
@@ -6,6 +7,7 @@ import { normalizeEmail } from "../../../../../lib/validators";
 export async function POST(request: Request, context: { params: Promise<{ token: string }> }) {
   const requestId = createRequestId();
   const startedAt = Date.now();
+  let statusCode = 200;
 
   try {
     const { token } = await context.params;
@@ -14,10 +16,12 @@ export async function POST(request: Request, context: { params: Promise<{ token:
 
     const share = await prisma.reportShare.findUnique({ where: { token }, include: { run: { select: { status: true } } } });
     if (!share || !isReportShareAccessible(share)) {
+      statusCode = 404;
       logEvent("warn", "unlock_not_found", { requestId, token });
       return respondJson({ error: "NOT_FOUND", requestId }, requestId, { status: 404, headers: { "Cache-Control": "no-store" } });
     }
     if (share.run.status !== "SUCCEEDED") {
+      statusCode = 409;
       logEvent("warn", "unlock_report_not_ready", { requestId, runId: share.runId });
       return respondJson({ error: "REPORT_NOT_READY", requestId }, requestId, {
         status: 409,
@@ -70,6 +74,7 @@ export async function POST(request: Request, context: { params: Promise<{ token:
     });
   } catch (error) {
     if (error instanceof Error && error.message === "INVALID_EMAIL") {
+      statusCode = 400;
       logEvent("warn", "unlock_invalid_email", { requestId });
       return respondJson({ error: "INVALID_EMAIL", requestId }, requestId, {
         status: 400,
@@ -77,10 +82,13 @@ export async function POST(request: Request, context: { params: Promise<{ token:
       });
     }
 
+    statusCode = 500;
     logEvent("error", "unlock_failed", { requestId, durationMs: Date.now() - startedAt });
     return respondJson({ error: "INTERNAL_ERROR", requestId }, requestId, {
       status: 500,
       headers: { "Cache-Control": "no-store" }
     });
+  } finally {
+    observeApiRequest("/api/reports/[token]/unlock", statusCode, Date.now() - startedAt);
   }
 }

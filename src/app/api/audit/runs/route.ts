@@ -17,9 +17,40 @@ export async function POST(request: NextRequest) {
   let statusCode = 200;
 
   try {
-    const body = await request.json();
-    const inputUrl = String(body.url ?? "");
-    const depth = body.depth === "DEEP" ? "DEEP" : "QUICK";
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      statusCode = 400;
+      return respondJson({ error: "INVALID_JSON", requestId }, requestId, { status: statusCode, headers: { "Cache-Control": "no-store" } });
+    }
+
+    if (!body || typeof body !== "object") {
+      statusCode = 400;
+      return respondJson({ error: "INVALID_PAYLOAD", requestId }, requestId, {
+        status: statusCode,
+        headers: { "Cache-Control": "no-store" }
+      });
+    }
+
+    const payload = body as { url?: unknown; depth?: unknown };
+    const inputUrl = typeof payload.url === "string" ? payload.url.trim() : "";
+    if (!inputUrl) {
+      statusCode = 400;
+      return respondJson({ error: "INVALID_URL_EMPTY", requestId }, requestId, {
+        status: statusCode,
+        headers: { "Cache-Control": "no-store" }
+      });
+    }
+    if (inputUrl.length > 2048) {
+      statusCode = 400;
+      return respondJson({ error: "INVALID_URL_TOO_LONG", requestId }, requestId, {
+        status: statusCode,
+        headers: { "Cache-Control": "no-store" }
+      });
+    }
+
+    const depth = payload.depth === "DEEP" ? "DEEP" : "QUICK";
     const ipHash = hashClientIp(getClientIp(request));
 
     const distributed = await consumeDistributedRateLimit({
@@ -31,7 +62,19 @@ export async function POST(request: NextRequest) {
     if (!distributed.allowed) {
       statusCode = 429;
       logEvent("warn", "audit_run_rate_limited_distributed", { requestId, ipHash, backend: distributed.backend });
-      return respondJson({ error: "RATE_LIMITED", requestId }, requestId, { status: 429, headers: { "Cache-Control": "no-store" } });
+      return respondJson(
+        { error: "RATE_LIMITED", requestId },
+        requestId,
+        {
+          status: 429,
+          headers: {
+            "Cache-Control": "no-store",
+            "x-ratelimit-limit": String(distributed.limit),
+            "x-ratelimit-remaining": String(distributed.remaining),
+            "x-ratelimit-reset": String(distributed.resetSec)
+          }
+        }
+      );
     }
 
     if (distributed.backend !== "upstash-redis") {
@@ -44,7 +87,19 @@ export async function POST(request: NextRequest) {
       if (recentRuns >= RATE_LIMIT_MAX_RUNS) {
         statusCode = 429;
         logEvent("warn", "audit_run_rate_limited", { requestId, ipHash });
-        return respondJson({ error: "RATE_LIMITED", requestId }, requestId, { status: 429, headers: { "Cache-Control": "no-store" } });
+        return respondJson(
+          { error: "RATE_LIMITED", requestId },
+          requestId,
+          {
+            status: 429,
+            headers: {
+              "Cache-Control": "no-store",
+              "x-ratelimit-limit": String(RATE_LIMIT_MAX_RUNS),
+              "x-ratelimit-remaining": "0",
+              "x-ratelimit-reset": String(Math.floor(RATE_LIMIT_WINDOW_MS / 1000))
+            }
+          }
+        );
       }
     }
 

@@ -33,11 +33,25 @@ Reference:
 - `x-request-id` response header on API routes
 - Structured logs for major flows
 - `/api/metrics` endpoint for request count and latency buckets
+- readiness/liveness split:
+  - `/api/live` (process alive)
+  - `/api/ready` (dependency-aware readiness)
+- security headers at edge via `middleware.ts`:
+  - `Content-Security-Policy`
+  - `X-Frame-Options`
+  - `X-Content-Type-Options`
+  - `Referrer-Policy`
+  - `Permissions-Policy`
+  - `Cross-Origin-*` policies
 
 Reference:
 - `src/lib/observability.ts`
 - `src/lib/metrics.ts`
 - `src/app/api/metrics/route.ts`
+- `src/lib/health.ts`
+- `src/app/api/live/route.ts`
+- `src/app/api/ready/route.ts`
+- `middleware.ts`
 
 ## Environment Secrets
 - `IP_HASH_SALT`

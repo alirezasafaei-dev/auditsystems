@@ -1,23 +1,24 @@
 # Auto Generated Project Status
 
-Generated at: 2026-02-21T19:22:33.489Z
+Generated at: 2026-02-21T19:38:51.244Z
 
 ## Overview
-- API routes: 9
+- API routes: 10
 - Page routes: 10
-- Test files: 5
+- Test files: 6
 - NPM scripts: 22
 
 ## Roadmap Phases
 - Done: 7
 - In Progress: 0
 - Planned: 0
-- Last automation run: 2026-02-21T19:06:14.948Z
+- Last automation run: 2026-02-21T19:22:56.731Z
 - Last run results: passed=17, failed=0, skipped=0
 
 ## API Routes
 - `/api/audit/runs`
 - `/api/audit/runs/[id]`
+- `/api/live`
 - `/api/metrics`
 - `/api/orders`
 - `/api/payments/callback`

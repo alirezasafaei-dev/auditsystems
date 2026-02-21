@@ -42,6 +42,13 @@ Returns paid PDF when signed download token and paid order are valid.
 ### `GET /api/metrics`
 Prometheus-style operational metrics.
 
+### `GET /api/live`
+Liveness probe: process is up and route layer responds.
+
+### `GET /api/ready`
+Readiness probe: dependency-aware (`database`, `redis`) with `200/503`.
+
 ## Security and Caching
 - Sensitive API responses are `Cache-Control: no-store`.
 - API responses include `x-request-id`.
+- Global security headers are enforced via `middleware.ts`.

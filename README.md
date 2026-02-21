@@ -66,6 +66,9 @@ pnpm run lighthouse:local
 - Deploy روی سرور واقعی نیازمند تایید مستقیم است.
 - برای آماده‌سازی runtime از فایل‌های `ops/systemd/*` و `ops/pm2/ecosystem.config.cjs` استفاده کنید.
 - الگوی رسمی no-docker deploy: `docs/DEPLOYMENT_NO_DOCKER.md`
+- health endpoints:
+  - `GET /api/live` for liveness
+  - `GET /api/ready` for dependency-aware readiness (`200/503`)
 
 ## Environment Variables
 - `DATABASE_URL`

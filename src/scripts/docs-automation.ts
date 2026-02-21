@@ -155,6 +155,7 @@ async function main(): Promise<void> {
         "docs:refresh",
         "payment:preflight",
         "payment:preflight:strict",
+        "payment:zarinpal:smoke",
         "automation:run",
         "dev",
         "worker:dev"

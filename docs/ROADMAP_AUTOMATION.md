@@ -43,6 +43,10 @@ pnpm run docs:refresh
 pnpm run payment:preflight
 pnpm run payment:preflight:strict
 ```
+- اجرای smoke test واقعی Zarinpal:
+```bash
+pnpm run payment:zarinpal:smoke
+```
 - اجرای master automation:
 ```bash
 pnpm run automation:run

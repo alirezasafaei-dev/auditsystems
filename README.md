@@ -56,9 +56,11 @@ pnpm run docs:generate
 ## Production Readiness Automation
 ```bash
 pnpm run payment:preflight
+pnpm run payment:zarinpal:smoke
 pnpm run automation:run
 ```
 - `payment:preflight`: بررسی آماده‌بودن env/redis/provider پرداخت
+- `payment:zarinpal:smoke`: تست واقعی اتصال request/verify به Zarinpal (با merchant id)
 - `automation:run`: اجرای یکپارچه quality + roadmap + docs + preflight
 
 ## Environment Variables

@@ -36,11 +36,23 @@ jobs:
           ZARINPAL_MERCHANT_ID: ${{ secrets.ZARINPAL_MERCHANT_ID }}
           UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          REQUIRE_DISTRIBUTED_RATE_LIMIT: "true"
         run: |
           pnpm run check
           pnpm run roadmap:run
           pnpm run docs:generate
           pnpm run payment:preflight:strict
+
+      - name: Zarinpal smoke test (if merchant configured)
+        env:
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+          ZARINPAL_MERCHANT_ID: ${{ secrets.ZARINPAL_MERCHANT_ID }}
+        run: |
+          if [ -n "${ZARINPAL_MERCHANT_ID}" ]; then
+            pnpm run payment:zarinpal:smoke
+          else
+            echo "ZARINPAL_MERCHANT_ID is not set; skipping zarinpal smoke test."
+          fi
 
       - name: Upload readiness artifacts
         if: always()

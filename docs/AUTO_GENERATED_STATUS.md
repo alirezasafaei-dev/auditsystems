@@ -1,12 +1,12 @@
 # Auto Generated Project Status
 
-Generated at: 2026-02-21T18:16:47.759Z
+Generated at: 2026-02-21T18:40:22.259Z
 
 ## Overview
 - API routes: 8
 - Page routes: 10
 - Test files: 5
-- NPM scripts: 20
+- NPM scripts: 21
 
 ## Roadmap Phases
 - Done: 7
@@ -71,4 +71,5 @@ Generated at: 2026-02-21T18:16:47.759Z
 - `pnpm run docs:refresh` -> `pnpm run docs:generate && pnpm run roadmap:run`
 - `pnpm run payment:preflight` -> `tsx src/scripts/payment-preflight.ts`
 - `pnpm run payment:preflight:strict` -> `tsx src/scripts/payment-preflight.ts --strict`
+- `pnpm run payment:zarinpal:smoke` -> `tsx src/scripts/zarinpal-smoke.ts`
 - `pnpm run automation:run` -> `tsx src/scripts/automation-master.ts --strict`

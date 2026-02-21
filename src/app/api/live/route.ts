@@ -1,30 +1,28 @@
 import { observeApiRequest } from "../../../lib/metrics";
 import { createRequestId, respondJson } from "../../../lib/observability";
-import { buildReadinessReport } from "../../../lib/health";
 
 export async function GET(): Promise<Response> {
   const requestId = createRequestId();
   const startedAt = Date.now();
-  let statusCode = 200;
 
   try {
-    const report = await buildReadinessReport();
-    statusCode = report.ok ? 200 : 503;
     return respondJson(
       {
-        status: report.ok ? "ready" : "degraded",
-        requestId,
-        ...report
+        status: "alive",
+        service: "asdev-audit-ir",
+        timestamp: new Date().toISOString(),
+        requestId
       },
       requestId,
       {
-        status: statusCode,
+        status: 200,
         headers: {
           "Cache-Control": "no-store"
         }
       }
     );
   } finally {
-    observeApiRequest("/api/ready", statusCode, Date.now() - startedAt);
+    observeApiRequest("/api/live", 200, Date.now() - startedAt);
   }
 }
+

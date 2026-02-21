@@ -41,6 +41,12 @@ pnpm run check
 ```
 این دستور `lint + typecheck + test + build` را کامل اجرا می‌کند.
 
+## Roadmap Automation
+```bash
+pnpm run roadmap:run
+```
+گزارش اجرای فازها در `logs/roadmap/last-run.md` و `logs/roadmap/last-run.json` تولید می‌شود.
+
 ## Environment Variables
 - `DATABASE_URL`
 - `AUDIT_DNS_GUARD`
@@ -54,4 +60,5 @@ pnpm run check
 - امنیت SSRF و Hardening: `docs/SECURITY_SSRF.md`
 - راهنمای Worker: `docs/WORKER_RUNBOOK.md`
 - فازها و نقشه راه: `docs/PHASES.md`, `docs/ROADMAP_PHASED.md`
+- اتوماسیون roadmap: `docs/ROADMAP_AUTOMATION.md`
 - نقش‌ها و مهارت‌ها: `docs/ROLES_AND_SKILLS_SETUP.md`

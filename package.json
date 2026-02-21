@@ -15,7 +15,10 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "worker:dev": "tsx src/worker/index.ts",
-    "jobs:enqueue:sample": "tsx src/scripts/enqueue-sample.ts"
+    "jobs:enqueue:sample": "tsx src/scripts/enqueue-sample.ts",
+    "roadmap:run": "tsx src/scripts/roadmap-automation.ts --strict",
+    "roadmap:dry": "tsx src/scripts/roadmap-automation.ts --dry-run",
+    "roadmap:phase": "tsx src/scripts/roadmap-automation.ts --phase"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

@@ -6,3 +6,5 @@ coverage
 pnpm-lock.yaml
 *.log
 *.tsbuildinfo
+logs/roadmap/last-run.json
+logs/roadmap/last-run.md

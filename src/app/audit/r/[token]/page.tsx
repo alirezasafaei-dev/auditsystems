@@ -2,6 +2,18 @@ import Link from "next/link";
 import { prisma } from "../../../../lib/db";
 import { isReportShareAccessible } from "../../../../lib/reportShare";
 
+function severityClass(severity: string): string {
+  const s = severity.toUpperCase();
+  if (s === "CRITICAL") return "sev-critical";
+  if (s === "HIGH") return "sev-high";
+  if (s === "MEDIUM") return "sev-medium";
+  return "";
+}
+
+function statusClass(status: string): string {
+  return status === "FAILED" ? "status-failed" : "";
+}
+
 export default async function ReportPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
 
@@ -28,28 +40,29 @@ export default async function ReportPage({ params }: { params: Promise<{ token: 
   }
 
   return (
-    <main className="grid">
-      <section className="card">
+    <main>
+      <section className="card hero">
         <h1>Audit Report</h1>
-        <p>
-          <span className="badge">{share.run.status}</span>
-        </p>
         <p>Target: {share.run.normalizedUrl ?? share.run.url}</p>
-        <p>Token: {token}</p>
-        <p>
-          <Link href={`/audit/r/${token}/unlock`}>Unlock lead/order gate</Link>
-        </p>
+        <div className="hero-actions">
+          <span className={`badge ${statusClass(share.run.status)}`}>{share.run.status}</span>
+          <Link className="button secondary" href={`/audit/r/${token}/unlock`}>
+            Unlock Full Delivery
+          </Link>
+        </div>
       </section>
 
-      <section className="card">
-        <h2>Findings</h2>
+      <section className="card grid">
+        <h2>Findings ({share.run.findings.length})</h2>
+        {share.run.findings.length === 0 ? <p>No findings yet.</p> : null}
         {share.run.findings.map((finding) => (
           <article key={finding.id} className="finding">
-            <strong>{finding.code}</strong>
+            <div className="finding-header">
+              <strong>{finding.code}</strong>
+              <span className={`badge ${severityClass(finding.severity)}`}>{finding.severity}</span>
+            </div>
             <p>{finding.title}</p>
-            <small>
-              {finding.severity} - {finding.recommendation}
-            </small>
+            {finding.recommendation ? <p>Recommendation: {finding.recommendation}</p> : null}
           </article>
         ))}
       </section>

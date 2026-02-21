@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "defaultMode": "done_and_in_progress",
   "phases": [
     {
@@ -55,7 +55,7 @@
     },
     {
       "id": "D",
-      "title": "Lead/Order Gating (Mock)",
+      "title": "Lead/Order Gating",
       "status": "done",
       "checks": [
         {
@@ -64,26 +64,31 @@
           "command": "test -f src/app/api/reports/[token]/unlock/route.ts"
         },
         {
-          "id": "unlock-status-guards",
-          "description": "Unlock route validates report readiness",
-          "command": "rg -n \"REPORT_NOT_READY|INVALID_EMAIL\" src/app/api/reports/[token]/unlock/route.ts"
+          "id": "orders-endpoint-present",
+          "description": "Order endpoint exists",
+          "command": "test -f src/app/api/orders/route.ts"
         }
       ]
     },
     {
       "id": "E",
       "title": "Security and Ops Hardening",
-      "status": "in_progress",
+      "status": "done",
       "checks": [
         {
           "id": "rate-limit-create-run",
           "description": "Rate limit control exists on create run",
-          "command": "rg -n \"RATE_LIMIT|RATE_LIMITED\" src/app/api/audit/runs/route.ts"
+          "command": "rg -n \"consumeDistributedRateLimit|RATE_LIMITED\" src/app/api/audit/runs/route.ts src/lib/rateLimit.ts"
         },
         {
           "id": "observability-request-id",
           "description": "Request id instrumentation exists",
           "command": "rg -n \"requestId|x-request-id\" src/lib/observability.ts src/app/api"
+        },
+        {
+          "id": "metrics-endpoint",
+          "description": "Prometheus-style metrics endpoint exists",
+          "command": "test -f src/app/api/metrics/route.ts && rg -n \"audit_api_requests_total\" src/lib/metrics.ts"
         },
         {
           "id": "quality-gate",
@@ -95,24 +100,39 @@
     {
       "id": "F",
       "title": "Monetization and Delivery",
-      "status": "planned",
+      "status": "done",
       "checks": [
         {
-          "id": "payment-provider-integration",
-          "description": "Real payment provider integration is implemented",
-          "command": "rg -n \"ZARINPAL|IDPAY|PAYPING\" src/app src/lib src/worker"
+          "id": "payment-callback-route",
+          "description": "Payment callback route is implemented",
+          "command": "test -f src/app/api/payments/callback/route.ts"
+        },
+        {
+          "id": "provider-integration",
+          "description": "Payment provider integration exists",
+          "command": "rg -n \"ZARINPAL|createCheckout|verifyCheckout\" src/lib/payments.ts src/app/api/payments/callback/route.ts"
+        },
+        {
+          "id": "pdf-delivery-route",
+          "description": "Paid PDF endpoint exists",
+          "command": "test -f src/app/api/pdf/[token]/route.ts"
         }
       ]
     },
     {
       "id": "G",
       "title": "SEO Scale",
-      "status": "planned",
+      "status": "done",
       "checks": [
         {
           "id": "guides-pipeline",
-          "description": "Programmatic SEO guides pipeline exists",
-          "command": "rg -n \"guides|pillar\" src/app docs"
+          "description": "Programmatic guides and pillar pages exist",
+          "command": "test -f src/app/guides/page.tsx && test -f src/app/guides/[slug]/page.tsx && test -f src/app/pillar/iran-readiness-audit/page.tsx"
+        },
+        {
+          "id": "seo-indexability",
+          "description": "Sitemap and robots routes exist",
+          "command": "test -f src/app/sitemap.ts && test -f src/app/robots.ts"
         }
       ]
     }

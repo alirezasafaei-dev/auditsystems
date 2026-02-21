@@ -1,7 +1,5 @@
 # Routes (Implemented)
 
-این فایل وضعیت واقعی مسیرهای پیاده‌سازی‌شده را پوشش می‌دهد.
-
 ## Pages
 - `GET /`
 - `GET /audit`
@@ -9,95 +7,41 @@
 - `GET /audit/r/[token]/unlock`
 - `GET /audit/r/[token]/success`
 - `GET /failed`
+- `GET /guides`
+- `GET /guides/[slug]`
+- `GET /pillar/iran-readiness-audit`
+- `GET /sample-report`
+
+## SEO Metadata Routes
+- `GET /sitemap.xml`
+- `GET /robots.txt`
 
 ## API
 
 ### `POST /api/audit/runs`
-Create audit run + share token + enqueue job.
-
-Request body:
-```json
-{ "url": "https://example.com", "depth": "QUICK" }
-```
-
-Success response (`200`):
-```json
-{ "runId": "...", "token": "...", "status": "QUEUED", "requestId": "..." }
-```
-
-Error codes:
-- `400`: `INVALID_URL_*`, `SSRF_BLOCKED_*`
-- `429`: `RATE_LIMITED`
-- `500`: `INTERNAL_ERROR`
-
-Notes:
-- Rate limit: 5 run در 10 دقیقه برای هر IP hash.
-- Response header: `x-request-id`, `Cache-Control: no-store`.
+Creates run + token + job enqueue.
 
 ### `GET /api/audit/runs/[id]`
-Get run status.
-
-Success response (`200`):
-```json
-{
-  "id": "...",
-  "status": "QUEUED|RUNNING|SUCCEEDED|FAILED",
-  "startedAt": "...",
-  "finishedAt": "...",
-  "errorCode": null,
-  "errorMessage": null,
-  "requestId": "..."
-}
-```
-
-Error:
-- `404`: `NOT_FOUND`
+Returns run status.
 
 ### `GET /api/reports/[token]`
-Get report (summary + findings) by share token.
-
-Success response (`200`):
-```json
-{
-  "run": {
-    "id": "...",
-    "url": "...",
-    "normalizedUrl": "...",
-    "status": "SUCCEEDED",
-    "summary": {}
-  },
-  "findings": [],
-  "status": "SUCCEEDED",
-  "requestId": "..."
-}
-```
-
-Error:
-- `404`: `NOT_FOUND` (invalid/revoked/expired token)
+Returns report summary + findings.
 
 ### `POST /api/reports/[token]/unlock`
-Capture lead + create mock order.
+Legacy unlock endpoint (lead/order bootstrap).
 
-Request body:
-```json
-{ "email": "user@example.com" }
-```
+### `POST /api/orders`
+Primary order creation endpoint with provider selection and checkout URL.
 
-Success response (`200`):
-- New order:
-```json
-{ "leadId": "...", "orderId": "...", "reused": false, "requestId": "..." }
-```
-- Reused order:
-```json
-{ "orderId": "...", "reused": true, "requestId": "..." }
-```
+### `GET|POST /api/payments/callback`
+Payment verification callback endpoint.
 
-Errors:
-- `400`: `INVALID_EMAIL`
-- `404`: `NOT_FOUND`
-- `409`: `REPORT_NOT_READY`
-- `500`: `INTERNAL_ERROR`
+### `GET /api/pdf/[token]?dl=...`
+Returns paid PDF when signed download token and paid order are valid.
 
-## Security & Caching
-همه APIهای حساس از `Cache-Control: no-store` استفاده می‌کنند.
+### `GET /api/metrics`
+Prometheus-style operational metrics.
+
+## Security and Caching
+- Sensitive API responses are `Cache-Control: no-store`.
+- API responses include `x-request-id`.

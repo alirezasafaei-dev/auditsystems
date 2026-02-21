@@ -2,7 +2,9 @@ import { enqueueJob } from "../../../../worker/queue";
 import { prisma } from "../../../../lib/db";
 import { normalizeAuditTargetUrl } from "../../../../lib/normalizeAuditTargetUrl";
 import { createReportToken } from "../../../../lib/token";
+import { observeApiRequest } from "../../../../lib/metrics";
 import { createRequestId, logEvent, respondJson } from "../../../../lib/observability";
+import { consumeDistributedRateLimit } from "../../../../lib/rateLimit";
 import { getClientIp, hashClientIp, sanitizeApiError } from "../../../../lib/security";
 import { NextRequest } from "next/server";
 
@@ -12,6 +14,7 @@ const RATE_LIMIT_MAX_RUNS = 5;
 export async function POST(request: NextRequest) {
   const requestId = createRequestId();
   const startedAt = Date.now();
+  let statusCode = 200;
 
   try {
     const body = await request.json();
@@ -19,15 +22,30 @@ export async function POST(request: NextRequest) {
     const depth = body.depth === "DEEP" ? "DEEP" : "QUICK";
     const ipHash = hashClientIp(getClientIp(request));
 
-    const recentRuns = await prisma.auditRun.count({
-      where: {
-        ipHash,
-        createdAt: { gte: new Date(Date.now() - RATE_LIMIT_WINDOW_MS) }
-      }
+    const distributed = await consumeDistributedRateLimit({
+      key: `audit:runs:${ipHash}`,
+      limit: RATE_LIMIT_MAX_RUNS,
+      windowSec: Math.floor(RATE_LIMIT_WINDOW_MS / 1000)
     });
-    if (recentRuns >= RATE_LIMIT_MAX_RUNS) {
-      logEvent("warn", "audit_run_rate_limited", { requestId, ipHash });
+
+    if (!distributed.allowed) {
+      statusCode = 429;
+      logEvent("warn", "audit_run_rate_limited_distributed", { requestId, ipHash, backend: distributed.backend });
       return respondJson({ error: "RATE_LIMITED", requestId }, requestId, { status: 429, headers: { "Cache-Control": "no-store" } });
+    }
+
+    if (distributed.backend !== "upstash-redis") {
+      const recentRuns = await prisma.auditRun.count({
+        where: {
+          ipHash,
+          createdAt: { gte: new Date(Date.now() - RATE_LIMIT_WINDOW_MS) }
+        }
+      });
+      if (recentRuns >= RATE_LIMIT_MAX_RUNS) {
+        statusCode = 429;
+        logEvent("warn", "audit_run_rate_limited", { requestId, ipHash });
+        return respondJson({ error: "RATE_LIMITED", requestId }, requestId, { status: 429, headers: { "Cache-Control": "no-store" } });
+      }
     }
 
     const normalized = await normalizeAuditTargetUrl(inputUrl, { verifyDnsPublicIp: true });
@@ -62,6 +80,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     const safeError = sanitizeApiError(error);
+    statusCode = safeError.status;
     logEvent("error", "audit_run_create_failed", {
       requestId,
       durationMs: Date.now() - startedAt,
@@ -71,5 +90,7 @@ export async function POST(request: NextRequest) {
       status: safeError.status,
       headers: { "Cache-Control": "no-store" }
     });
+  } finally {
+    observeApiRequest("/api/audit/runs", statusCode, Date.now() - startedAt);
   }
 }

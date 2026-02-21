@@ -1,18 +1,18 @@
 # Auto Generated Project Status
 
-Generated at: 2026-02-21T19:05:52.811Z
+Generated at: 2026-02-21T19:22:33.489Z
 
 ## Overview
-- API routes: 8
+- API routes: 9
 - Page routes: 10
 - Test files: 5
-- NPM scripts: 21
+- NPM scripts: 22
 
 ## Roadmap Phases
 - Done: 7
 - In Progress: 0
 - Planned: 0
-- Last automation run: 2026-02-21T18:15:37.159Z
+- Last automation run: 2026-02-21T19:06:14.948Z
 - Last run results: passed=17, failed=0, skipped=0
 
 ## API Routes
@@ -22,6 +22,7 @@ Generated at: 2026-02-21T19:05:52.811Z
 - `/api/orders`
 - `/api/payments/callback`
 - `/api/pdf/[token]`
+- `/api/ready`
 - `/api/reports/[token]`
 - `/api/reports/[token]/unlock`
 
@@ -45,6 +46,7 @@ Generated at: 2026-02-21T19:05:52.811Z
 - `IP_HASH_SALT`
 - `UPSTASH_REDIS_REST_URL`
 - `UPSTASH_REDIS_REST_TOKEN`
+- `REQUIRE_DISTRIBUTED_RATE_LIMIT`
 - `PAYMENT_PROVIDER_DEFAULT`
 - `APP_BASE_URL`
 - `ZARINPAL_MERCHANT_ID`

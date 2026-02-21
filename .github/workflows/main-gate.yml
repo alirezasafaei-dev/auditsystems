@@ -1,0 +1,50 @@
+name: main-gate
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  schedule:
+    - cron: "15 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run automation hard gate
+        env:
+          APP_BASE_URL: "http://localhost:3000"
+          DOWNLOAD_TOKEN_SECRET: "ci-download-secret-min-16"
+          PAYMENT_PROVIDER_DEFAULT: "MOCK"
+          REQUIRE_DISTRIBUTED_RATE_LIMIT: "false"
+        run: pnpm run automation:run
+
+      - name: Upload automation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-gate-artifacts
+          path: |
+            logs/roadmap/
+            logs/preflight/
+            docs/AUTO_GENERATED_STATUS.md

@@ -1,0 +1,18 @@
+[Unit]
+Description=AsDev Audit IR Web (Next.js)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/dev/Project_Me/asdev-audit-ir
+Environment=NODE_ENV=production
+EnvironmentFile=/home/dev/Project_Me/asdev-audit-ir/.env
+ExecStart=/usr/bin/env pnpm exec next start -p 3000
+Restart=always
+RestartSec=5
+User=dev
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

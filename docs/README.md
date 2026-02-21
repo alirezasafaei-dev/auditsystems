@@ -12,6 +12,7 @@
 - `SECURITY_SSRF.md`: کنترل‌های امنیتی فعلی و Hardening بعدی
 - `SUMMARY_JSON.md`: قرارداد Summary نسخه‌بندی‌شده
 - `FINDINGS_10_RULES.md`: قواعد اولیه Findings
+- `ROADMAP_AUTOMATION.md`: اتوماسیون اجرای roadmap و گزارش‌گیری
 
 ## Planning
 - `PHASES.md`: فازبندی اجرایی

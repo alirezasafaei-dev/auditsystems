@@ -1,0 +1,120 @@
+{
+  "version": "1.0.0",
+  "defaultMode": "done_and_in_progress",
+  "phases": [
+    {
+      "id": "A",
+      "title": "Foundation",
+      "status": "done",
+      "checks": [
+        {
+          "id": "foundation-files",
+          "description": "Core foundation files exist",
+          "command": "test -f package.json && test -f prisma/schema.prisma && test -f docker-compose.yml"
+        },
+        {
+          "id": "foundation-typecheck",
+          "description": "Type system is healthy",
+          "command": "pnpm run typecheck"
+        }
+      ]
+    },
+    {
+      "id": "B",
+      "title": "Scanner MVP",
+      "status": "done",
+      "checks": [
+        {
+          "id": "scanner-unit-tests",
+          "description": "Scanner-related unit tests pass",
+          "command": "pnpm run test"
+        },
+        {
+          "id": "scanner-ssrf-guard",
+          "description": "SSRF guard implementation exists",
+          "command": "rg -n \"SSRF_BLOCKED\" src/lib/normalizeAuditTargetUrl.ts"
+        }
+      ]
+    },
+    {
+      "id": "C",
+      "title": "Report UX + Summary JSON",
+      "status": "done",
+      "checks": [
+        {
+          "id": "summary-schema-v1",
+          "description": "Summary schema v1 is present",
+          "command": "rg -n \"asdev.audit.summary.v1\" src/lib/summary.ts src/lib/summary.types.ts"
+        },
+        {
+          "id": "report-route-present",
+          "description": "Public report route exists",
+          "command": "test -f src/app/api/reports/[token]/route.ts"
+        }
+      ]
+    },
+    {
+      "id": "D",
+      "title": "Lead/Order Gating (Mock)",
+      "status": "done",
+      "checks": [
+        {
+          "id": "unlock-route-present",
+          "description": "Unlock endpoint exists",
+          "command": "test -f src/app/api/reports/[token]/unlock/route.ts"
+        },
+        {
+          "id": "unlock-status-guards",
+          "description": "Unlock route validates report readiness",
+          "command": "rg -n \"REPORT_NOT_READY|INVALID_EMAIL\" src/app/api/reports/[token]/unlock/route.ts"
+        }
+      ]
+    },
+    {
+      "id": "E",
+      "title": "Security and Ops Hardening",
+      "status": "in_progress",
+      "checks": [
+        {
+          "id": "rate-limit-create-run",
+          "description": "Rate limit control exists on create run",
+          "command": "rg -n \"RATE_LIMIT|RATE_LIMITED\" src/app/api/audit/runs/route.ts"
+        },
+        {
+          "id": "observability-request-id",
+          "description": "Request id instrumentation exists",
+          "command": "rg -n \"requestId|x-request-id\" src/lib/observability.ts src/app/api"
+        },
+        {
+          "id": "quality-gate",
+          "description": "Full quality gate passes",
+          "command": "pnpm run check"
+        }
+      ]
+    },
+    {
+      "id": "F",
+      "title": "Monetization and Delivery",
+      "status": "planned",
+      "checks": [
+        {
+          "id": "payment-provider-integration",
+          "description": "Real payment provider integration is implemented",
+          "command": "rg -n \"ZARINPAL|IDPAY|PAYPING\" src/app src/lib src/worker"
+        }
+      ]
+    },
+    {
+      "id": "G",
+      "title": "SEO Scale",
+      "status": "planned",
+      "checks": [
+        {
+          "id": "guides-pipeline",
+          "description": "Programmatic SEO guides pipeline exists",
+          "command": "rg -n \"guides|pillar\" src/app docs"
+        }
+      ]
+    }
+  ]
+}

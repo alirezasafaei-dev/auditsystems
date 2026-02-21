@@ -1,5 +1,9 @@
 # Roadmap (Phased)
 
+Automation runner:
+- `pnpm run roadmap:run`
+- `docs/ROADMAP_AUTOMATION.md`
+
 ## Phase A — Foundation
 Status: Done
 - [x] Next.js App Router setup

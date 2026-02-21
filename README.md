@@ -53,6 +53,14 @@ pnpm run docs:generate
 ```
 گزارش خودکار مستندات در `docs/AUTO_GENERATED_STATUS.md` تولید می‌شود.
 
+## Production Readiness Automation
+```bash
+pnpm run payment:preflight
+pnpm run automation:run
+```
+- `payment:preflight`: بررسی آماده‌بودن env/redis/provider پرداخت
+- `automation:run`: اجرای یکپارچه quality + roadmap + docs + preflight
+
 ## Environment Variables
 - `DATABASE_URL`
 - `AUDIT_DNS_GUARD`

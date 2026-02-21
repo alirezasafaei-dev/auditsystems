@@ -37,6 +37,9 @@ Run:
 
 ```bash
 pnpm run check
+pnpm run roadmap:run
+pnpm run docs:generate
+pnpm run payment:preflight
 ```
 
-This runs lint + typecheck + tests + production build.
+This validates code quality, roadmap integrity, generated docs, and payment production preflight.

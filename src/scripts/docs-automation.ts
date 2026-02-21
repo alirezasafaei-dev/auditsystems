@@ -146,7 +146,20 @@ async function main(): Promise<void> {
 
   lines.push("## Key Commands");
   for (const [name, command] of Object.entries(packageJson.scripts ?? {})) {
-    if (["check", "roadmap:run", "roadmap:dry", "docs:generate", "docs:refresh", "dev", "worker:dev"].includes(name)) {
+    if (
+      [
+        "check",
+        "roadmap:run",
+        "roadmap:dry",
+        "docs:generate",
+        "docs:refresh",
+        "payment:preflight",
+        "payment:preflight:strict",
+        "automation:run",
+        "dev",
+        "worker:dev"
+      ].includes(name)
+    ) {
       lines.push(`- \`pnpm run ${name}\` -> \`${command}\``);
     }
   }

@@ -1,18 +1,18 @@
 # Auto Generated Project Status
 
-Generated at: 2026-02-21T18:11:01.782Z
+Generated at: 2026-02-21T18:16:47.759Z
 
 ## Overview
 - API routes: 8
 - Page routes: 10
 - Test files: 5
-- NPM scripts: 17
+- NPM scripts: 20
 
 ## Roadmap Phases
 - Done: 7
 - In Progress: 0
 - Planned: 0
-- Last automation run: 2026-02-21T18:10:50.260Z
+- Last automation run: 2026-02-21T18:15:37.159Z
 - Last run results: passed=17, failed=0, skipped=0
 
 ## API Routes
@@ -69,3 +69,6 @@ Generated at: 2026-02-21T18:11:01.782Z
 - `pnpm run roadmap:dry` -> `tsx src/scripts/roadmap-automation.ts --dry-run`
 - `pnpm run docs:generate` -> `tsx src/scripts/docs-automation.ts`
 - `pnpm run docs:refresh` -> `pnpm run docs:generate && pnpm run roadmap:run`
+- `pnpm run payment:preflight` -> `tsx src/scripts/payment-preflight.ts`
+- `pnpm run payment:preflight:strict` -> `tsx src/scripts/payment-preflight.ts --strict`
+- `pnpm run automation:run` -> `tsx src/scripts/automation-master.ts --strict`

@@ -20,7 +20,10 @@
     "roadmap:dry": "tsx src/scripts/roadmap-automation.ts --dry-run",
     "roadmap:phase": "tsx src/scripts/roadmap-automation.ts --phase",
     "docs:generate": "tsx src/scripts/docs-automation.ts",
-    "docs:refresh": "pnpm run docs:generate && pnpm run roadmap:run"
+    "docs:refresh": "pnpm run docs:generate && pnpm run roadmap:run",
+    "payment:preflight": "tsx src/scripts/payment-preflight.ts",
+    "payment:preflight:strict": "tsx src/scripts/payment-preflight.ts --strict",
+    "automation:run": "tsx src/scripts/automation-master.ts --strict"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

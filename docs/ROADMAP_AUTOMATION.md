@@ -10,6 +10,8 @@
   - `logs/roadmap/last-run.md`
 - Docs generator: `src/scripts/docs-automation.ts`
 - Generated docs status: `docs/AUTO_GENERATED_STATUS.md`
+- Payment preflight: `src/scripts/payment-preflight.ts`
+- Master automation: `src/scripts/automation-master.ts`
 
 ## Commands
 - اجرای کامل فازهای `done` و `in_progress` با strict mode:
@@ -35,6 +37,15 @@ pnpm run docs:generate
 - اجرای ترکیبی roadmap + docs refresh:
 ```bash
 pnpm run docs:refresh
+```
+- اجرای preflight پرداخت:
+```bash
+pnpm run payment:preflight
+pnpm run payment:preflight:strict
+```
+- اجرای master automation:
+```bash
+pnpm run automation:run
 ```
 
 ## Runtime Behavior

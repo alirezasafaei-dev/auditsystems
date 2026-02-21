@@ -1,0 +1,53 @@
+name: production-readiness
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "45 4 * * *"
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Quality + Roadmap + Docs + Payment preflight
+        env:
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+          DOWNLOAD_TOKEN_SECRET: ${{ secrets.DOWNLOAD_TOKEN_SECRET }}
+          PAYMENT_PROVIDER_DEFAULT: ${{ secrets.PAYMENT_PROVIDER_DEFAULT }}
+          ZARINPAL_MERCHANT_ID: ${{ secrets.ZARINPAL_MERCHANT_ID }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+        run: |
+          pnpm run check
+          pnpm run roadmap:run
+          pnpm run docs:generate
+          pnpm run payment:preflight:strict
+
+      - name: Upload readiness artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-readiness-reports
+          path: |
+            logs/roadmap/
+            logs/preflight/
+            docs/AUTO_GENERATED_STATUS.md

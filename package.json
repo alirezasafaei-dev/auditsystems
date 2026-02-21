@@ -18,7 +18,9 @@
     "jobs:enqueue:sample": "tsx src/scripts/enqueue-sample.ts",
     "roadmap:run": "tsx src/scripts/roadmap-automation.ts --strict",
     "roadmap:dry": "tsx src/scripts/roadmap-automation.ts --dry-run",
-    "roadmap:phase": "tsx src/scripts/roadmap-automation.ts --phase"
+    "roadmap:phase": "tsx src/scripts/roadmap-automation.ts --phase",
+    "docs:generate": "tsx src/scripts/docs-automation.ts",
+    "docs:refresh": "pnpm run docs:generate && pnpm run roadmap:run"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

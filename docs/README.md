@@ -13,6 +13,7 @@
 - `SUMMARY_JSON.md`: قرارداد Summary نسخه‌بندی‌شده
 - `FINDINGS_10_RULES.md`: قواعد اولیه Findings
 - `ROADMAP_AUTOMATION.md`: اتوماسیون اجرای roadmap و گزارش‌گیری
+- `AUTO_GENERATED_STATUS.md`: گزارش خودکار وضعیت پروژه (تولیدشده توسط اسکریپت)
 
 ## Planning
 - `PHASES.md`: فازبندی اجرایی

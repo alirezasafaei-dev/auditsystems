@@ -23,6 +23,7 @@
     "docs:refresh": "pnpm run docs:generate && pnpm run roadmap:run",
     "payment:preflight": "tsx src/scripts/payment-preflight.ts",
     "payment:preflight:strict": "tsx src/scripts/payment-preflight.ts --strict",
+    "payment:zarinpal:smoke": "tsx src/scripts/zarinpal-smoke.ts",
     "automation:run": "tsx src/scripts/automation-master.ts --strict"
   },
   "dependencies": {

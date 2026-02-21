@@ -41,14 +41,17 @@ function provider(): "MOCK" | "ZARINPAL" | "IDPAY" | "PAYPING" {
 }
 
 async function checkRedis(): Promise<Check> {
+  const requireDistributed = env("REQUIRE_DISTRIBUTED_RATE_LIMIT").toLowerCase() === "true";
   const url = env("UPSTASH_REDIS_REST_URL");
   const token = env("UPSTASH_REDIS_REST_TOKEN");
   if (!url || !token) {
     return {
       id: "redis-config",
-      level: "warn",
+      level: requireDistributed ? "error" : "warn",
       ok: false,
-      message: "UPSTASH_REDIS_REST_URL/TOKEN are not set; distributed rate-limit disabled."
+      message: requireDistributed
+        ? "UPSTASH_REDIS_REST_URL/TOKEN are required but missing."
+        : "UPSTASH_REDIS_REST_URL/TOKEN are not set; distributed rate-limit disabled."
     };
   }
 

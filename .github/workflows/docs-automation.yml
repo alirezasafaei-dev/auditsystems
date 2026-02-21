@@ -1,0 +1,49 @@
+name: docs-automation
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  schedule:
+    - cron: "30 4 * * *"
+  workflow_dispatch:
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate docs
+        run: pnpm run docs:generate
+
+      - name: Upload generated docs artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-docs
+          path: docs/AUTO_GENERATED_STATUS.md
+
+      - name: Auto-commit docs updates
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(docs): auto-update generated docs"
+          file_pattern: docs/AUTO_GENERATED_STATUS.md

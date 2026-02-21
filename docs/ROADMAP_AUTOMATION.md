@@ -8,6 +8,8 @@
 - Reports:
   - `logs/roadmap/last-run.json`
   - `logs/roadmap/last-run.md`
+- Docs generator: `src/scripts/docs-automation.ts`
+- Generated docs status: `docs/AUTO_GENERATED_STATUS.md`
 
 ## Commands
 - اجرای کامل فازهای `done` و `in_progress` با strict mode:
@@ -25,6 +27,14 @@ pnpm run roadmap:phase -- E
 - اجرای همه فازها شامل planned:
 ```bash
 tsx src/scripts/roadmap-automation.ts --strict --include-planned
+```
+- تولید خودکار مستندات وضعیت:
+```bash
+pnpm run docs:generate
+```
+- اجرای ترکیبی roadmap + docs refresh:
+```bash
+pnpm run docs:refresh
 ```
 
 ## Runtime Behavior

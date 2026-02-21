@@ -47,6 +47,12 @@ pnpm run roadmap:run
 ```
 گزارش اجرای فازها در `logs/roadmap/last-run.md` و `logs/roadmap/last-run.json` تولید می‌شود.
 
+## Docs Automation
+```bash
+pnpm run docs:generate
+```
+گزارش خودکار مستندات در `docs/AUTO_GENERATED_STATUS.md` تولید می‌شود.
+
 ## Environment Variables
 - `DATABASE_URL`
 - `AUDIT_DNS_GUARD`
@@ -61,4 +67,5 @@ pnpm run roadmap:run
 - راهنمای Worker: `docs/WORKER_RUNBOOK.md`
 - فازها و نقشه راه: `docs/PHASES.md`, `docs/ROADMAP_PHASED.md`
 - اتوماسیون roadmap: `docs/ROADMAP_AUTOMATION.md`
+- گزارش خودکار وضعیت: `docs/AUTO_GENERATED_STATUS.md`
 - نقش‌ها و مهارت‌ها: `docs/ROLES_AND_SKILLS_SETUP.md`

@@ -26,6 +26,10 @@
 - `PHASES.md`: فازبندی اجرایی
 - `ROADMAP_PHASED.md`: نقشه راه مرحله‌ای + وضعیت
 - `FUNNEL.md`: مسیر تبدیل کاربر به لید/سفارش
+- `SEO_AUDIT_REAL_DATA.md`: گزارش SEO بر پایه داده واقعی همین repo
+- `SEO_ROADMAP_PHASED_NO_TIMELINE.md`: نقشه راه ۳ فازی SEO بدون زمان‌بندی
+- `SEO_MEASUREMENT_AUTOMATION.md`: مدل KPI، taxonomy رویدادها و اتوماسیون سنجش SEO
+- `SEO_CONTENT_AUTHORITY_OPS.md`: چارچوب عملیات محتوا و authority برای رشد پایدار
 
 ## Team & Process
 - `ROLES_AND_SKILLS_SETUP.md`: نقش‌ها، مهارت‌ها، پیش‌نیازها و release gate

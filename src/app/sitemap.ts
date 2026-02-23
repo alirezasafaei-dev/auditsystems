@@ -1,41 +1,95 @@
 import { MetadataRoute } from "next";
-import { guides } from "../content/guides";
+import { getGuideSlugs, getGuideUpdatedAtMap } from "../content/guides";
+import { getAppBaseUrl } from "../lib/site";
+
+const STATIC_LASTMOD = "2026-02-23";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.APP_BASE_URL ?? "http://localhost:3000";
-  const now = new Date();
+  const baseUrl = getAppBaseUrl();
+  const guideSlugs = getGuideSlugs();
+  const updatedAtBySlug = getGuideUpdatedAtMap();
+
+  const staticSpecs: Array<{
+    route: string;
+    priority: number;
+    changeFrequency: NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>;
+  }> = [
+    { route: "/", priority: 1, changeFrequency: "weekly" },
+    { route: "/audit", priority: 0.8, changeFrequency: "weekly" },
+    { route: "/guides", priority: 0.8, changeFrequency: "weekly" },
+    { route: "/sample-report", priority: 0.7, changeFrequency: "monthly" },
+    { route: "/pillar/iran-readiness-audit", priority: 0.75, changeFrequency: "monthly" }
+  ];
 
   const staticRoutes: MetadataRoute.Sitemap = [
-    "/",
-    "/audit",
-    "/guides",
-    "/sample-report",
-    "/pillar/iran-readiness-audit",
-    "/en",
-    "/en/audit",
-    "/en/guides",
-    "/en/sample-report",
-    "/en/pillar/iran-readiness-audit"
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: route === "/" ? 1 : 0.7
-  }));
+    ...staticSpecs
+  ].flatMap((entry) => {
+    const enRoute = entry.route === "/" ? "/en" : `/en${entry.route}`;
 
-  const guideRoutes: MetadataRoute.Sitemap = guides.map((guide) => ({
-    url: `${baseUrl}/guides/${guide.slug}`,
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.65
-  }));
+    return [
+      {
+        url: `${baseUrl}${entry.route}`,
+        lastModified: STATIC_LASTMOD,
+        changeFrequency: entry.changeFrequency,
+        priority: entry.priority,
+        alternates: {
+          languages: {
+            "fa-IR": `${baseUrl}${entry.route}`,
+            en: `${baseUrl}${enRoute}`,
+            "x-default": `${baseUrl}${entry.route}`
+          }
+        }
+      },
+      {
+        url: `${baseUrl}${enRoute}`,
+        lastModified: STATIC_LASTMOD,
+        changeFrequency: entry.changeFrequency,
+        priority: Math.max(0.5, entry.priority - 0.05),
+        alternates: {
+          languages: {
+            "fa-IR": `${baseUrl}${entry.route}`,
+            en: `${baseUrl}${enRoute}`,
+            "x-default": `${baseUrl}${entry.route}`
+          }
+        }
+      }
+    ];
+  });
 
-  const guideRoutesEn: MetadataRoute.Sitemap = guides.map((guide) => ({
-    url: `${baseUrl}/en/guides/${guide.slug}`,
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.63
-  }));
+  const guideRoutes: MetadataRoute.Sitemap = guideSlugs.flatMap((slug) => {
+    const faUrl = `${baseUrl}/guides/${slug}`;
+    const enUrl = `${baseUrl}/en/guides/${slug}`;
+    const lastModified = updatedAtBySlug.get(slug) ?? STATIC_LASTMOD;
 
-  return [...staticRoutes, ...guideRoutes, ...guideRoutesEn];
+    return [
+      {
+        url: faUrl,
+        lastModified,
+        changeFrequency: "weekly",
+        priority: 0.65,
+        alternates: {
+          languages: {
+            "fa-IR": faUrl,
+            en: enUrl,
+            "x-default": faUrl
+          }
+        }
+      },
+      {
+        url: enUrl,
+        lastModified,
+        changeFrequency: "weekly",
+        priority: 0.63,
+        alternates: {
+          languages: {
+            "fa-IR": faUrl,
+            en: enUrl,
+            "x-default": faUrl
+          }
+        }
+      }
+    ];
+  });
+
+  return [...staticRoutes, ...guideRoutes];
 }

@@ -44,3 +44,11 @@
 - دو‌زبانه‌سازی مسیرهای اصلی (`fa/en`) با UX هم‌راستا
 - SEO چندزبانه (canonical + hreflang + sitemap bilingual)
 - hardening لایه edge + health probes (`/api/live`, `/api/ready`)
+
+## Phase I — SEO Execution Automation (Done)
+- metadata کامل برای templateهای indexable
+- noindex برای مسیرهای tokenized و failed
+- localization واقعی راهنماها در `fa/en`
+- breadcrumb/article schema برای guide templates
+- `sitemap.xml` با `lastmod` واقعی بر پایه داده محتوا
+- اتوماسیون SEO checks با `pnpm run seo:audit`

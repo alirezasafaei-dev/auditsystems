@@ -14,6 +14,33 @@ function asProvider(value: string | null): PaymentProvider {
   return "MOCK";
 }
 
+function resolveLocale(locale: string | null | undefined): "fa" | "en" {
+  if (!locale) return "fa";
+  return locale.toLowerCase().startsWith("en") ? "en" : "fa";
+}
+
+function buildSuccessPath(locale: "fa" | "en", token: string, orderId: string, downloadToken: string): string {
+  const prefix = locale === "en" ? "/en" : "";
+  return `${prefix}/audit/r/${token}/success?orderId=${encodeURIComponent(orderId)}&dl=${encodeURIComponent(downloadToken)}`;
+}
+
+function buildFailedPath(locale: "fa" | "en", reason: string): string {
+  const prefix = locale === "en" ? "/en" : "";
+  return `${prefix}/failed?reason=${encodeURIComponent(reason)}`;
+}
+
+function shouldRedirectBrowser(request: NextRequest): boolean {
+  const accept = request.headers.get("accept") ?? "";
+  return request.method === "GET" && accept.includes("text/html");
+}
+
+function redirectWithRequestId(requestId: string, request: NextRequest, path: string): NextResponse {
+  const response = NextResponse.redirect(new URL(path, request.nextUrl.origin), 302);
+  response.headers.set("x-request-id", requestId);
+  response.headers.set("Cache-Control", "no-store");
+  return response;
+}
+
 async function handleCallback(request: NextRequest): Promise<NextResponse> {
   const requestId = createRequestId();
   const startedAt = Date.now();
@@ -30,19 +57,43 @@ async function handleCallback(request: NextRequest): Promise<NextResponse> {
 
     if (!callbackRef) {
       statusCode = 400;
+      if (shouldRedirectBrowser(request)) {
+        statusCode = 302;
+        return redirectWithRequestId(requestId, request, buildFailedPath("fa", "INVALID_CALLBACK_REF"));
+      }
       return respondJson({ error: "INVALID_CALLBACK_REF", requestId }, requestId, { status: statusCode, headers: { "Cache-Control": "no-store" } });
     }
 
-    const order = await prisma.auditOrder.findFirst({ where: { callbackRef }, include: { run: { include: { shares: { orderBy: { createdAt: "desc" }, take: 1 } } } } });
+    const order = await prisma.auditOrder.findFirst({
+      where: { callbackRef },
+      include: {
+        run: {
+          select: {
+            locale: true,
+            shares: { orderBy: { createdAt: "desc" }, take: 1 }
+          }
+        }
+      }
+    });
     if (!order) {
       statusCode = 404;
+      if (shouldRedirectBrowser(request)) {
+        statusCode = 302;
+        return redirectWithRequestId(requestId, request, buildFailedPath("fa", "ORDER_NOT_FOUND"));
+      }
       return respondJson({ error: "ORDER_NOT_FOUND", requestId }, requestId, { status: statusCode, headers: { "Cache-Control": "no-store" } });
     }
+
+    const locale = resolveLocale(order.run.locale);
 
     if (order.status === "PAID") {
       const shareToken = order.run.shares[0]?.token;
       if (!shareToken) {
         statusCode = 409;
+        if (shouldRedirectBrowser(request)) {
+          statusCode = 302;
+          return redirectWithRequestId(requestId, request, buildFailedPath(locale, "REPORT_TOKEN_NOT_FOUND"));
+        }
         return respondJson({ error: "REPORT_TOKEN_NOT_FOUND", requestId }, requestId, {
           status: statusCode,
           headers: { "Cache-Control": "no-store" }
@@ -50,6 +101,10 @@ async function handleCallback(request: NextRequest): Promise<NextResponse> {
       }
 
       const download = createDownloadToken({ runId: order.runId, orderId: order.id, email: order.email });
+      if (shouldRedirectBrowser(request)) {
+        statusCode = 302;
+        return redirectWithRequestId(requestId, request, buildSuccessPath(locale, shareToken, order.id, download));
+      }
       return respondJson(
         {
           ok: true,
@@ -79,7 +134,7 @@ async function handleCallback(request: NextRequest): Promise<NextResponse> {
         paidAt: verification.paid ? new Date() : null,
         providerRef: verification.providerRef ?? order.providerRef
       },
-      include: { run: { include: { shares: { orderBy: { createdAt: "desc" }, take: 1 } } } }
+      include: { run: { select: { locale: true, shares: { orderBy: { createdAt: "desc" }, take: 1 } } } }
     });
 
     await prisma.auditOrderEvent.create({
@@ -100,6 +155,14 @@ async function handleCallback(request: NextRequest): Promise<NextResponse> {
 
     if (!verification.paid || !shareToken) {
       statusCode = verification.paid ? 409 : 402;
+      if (shouldRedirectBrowser(request)) {
+        statusCode = 302;
+        return redirectWithRequestId(
+          requestId,
+          request,
+          buildFailedPath(resolveLocale(updated.run.locale), verification.paid ? "REPORT_TOKEN_NOT_FOUND" : "PAYMENT_NOT_CONFIRMED")
+        );
+      }
       return respondJson(
         {
           ok: false,
@@ -115,7 +178,7 @@ async function handleCallback(request: NextRequest): Promise<NextResponse> {
 
     const download = createDownloadToken({ runId: updated.runId, orderId: updated.id, email: updated.email });
     const downloadUrl = `/api/pdf/${shareToken}?dl=${encodeURIComponent(download)}`;
-    const successUrl = `/audit/r/${shareToken}/success?orderId=${encodeURIComponent(updated.id)}&dl=${encodeURIComponent(download)}`;
+    const successUrl = buildSuccessPath(resolveLocale(updated.run.locale), shareToken, updated.id, download);
 
     logEvent("info", "payment_confirmed", {
       requestId,
@@ -123,6 +186,11 @@ async function handleCallback(request: NextRequest): Promise<NextResponse> {
       provider,
       durationMs: Date.now() - startedAt
     });
+
+    if (shouldRedirectBrowser(request)) {
+      statusCode = 302;
+      return redirectWithRequestId(requestId, request, successUrl);
+    }
 
     return respondJson(
       {

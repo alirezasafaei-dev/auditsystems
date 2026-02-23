@@ -1,23 +1,20 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { buildPageMetadata } from "../../lib/seoMeta";
+import SeoPageEvent from "../../components/SeoPageEvent";
 
-const baseUrl = process.env.APP_BASE_URL ?? "http://localhost:3000";
-
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
+  locale: "en",
+  path: "/",
   title: "Website Audit Platform for Growth Teams",
   description: "Technical audits, SEO diagnostics, security checks, and conversion-ready report delivery.",
-  alternates: {
-    canonical: `${baseUrl}/en`,
-    languages: {
-      "fa-IR": `${baseUrl}/`,
-      en: `${baseUrl}/en`
-    }
-  }
-};
+  keywords: ["website audit", "technical SEO", "performance audit", "conversion operations"]
+});
 
 export default function HomePageEn() {
   return (
     <main>
+      <SeoPageEvent event="seo_landing_view" params={{ locale: "en", path: "/en" }} />
       <section className="card hero">
         <h1>Website Audit Platform for Growth Teams</h1>
         <p>Run technical audits, analyze findings, and convert reports into paid delivery workflows with production-ready automation.</p>

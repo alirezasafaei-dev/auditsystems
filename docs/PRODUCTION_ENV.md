@@ -5,6 +5,7 @@
 ## Required Variables
 - `DATABASE_URL`: production postgres URL
 - `APP_BASE_URL`: public https domain
+- `APP_BASE_URL_STRICT=true`
 - `IP_HASH_SALT`: random secret (>=32 chars)
 - `DOWNLOAD_TOKEN_SECRET`: random secret (>=32 chars)
 - `PAYMENT_PROVIDER_DEFAULT`: `ZARINPAL` یا provider مورد تایید
@@ -12,6 +13,7 @@
 - `UPSTASH_REDIS_REST_TOKEN`
 - `REQUIRE_DISTRIBUTED_RATE_LIMIT=true`
 - `ZARINPAL_MERCHANT_ID` (when provider=ZARINPAL)
+- `NEXT_PUBLIC_GA4_MEASUREMENT_ID` (optional, for SEO measurement events)
 
 ## Validation Commands
 ```bash

@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { trackSeoEvent } from "../../../../../lib/analytics";
 
 export default function UnlockPage() {
   const router = useRouter();
@@ -11,34 +12,55 @@ export default function UnlockPage() {
   const [email, setEmail] = useState("");
   const [provider, setProvider] = useState<"MOCK" | "ZARINPAL">("MOCK");
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    trackSeoEvent("seo_unlock_page_view", { locale: "fa", path: `/audit/r/${token}/unlock` });
+  }, [token]);
+
+  function toUserMessage(errorCode: string): string {
+    if (errorCode === "INVALID_EMAIL") return "ایمیل معتبر نیست.";
+    if (errorCode === "NOT_FOUND") return "گزارش پیدا نشد یا در دسترس نیست.";
+    if (errorCode === "REPORT_NOT_READY") return "گزارش هنوز آماده نشده است.";
+    return "خطا در ایجاد سفارش. دوباره تلاش کنید.";
+  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
-    const response = await fetch(`/api/orders`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, email, provider })
-    });
+    trackSeoEvent("seo_unlock_started", { locale: "fa", provider });
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`/api/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, email, provider })
+      });
 
-    const body = await response.json();
-    if (!response.ok) {
-      setMessage(body.error ?? "Failed");
-      return;
+      const body = await response.json();
+      if (!response.ok) {
+        setMessage(toUserMessage(String(body.error ?? "")));
+        return;
+      }
+
+      if (body.downloadUrl) {
+        setMessage(`این سفارش قبلاً پرداخت شده. دانلود برای سفارش ${body.orderId} آماده است.`);
+        trackSeoEvent("seo_payment_success", { locale: "fa", provider, reused_order: true });
+        router.push(`/audit/r/${token}/success?orderId=${body.orderId}&downloadUrl=${encodeURIComponent(body.downloadUrl)}`);
+        return;
+      }
+
+      if (body.redirectUrl) {
+        setMessage(`در حال انتقال به درگاه پرداخت برای سفارش ${body.orderId}...`);
+        window.location.href = body.redirectUrl;
+        return;
+      }
+
+      setMessage(`سفارش ایجاد شد: ${body.orderId}`);
+    } catch {
+      setMessage("ارتباط با سرور برقرار نشد. دوباره تلاش کنید.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    if (body.downloadUrl) {
-      setMessage(`این سفارش قبلاً پرداخت شده. دانلود برای سفارش ${body.orderId} آماده است.`);
-      router.push(`/audit/r/${token}/success?orderId=${body.orderId}&downloadUrl=${encodeURIComponent(body.downloadUrl)}`);
-      return;
-    }
-
-    if (body.redirectUrl) {
-      setMessage(`در حال انتقال به درگاه پرداخت برای سفارش ${body.orderId}...`);
-      window.location.href = body.redirectUrl;
-      return;
-    }
-
-    setMessage(`سفارش ایجاد شد: ${body.orderId}`);
   }
 
   return (
@@ -57,9 +79,16 @@ export default function UnlockPage() {
               <option value="ZARINPAL">Zarinpal</option>
             </select>
           </label>
-          <button type="submit">ادامه</button>
+          <p>برای تست سریع می‌توانید از Mock استفاده کنید؛ برای پرداخت واقعی Zarinpal را انتخاب کنید.</p>
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "در حال ارسال..." : "ادامه"}
+          </button>
         </form>
-        {message ? <p>{message}</p> : null}
+        {message ? (
+          <p role="status" aria-live="polite">
+            {message}
+          </p>
+        ) : null}
       </section>
     </main>
   );

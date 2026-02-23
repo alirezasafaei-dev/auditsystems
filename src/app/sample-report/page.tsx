@@ -1,4 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { buildPageMetadata } from "../../lib/seoMeta";
+
+export const metadata: Metadata = buildPageMetadata({
+  locale: "fa",
+  path: "/sample-report",
+  title: "ورودی گزارش نمونه",
+  description: "نمونه ورود به گزارش audit برای نمایش مسیر ارزش و تحویل گزارش.",
+  keywords: ["گزارش نمونه", "audit report sample", "سئو"]
+});
 
 export default function SampleReportPage() {
   return (

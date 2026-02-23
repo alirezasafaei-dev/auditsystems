@@ -19,6 +19,8 @@
     "roadmap:run": "tsx src/scripts/roadmap-automation.ts --strict",
     "roadmap:dry": "tsx src/scripts/roadmap-automation.ts --dry-run",
     "roadmap:phase": "tsx src/scripts/roadmap-automation.ts --phase",
+    "seo:audit": "tsx src/scripts/seo-audit-automation.ts --strict",
+    "seo:audit:dry": "tsx src/scripts/seo-audit-automation.ts --dry-run",
     "docs:generate": "tsx src/scripts/docs-automation.ts",
     "docs:refresh": "pnpm run docs:generate && pnpm run roadmap:run",
     "payment:preflight": "tsx src/scripts/payment-preflight.ts",
@@ -28,22 +30,22 @@
     "lighthouse:local": "tsx src/scripts/lighthouse-local.ts"
   },
   "dependencies": {
-    "@prisma/client": "^6.16.2",
-    "next": "^15.3.2",
+    "@prisma/client": "^6.19.2",
+    "next": "^15.5.12",
     "pdf-lib": "^1.17.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.1",
-    "@types/node": "^22.15.3",
-    "@types/react": "^19.0.8",
-    "@types/react-dom": "^19.0.3",
-    "eslint": "^9.34.0",
+    "@eslint/eslintrc": "^3.3.3",
+    "@types/node": "^22.19.11",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.3",
     "eslint-config-next": "^15.5.12",
-    "prisma": "^6.16.2",
-    "tsx": "^4.19.2",
-    "typescript": "^5.8.3",
+    "prisma": "^6.19.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
     "vitest": "^2.1.9"
   }
 }

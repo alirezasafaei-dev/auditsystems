@@ -19,11 +19,11 @@
 
 ## 4) Payment Smoke
 - [x] فرمان: `pnpm run payment:zarinpal:smoke`
-- خروجی: `logs/preflight/zarinpal-smoke.json` یا `SKIP` در نبود merchant.
+- وضعیت آخر اجرا: `SKIP` به علت نبود `ZARINPAL_MERCHANT_ID` (artifact JSON تولید نشد).
 
 ## 5) Production Migration
 - [~] فرمان: `pnpm prisma migrate deploy`
-- وضعیت فعلی: روی محیط فعلی به دلیل credential نامعتبر DB fail شد (`P1000`).
+- وضعیت آخر اجرا (2026-02-23): روی محیط فعلی به دلیل credential نامعتبر DB fail شد (`P1000` در `localhost:5432`).
 - اقدام انجام‌شده: مسیر no-docker deployment با Postgres سیستم/سرور مستندسازی شد.
 
 ## 6) Runtime Serviceization

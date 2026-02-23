@@ -5,6 +5,7 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import Script from "next/script";
 import { getAppBaseUrl } from "../lib/site";
+import { ASDEV_BRAND, getAsdevSignature } from "../lib/brand";
 
 const appBaseUrl = getAppBaseUrl();
 
@@ -72,6 +73,9 @@ type LayoutCopy = {
     location: string;
     quickTitle: string;
     creatorTitle: string;
+    portfolioTitle: string;
+    personalSiteTitle: string;
+    repoTitle: string;
     contactTitle: string;
     contactText: string;
     messageCta: string;
@@ -87,10 +91,13 @@ const faCopy: LayoutCopy = {
   skipToContent: "رفتن به محتوای اصلی",
   footer: {
     aboutTitle: "ASDEV",
-    aboutText: "Asdev Audit Platform برای تحلیل فنی، سئو، امنیت و بهبود نرخ تبدیل.",
+    aboutText: "Asdev Audit Platform برای تحلیل فنی، سئو، امنیت و بهبود نرخ تبدیل در اکوسیستم محصولات ASDEV.",
     location: "تهران — همکاری حضوری/ریموت در سراسر ایران",
     quickTitle: "لینک‌های سریع",
     creatorTitle: "اتصال به سازنده",
+    portfolioTitle: "صفحه برند ASDEV Portfolio",
+    personalSiteTitle: "سایت شخصی",
+    repoTitle: "مخزن GitHub پروژه",
     contactTitle: "تماس",
     contactText: "برای همکاری، ارزیابی زیرساخت یا اجرای فاز Production تماس بگیرید.",
     messageCta: "ارسال پیام",
@@ -106,10 +113,13 @@ const enCopy: LayoutCopy = {
   skipToContent: "Skip to main content",
   footer: {
     aboutTitle: "ASDEV",
-    aboutText: "Asdev Audit Platform for technical audits, SEO growth, security, and conversion performance.",
+    aboutText: "Asdev Audit Platform for technical audits, SEO growth, security, and conversion performance within ASDEV product ecosystem.",
     location: "Tehran — Remote and on-site collaboration",
     quickTitle: "Quick Links",
     creatorTitle: "Creator",
+    portfolioTitle: "ASDEV Portfolio brand page",
+    personalSiteTitle: "Personal site",
+    repoTitle: "Project GitHub repository",
     contactTitle: "Contact",
     contactText: "For production rollout and infrastructure consulting, get in touch.",
     messageCta: "Send Message",
@@ -140,6 +150,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const locale = h.get("x-asdev-locale") === "en" ? "en" : "fa";
   const pathname = h.get("x-asdev-pathname") ?? "/";
   const copy = locale === "en" ? enCopy : faCopy;
+  const signature = getAsdevSignature(locale);
   const currentYear = new Date().getFullYear();
   const gaMeasurementId = String(process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID ?? "").trim();
   const jsonLd = {
@@ -250,6 +261,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                   <li>
                     <Link href={withLocalePath("/sample-report", locale)}>{copy.nav.sample}</Link>
                   </li>
+                  <li>
+                    <Link href={withLocalePath("/brand/asdev-portfolio", locale)}>{copy.footer.portfolioTitle}</Link>
+                  </li>
                 </ul>
               </nav>
 
@@ -257,13 +271,22 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 <h3>{copy.footer.creatorTitle}</h3>
                 <ul>
                   <li>
-                    <Link href="https://alirezasafaeisystems.ir" target="_blank" rel="noopener noreferrer">
-                      سایت شخصی
+                    <Link href={ASDEV_BRAND.ownerSiteUrl} target="_blank" rel="noopener noreferrer">
+                      {copy.footer.personalSiteTitle}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href={locale === "en" ? ASDEV_BRAND.portfolioBrandPageEn : ASDEV_BRAND.portfolioBrandPageFa}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {copy.footer.portfolioTitle}
                     </Link>
                   </li>
                   <li>
                     <Link href="https://github.com/alirezasafaeisystems/asdev-audit-ir" target="_blank" rel="noopener noreferrer">
-                      مخزن GitHub پروژه
+                      {copy.footer.repoTitle}
                     </Link>
                   </li>
                 </ul>
@@ -284,8 +307,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               </p>
               <p>
                 {copy.footer.builtBy}{" "}
-                <Link href="https://alirezasafaeisystems.ir" target="_blank" rel="noopener noreferrer">
-                  Alireza Safaei Systems
+                <Link href={ASDEV_BRAND.ownerSiteUrl} target="_blank" rel="noopener noreferrer">
+                  {signature}
                 </Link>
               </p>
             </div>

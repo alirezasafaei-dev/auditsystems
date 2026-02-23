@@ -30,8 +30,8 @@ export default function HomePage() {
 
       <section className="kpi-grid">
         <article className="kpi">
-          <strong>17/17</strong>
-          <p>عبور کامل چک‌های نقشه راه در اتوماسیون</p>
+          <strong>22/22</strong>
+          <p>عبور کامل چک‌های فازهای Done در اتوماسیون</p>
         </article>
         <article className="kpi">
           <strong>10</strong>
@@ -57,6 +57,7 @@ export default function HomePage() {
           <h2>ابزارهای عملیاتی</h2>
           <p>اتوماسیون roadmap، تولید مستندات، preflight پرداخت و workflow آماده‌سازی Production یکپارچه شده‌اند.</p>
           <Link href="/pillar/iran-readiness-audit">مطالعه صفحه راهبردی</Link>
+          <Link href="/brand/asdev-portfolio">صفحه مرجع ASDEV Portfolio</Link>
         </article>
       </section>
     </main>

@@ -25,7 +25,7 @@ export default function HomePageEn() {
       </section>
 
       <section className="kpi-grid">
-        <article className="kpi"><strong>17/17</strong><p>Roadmap checks passing in automation</p></article>
+        <article className="kpi"><strong>22/22</strong><p>All checks of done phases passing in automation</p></article>
         <article className="kpi"><strong>10</strong><p>Implemented API routes</p></article>
         <article className="kpi"><strong>20+</strong><p>SEO-ready static and dynamic pages in two languages</p></article>
         <article className="kpi"><strong>4</strong><p>CI pipelines for roadmap, docs, production readiness, and main gate</p></article>
@@ -41,6 +41,7 @@ export default function HomePageEn() {
           <h2>Operational Tooling</h2>
           <p>Roadmap automation, docs generation, payment preflight checks, and production readiness workflow are fully integrated.</p>
           <Link href="/en/pillar/iran-readiness-audit">Read Platform Pillar</Link>
+          <Link href="/en/brand/asdev-portfolio">Open ASDEV Portfolio Reference</Link>
         </article>
       </section>
     </main>

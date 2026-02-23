@@ -1,10 +1,10 @@
 # Auto Generated Project Status
 
-Generated at: 2026-02-23T16:10:38.504Z
+Generated at: 2026-02-23T16:43:42.628Z
 
 ## Overview
 - API routes: 10
-- Page routes: 20
+- Page routes: 22
 - Test files: 6
 - NPM scripts: 24
 
@@ -12,7 +12,7 @@ Generated at: 2026-02-23T16:10:38.504Z
 - Done: 9
 - In Progress: 0
 - Planned: 1
-- Last automation run: 2026-02-23T16:08:46.751Z
+- Last automation run: 2026-02-23T16:43:41.913Z
 - Last run results: passed=22, failed=0, skipped=3
 
 ## API Routes
@@ -33,11 +33,13 @@ Generated at: 2026-02-23T16:10:38.504Z
 - `/audit/r/[token]`
 - `/audit/r/[token]/success`
 - `/audit/r/[token]/unlock`
+- `/brand/asdev-portfolio`
 - `/en`
 - `/en/audit`
 - `/en/audit/r/[token]`
 - `/en/audit/r/[token]/success`
 - `/en/audit/r/[token]/unlock`
+- `/en/brand/asdev-portfolio`
 - `/en/failed`
 - `/en/guides`
 - `/en/guides/[slug]`

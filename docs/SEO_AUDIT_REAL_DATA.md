@@ -1,6 +1,6 @@
 # SEO Audit (Repo-Backed, Real Data) — Updated
 
-تاریخ snapshot: 2026-02-23 (latest run set at `16:05Z` تا `16:08Z`)
+تاریخ snapshot: 2026-02-23 (latest run set at `20:05Z` تا `20:06Z`)
 
 ## Real Coverage Snapshot
 - Page routes: `20`
@@ -69,6 +69,12 @@
 - `https://audit.alirezasafaeisystems.ir/api/ready` -> `200` (ready)
 - `https://staging.audit.alirezasafaeisystems.ir/api/ready` -> `200` (ready)
 - TLS certificates for both production/staging audit domains are valid on server.
+- `https://audit.alirezasafaeisystems.ir/` به‌صورت پیش‌فرض `fa`/`rtl` سرو می‌شود.
+- `https://alirezasafaeisystems.ir/` و `https://persiantoolbox.ir/` نیز به فارسی پیش‌فرض سرو می‌شوند.
+
+## Verification Caveat
+- در محیط‌هایی که `https_proxy` فعال است، ممکن است request به دامنه audit timeout دیده شود.
+- با bypass پراکسی (`NO_PROXY='*'`) پاسخ‌ها پایدار و `200` هستند.
 
 ## Current Residual Risks
 - GA4 event pipeline نیازمند مقدار واقعی `NEXT_PUBLIC_GA4_MEASUREMENT_ID` در production است.

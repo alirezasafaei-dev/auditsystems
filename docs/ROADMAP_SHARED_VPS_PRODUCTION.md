@@ -9,18 +9,32 @@
 - اصل طراحی: shared host, isolated runtime (PM2/env/releases/logs)
 - وضعیت اجرا: `Done` (production + staging live)
 
-## Infrastructure Snapshot (Measured: 2026-02-23)
+## Infrastructure Snapshot (Measured: 2026-02-23 23:37 +03:30)
 | Area | Current State | Outcome |
 |---|---|---|
 | CPU | 4 vCPU | کافی برای اضافه‌شدن یک Next.js service دیگر |
-| RAM | 7.8Gi total, ~918Mi used, ~6.5Gi available | ظرفیت مناسب |
+| RAM | 7.8Gi total, ~948Mi used, ~6.5Gi available | ظرفیت مناسب |
 | Swap | 2.1Gi total (2G swapfile + 128M partition) | baseline hardening اعمال شد |
 | Disk | 59G total, 39G free | ظرفیت مناسب |
-| Load Avg | 0.04 / 0.05 / 0.14 | فشار پایین |
+| Load Avg | 0.10 / 0.44 / 0.69 | فشار پایین |
 | Running Node Apps | 6 PM2 apps (3 production + 3 staging) | پایدار روی VPS مشترک |
 | Bound App Ports | 3000, 3001, 3002, 3003, 3010, 3011 | ایزولیشن کامل runtime |
 | DB Engine | PostgreSQL 14 | سازگار با پروژه |
-| Existing release footprint | `/var/www/my-portfolio/releases` ≈ 2.8G, `/var/www/persian-tools/releases` ≈ 1.7G, `/var/www/asdev-audit-ir/releases` ≈ 602M | تحت کنترل با retention + logrotate |
+| Existing release footprint | `my-portfolio` + `persian-tools` + `asdev-audit-ir` (retention active) | تحت کنترل با retention + logrotate |
+
+## Live Validation Snapshot
+- `https://alirezasafaeisystems.ir`:
+  - HTTP -> HTTPS redirect فعال
+  - روت به `/fa` redirect می‌شود (locale پیش‌فرض فارسی)
+- `https://persiantoolbox.ir`:
+  - HTTP -> HTTPS redirect فعال
+  - cookie پیش‌فرض `ptb_locale=fa` تنظیم می‌شود
+- `https://audit.alirezasafaeisystems.ir`:
+  - HTTP -> HTTPS redirect فعال
+  - روت فارسی به‌صورت پیش‌فرض سرو می‌شود (`lang="fa"`, `dir="rtl"`)
+- `GET https://audit.alirezasafaeisystems.ir/api/ready` -> `200`
+- `GET https://staging.audit.alirezasafaeisystems.ir/api/ready` -> `200`
+- نکته probe: برای audit app معیار health روی `GET` سنجیده می‌شود؛ `HEAD` در بعضی مسیرها می‌تواند رفتار متفاوت نشان دهد.
 
 ## Work Packages
 
@@ -75,3 +89,4 @@
 - ریسک اصلی باقیمانده: هم‌پوشانی PM2/systemd در صورت افزودن سرویس جدید باید فقط از `pm2-deploy.service` مدیریت شود.
 - ریسک عملیاتی: growth release folders نیازمند retention مستمر و مانیتورینگ ماهانه است.
 - ریسک تجاری: فعال نبودن merchant live باعث ناقص‌بودن سناریوی payment success واقعی می‌شود.
+- ریسک مانیتورینگ: اگر health-checker بیرونی روی `HEAD` تنظیم شده باشد، احتمال false-negative وجود دارد؛ probe را روی `GET /api/ready` قرار دهید.

@@ -1,18 +1,18 @@
 # Project Analysis (Real Data Snapshot)
 
-تاریخ تحلیل: 2026-02-23  
-منبع: اجرای واقعی روی همین repository و artifactهای تولیدشده در `logs/*`
+تاریخ تحلیل: 2026-02-23 23:38 (+03:30)  
+منبع: اجرای واقعی commandها روی repository و VPS production (`185.3.124.93`)
 
 ## Scope
-- بررسی ساختار پروژه، مسیرها، فازها، و سلامت اتوماسیون
-- اجرای quality gates و سنجش وضعیت SEO/Performance
-- ثبت ریسک‌های باقی‌مانده برای production rollout
+- اعتبارسنجی فنی سه پروژه روی VPS مشترک: `asdev-portfolio`, `asdev-persiantoolbox`, `asdev-audit-ir`
+- اجرای gateهای خودکار داخل `asdev-audit-ir`
+- بررسی دسترسی عمومی دامنه‌ها، TLS، redirect، locale پیش‌فرض و ظرفیت سرور
 
 ## Architecture Snapshot
 - Framework: Next.js 15 (App Router) + TypeScript
 - Data: Prisma + PostgreSQL
-- Runtime pattern: Web app + DB-driven worker + API routes
-- Payments: Provider abstraction (`MOCK`, `ZARINPAL`) + callback + PDF delivery
+- Runtime pattern: Nginx reverse proxy + PM2 processes + loopback ports
+- Payments: provider abstraction (`MOCK`, `ZARINPAL`) + callback + PDF delivery
 - SEO infra:
   - `src/lib/site.ts`
   - `src/lib/seoMeta.ts`
@@ -25,32 +25,14 @@
 - API routes: `10`
 - Guide routes per locale: `10` slug (FA) + `10` slug (EN)
 
-### Page Routes
-- `/`
-- `/audit`
-- `/audit/r/[token]`
-- `/audit/r/[token]/success`
-- `/audit/r/[token]/unlock`
-- `/en`
-- `/en/audit`
-- `/en/audit/r/[token]`
-- `/en/audit/r/[token]/success`
-- `/en/audit/r/[token]/unlock`
-- `/en/failed`
-- `/en/guides`
-- `/en/guides/[slug]`
-- `/en/pillar/iran-readiness-audit`
-- `/en/sample-report`
-- `/failed`
-- `/guides`
-- `/guides/[slug]`
-- `/pillar/iran-readiness-audit`
-- `/sample-report`
-
 ## Automation & Quality (Measured)
+### `docs:refresh` run
+- Command: `pnpm run docs:refresh`
+- Timestamp: 2026-02-23T20:05Z
+- Output: `docs/AUTO_GENERATED_STATUS.md` + `logs/roadmap/last-run.{json,md}`
+
 ### Roadmap Gate
 - Command: `pnpm run roadmap:run`
-- Report: `logs/roadmap/last-run.json`
 - Result:
   - `passed=25`
   - `failed=0`
@@ -58,51 +40,59 @@
 
 ### SEO Gate
 - Command: `pnpm run seo:audit`
-- Report: `logs/seo/last-run.json`
 - Result: `passed=7`, `failed=0`
 
-### Payment Preflight
-- Command: `pnpm run payment:preflight:strict`
-- Report: `logs/preflight/payment-preflight.json`
-- Result:
-  - provider: `MOCK`
-  - `APP_BASE_URL=http://localhost:3000`
-  - redis distributed limiter intentionally disabled (env not set)
+### Quality Gate
+- Command: `pnpm run check`
+- Result: success (`lint`, `typecheck`, `test`, `build`)
 
-### Payment Smoke
-- Command: `pnpm run payment:zarinpal:smoke`
-- Result: `[SKIP] ZARINPAL_MERCHANT_ID is not set.`
+### Test Snapshot
+- Vitest: `6` files, `30` tests, all passed
+- Build output: all app routes compiled successfully (dynamic + static + SSG)
 
-### Migration Check
-- Command: `pnpm prisma migrate deploy`
-- Result: `P1000` (DB auth failed for local `postgres` credentials at `localhost:5432`)
+## VPS Capacity Snapshot (Measured)
+| Metric | Value | Assessment |
+|---|---|---|
+| CPU | 4 vCPU (`Intel Xeon E5-2680 v4`) | کافی برای 3 سرویس Next.js |
+| RAM | 7.8Gi total / ~948Mi used / ~6.5Gi available | ظرفیت مناسب |
+| Swap | 2.1Gi total / ~7Mi used | baseline hardening فعال |
+| Disk | 59G total / 18G used / 39G free | ظرفیت مناسب |
+| Load Avg | `0.10 / 0.44 / 0.69` | فشار پایین |
 
-## Lighthouse (Local Lab, Measured)
-- Command: `pnpm run lighthouse:local`
-- Report: `logs/lighthouse/summary.json`
-- Routes tested: `/`, `/audit`, `/guides`
-- Exit status: all routes `code=0`
+## PM2 Runtime Snapshot (Measured)
+- Total online apps: `6`
+- Production:
+  - `my-portfolio-production` (~109MB)
+  - `persian-tools-production` (~94MB)
+  - `asdev-audit-ir-production` (~93MB)
+- Staging:
+  - `my-portfolio-staging` (~97MB)
+  - `persian-tools-staging` (~95MB)
+  - `asdev-audit-ir-staging` (~93MB)
+- Port isolation: `127.0.0.1:{3000,3001,3002,3003,3010,3011}`
 
-| Route | Performance | SEO | Accessibility | Best Practices | FCP | LCP | TBT | CLS |
-|---|---:|---:|---:|---:|---|---|---|---|
-| `/` | 82 | 91 | 95 | 96 | 0.8s | 5.0s | 50ms | 0 |
-| `/audit` | 82 | 91 | 96 | 96 | 0.8s | 5.0s | 60ms | 0 |
-| `/guides` | 82 | 91 | 95 | 96 | 0.8s | 5.0s | 60ms | 0 |
+## Public Live Verification (Measured)
+### Domain/HTTPS/Redirect
+- `http://alirezasafaeisystems.ir` -> `301` to HTTPS
+- `http://persiantoolbox.ir` -> `301` to HTTPS
+- `http://audit.alirezasafaeisystems.ir` -> `301` to HTTPS
+- `https://www.alirezasafaeisystems.ir` -> `301` to apex
+- TLS valid on all three domains
 
-## Live Deployment Snapshot (Measured)
-- VPS: `185.3.124.93`
-- Runtime: `Node v20.20.0`, `pnpm 9.15.0`, `nginx/1.18.0`, `PM2` with `pm2-deploy.service`
-- PM2 apps online: `6` (portfolio/staging + persiantoolbox/staging + audit/staging)
-- Port isolation: app runtimes روی `127.0.0.1:{3000,3001,3002,3003,3010,3011}`
-- Public health:
-  - `https://audit.alirezasafaeisystems.ir/api/ready` -> `200`
-  - `https://staging.audit.alirezasafaeisystems.ir/api/ready` -> `200`
-- TLS:
-  - `audit.alirezasafaeisystems.ir` valid certificate
-  - `staging.audit.alirezasafaeisystems.ir` valid certificate
-- Server hardening:
-  - swap ارتقا داده شد: `~2.1Gi`
-  - logrotate برای logs هر سه پروژه فعال شد
+### Health Endpoints (GET-based)
+- `https://alirezasafaeisystems.ir/api/ready` -> `200`
+- `https://audit.alirezasafaeisystems.ir/api/ready` -> `200`
+- `https://staging.audit.alirezasafaeisystems.ir/api/ready` -> `200`
+
+### Locale Default Verification
+- `https://alirezasafaeisystems.ir/` -> `307` to `/fa` + `lang=fa`
+- `https://persiantoolbox.ir/` -> `200` + `ptb_locale=fa`
+- `https://audit.alirezasafaeisystems.ir/` -> `lang="fa"` / `dir="rtl"` on root
+
+## Important Diagnostic Note
+- timeout مشاهده‌شده قبلی برای `audit` از خود سرویس نبود.
+- علت: `https_proxy=http://127.0.0.1:10808` در محیط local.
+- با bypass پراکسی (`NO_PROXY='*'`) پاسخ دامنه `audit` پایدار و `200` شد.
 
 ## Current Phase Status
 - Done: `A` تا `J`
@@ -110,6 +100,6 @@
 - Source of truth: `ops/roadmap/phases.json`
 
 ## Remaining Post-GoLive Tasks (Actionable)
-1. Replace mock payment with live gateway credentials (`ZARINPAL_MERCHANT_ID`) and rerun `pnpm run payment:zarinpal:smoke`.
-2. Enable distributed rate limiting in production (`UPSTASH_*`, `REQUIRE_DISTRIBUTED_RATE_LIMIT=true`) after credential provisioning.
-3. Run production DB migration policy on server-side secrets context and archive migration evidence.
+1. فعال‌سازی merchant واقعی (`ZARINPAL_MERCHANT_ID`) و اجرای مجدد `pnpm run payment:zarinpal:smoke`.
+2. فعال‌سازی distributed rate limit در production (`UPSTASH_*`, `REQUIRE_DISTRIBUTED_RATE_LIMIT=true`).
+3. نهایی‌سازی وضعیت staging برای probeهای HEAD (GET پاس است؛ HEAD در برخی مسیرها 503 برمی‌گرداند و باید همگرا شود).

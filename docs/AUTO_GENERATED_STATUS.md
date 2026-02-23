@@ -1,6 +1,6 @@
 # Auto Generated Project Status
 
-Generated at: 2026-02-23T12:36:54.319Z
+Generated at: 2026-02-23T14:08:24.815Z
 
 ## Overview
 - API routes: 10
@@ -9,11 +9,11 @@ Generated at: 2026-02-23T12:36:54.319Z
 - NPM scripts: 24
 
 ## Roadmap Phases
-- Done: 8
+- Done: 9
 - In Progress: 0
 - Planned: 0
-- Last automation run: 2026-02-21T19:57:55.664Z
-- Last run results: passed=20, failed=0, skipped=0
+- Last automation run: 2026-02-23T14:08:24.052Z
+- Last run results: passed=22, failed=0, skipped=0
 
 ## API Routes
 - `/api/audit/runs`
@@ -76,6 +76,7 @@ Generated at: 2026-02-23T12:36:54.319Z
 | F | Monetization and Delivery | done | 3 |
 | G | SEO Scale | done | 2 |
 | H | Excellence / Momtaz | done | 3 |
+| I | SEO Execution Automation | done | 2 |
 
 ## Key Commands
 - `pnpm run dev` -> `next dev`
@@ -83,9 +84,13 @@ Generated at: 2026-02-23T12:36:54.319Z
 - `pnpm run worker:dev` -> `tsx src/worker/index.ts`
 - `pnpm run roadmap:run` -> `tsx src/scripts/roadmap-automation.ts --strict`
 - `pnpm run roadmap:dry` -> `tsx src/scripts/roadmap-automation.ts --dry-run`
+- `pnpm run roadmap:phase` -> `tsx src/scripts/roadmap-automation.ts --phase`
+- `pnpm run seo:audit` -> `tsx src/scripts/seo-audit-automation.ts --strict`
+- `pnpm run seo:audit:dry` -> `tsx src/scripts/seo-audit-automation.ts --dry-run`
 - `pnpm run docs:generate` -> `tsx src/scripts/docs-automation.ts`
 - `pnpm run docs:refresh` -> `pnpm run docs:generate && pnpm run roadmap:run`
 - `pnpm run payment:preflight` -> `tsx src/scripts/payment-preflight.ts`
 - `pnpm run payment:preflight:strict` -> `tsx src/scripts/payment-preflight.ts --strict`
 - `pnpm run payment:zarinpal:smoke` -> `tsx src/scripts/zarinpal-smoke.ts`
 - `pnpm run automation:run` -> `tsx src/scripts/automation-master.ts --strict`
+- `pnpm run lighthouse:local` -> `tsx src/scripts/lighthouse-local.ts`

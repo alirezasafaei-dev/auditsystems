@@ -5,8 +5,9 @@ type Step = { name: string; command: string };
 const steps: Step[] = [
   { name: "Quality Gate", command: "pnpm run check" },
   { name: "Roadmap Automation", command: "pnpm run roadmap:run" },
+  { name: "SEO Audit Automation", command: "pnpm run seo:audit" },
   { name: "Docs Refresh", command: "pnpm run docs:generate" },
-  { name: "Payment Preflight", command: "pnpm run payment:preflight" }
+  { name: "Payment Preflight", command: "pnpm run payment:preflight:strict" }
 ];
 
 async function run(command: string): Promise<number> {

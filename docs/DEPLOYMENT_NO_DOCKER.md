@@ -33,3 +33,15 @@ bash ops/deploy/rollback.sh --env production
 
 ## Important Guard
 - هیچ deploy واقعی قبل از تایید مستقیم انجام نمی‌شود.
+
+## Shared VPS Recommendation
+- الگوی recommended برای این پروژه: اپ مستقل روی زیرساخت مشترک
+- دامنه‌های هدف:
+  - production: `audit.alirezasafaeisystems.ir`
+  - staging: `staging.audit.alirezasafaeisystems.ir`
+- پورت‌های runtime مطابق اسکریپت‌ها:
+  - production: `3010`
+  - staging: `3011`
+
+جزئیات کامل تصمیم و معیارهای پذیرش در:
+- `ROADMAP_SHARED_VPS_PRODUCTION.md`

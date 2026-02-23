@@ -42,8 +42,10 @@ pnpm run check
 ## Roadmap Automation
 ```bash
 pnpm run roadmap:run
+pnpm run seo:audit
 ```
 گزارش اجرای فازها در `logs/roadmap/last-run.md` و `logs/roadmap/last-run.json` تولید می‌شود.
+گزارش اتوماسیون SEO در `logs/seo/last-run.md` و `logs/seo/last-run.json` تولید می‌شود.
 
 ## Docs Automation
 ```bash
@@ -84,6 +86,9 @@ pnpm run lighthouse:local
 - `WORKER_POLL_MS`
 - `WORKER_JOB_TIMEOUT_MS`
 - `IP_HASH_SALT`
+- `APP_BASE_URL`
+- `APP_BASE_URL_STRICT`
+- `NEXT_PUBLIC_GA4_MEASUREMENT_ID`
 
 ## Documentation
 - ایندکس مستندات: `docs/README.md`
@@ -91,6 +96,7 @@ pnpm run lighthouse:local
 - امنیت SSRF و Hardening: `docs/SECURITY_SSRF.md`
 - راهنمای Worker: `docs/WORKER_RUNBOOK.md`
 - فازها و نقشه راه: `docs/PHASES.md`, `docs/ROADMAP_PHASED.md`
+- تحلیل واقعی وضعیت پروژه: `docs/PROJECT_ANALYSIS_REAL_DATA.md`
 - اتوماسیون roadmap: `docs/ROADMAP_AUTOMATION.md`
 - گزارش خودکار وضعیت: `docs/AUTO_GENERATED_STATUS.md`
 - نقش‌ها و مهارت‌ها: `docs/ROLES_AND_SKILLS_SETUP.md`
@@ -99,3 +105,60 @@ pnpm run lighthouse:local
 - release: `docs/RELEASE_RUNBOOK.md`
 - rollback: `docs/ROLLBACK_RUNBOOK.md`
 - دیپلوی بدون Docker: `docs/DEPLOYMENT_NO_DOCKER.md`
+
+## همگام‌سازی مستندات (2026-02-23)
+
+### 1) معرفی
+پروژه `asdev-audit-ir` سرویس Audit وب‌سایت با خروجی عملیاتی و گزارش‌پذیر است.
+
+### 2) استک و معماری
+- Next.js (App Router) + React + TypeScript
+- Prisma + PostgreSQL (`db:migrate`, `db:studio`)
+- Worker محلی برای پردازش صف (`worker:dev`)
+- Quality gates با `lint`, `typecheck`, `test`, `build`
+- اتوماسیون roadmap/SEO/docs با scripts داخلی
+
+### 3) پیش‌نیازها
+- Node.js و pnpm
+- PostgreSQL قابل دسترس در `DATABASE_URL`
+
+### 4) نصب و اجرا
+```bash
+pnpm install
+cp .env.example .env
+pnpm run db:migrate
+pnpm run dev
+pnpm run worker:dev
+```
+
+### 5) تست و کیفیت
+```bash
+pnpm run lint
+pnpm run typecheck
+pnpm run test
+pnpm run check
+pnpm run lighthouse:local
+```
+
+### 6) کانفیگ و env
+- `APP_BASE_URL`, `APP_BASE_URL_STRICT`, `AUDIT_DNS_GUARD`
+- `DATABASE_URL`, `DOWNLOAD_TOKEN_SECRET`, `IP_HASH_SALT`
+- `NEXT_PUBLIC_GA4_MEASUREMENT_ID`, `PAYMENT_PROVIDER_DEFAULT`
+- `REQUIRE_DISTRIBUTED_RATE_LIMIT`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
+- `WORKER_POLL_MS`, `WORKER_JOB_TIMEOUT_MS`, `ZARINPAL_MERCHANT_ID`
+
+### 7) Deploy/Operations
+- آماده‌سازی release: `pnpm run payment:preflight` و `pnpm run automation:run`
+- smoke پرداخت: `pnpm run payment:zarinpal:smoke`
+- runbook دیپلوی بدون Docker: `docs/DEPLOYMENT_NO_DOCKER.md`
+- health checks: `GET /api/live` و `GET /api/ready`
+
+### 8) لینک‌ها
+- Repo: https://github.com/alirezasafaeisystems/asdev-audit-ir
+- Site: https://audit.alirezasafaeisystems.ir
+- Issues: https://github.com/alirezasafaeisystems/asdev-audit-ir/issues
+- Discussions: https://github.com/alirezasafaeisystems/asdev-audit-ir/discussions
+
+### 9) Status & Compatibility
+- آخرین بروزرسانی مستندات: 2026-02-23
+- وضعیت sync (snapshot پایه): `main`, `dirty`, `ahead 8`, `behind 0`

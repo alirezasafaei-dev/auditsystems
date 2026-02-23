@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SeoPageEvent from "../../../../../components/SeoPageEvent";
 
 export default async function SuccessPage({ params, searchParams }: { params: Promise<{ token: string }>; searchParams: Promise<{ orderId?: string; dl?: string; downloadUrl?: string }> }) {
   const { token } = await params;
@@ -11,6 +12,7 @@ export default async function SuccessPage({ params, searchParams }: { params: Pr
 
   return (
     <main>
+      <SeoPageEvent event="seo_payment_success" params={{ locale: "fa", path: `/audit/r/${token}/success` }} />
       <section className="card">
         <h1>پرداخت موفق</h1>
         <p>سفارش شما با موفقیت تکمیل شد.</p>

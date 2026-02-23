@@ -1,71 +1,16 @@
-"use client";
+import type { Metadata } from "next";
+import AuditPageClient from "./AuditPageClient";
+import { buildPageMetadata } from "../../lib/seoMeta";
 
-import Link from "next/link";
-import { FormEvent, useState } from "react";
+export const metadata: Metadata = buildPageMetadata({
+  locale: "fa",
+  path: "/audit",
+  title: "شروع Audit فنی سایت",
+  description: "URL سایت را ثبت کنید و گزارش فنی، سئو، امنیت و کارایی را دریافت کنید.",
+  keywords: ["audit سایت", "گزارش سئو", "گزارش کارایی", "گزارش امنیت"]
+});
 
 export default function AuditPage() {
-  const [url, setUrl] = useState("https://example.com");
-  const [depth, setDepth] = useState<"QUICK" | "DEEP">("QUICK");
-  const [message, setMessage] = useState("");
-  const [reportPath, setReportPath] = useState<string | null>(null);
-
-  async function onSubmit(event: FormEvent) {
-    event.preventDefault();
-    setMessage("در حال ثبت درخواست تحلیل...");
-    setReportPath(null);
-
-    const response = await fetch("/api/audit/runs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url, depth })
-    });
-
-    const body = await response.json();
-    if (!response.ok) {
-      setMessage(body.error ?? "Failed");
-      return;
-    }
-
-    const nextPath = `/audit/r/${body.token}`;
-    setReportPath(nextPath);
-    setMessage(`Run ایجاد شد: ${body.runId}`);
-  }
-
-  return (
-    <main>
-      <section className="card hero">
-        <h1>ایجاد Audit جدید</h1>
-        <p>آدرس هدف را ارسال کنید تا token گزارش تولید شود. اجرای worker بعد از enqueue به‌صورت خودکار شروع می‌شود.</p>
-      </section>
-
-      <section className="grid-2">
-        <section className="card">
-          <form onSubmit={onSubmit} className="grid">
-            <label>
-              آدرس هدف
-              <input value={url} onChange={(e) => setUrl(e.target.value)} required />
-            </label>
-            <label>
-              عمق تحلیل
-              <select value={depth} onChange={(e) => setDepth(e.target.value as "QUICK" | "DEEP") }>
-                <option value="QUICK">سریع (Quick)</option>
-                <option value="DEEP">عمیق (Deep)</option>
-              </select>
-            </label>
-            <button type="submit">ثبت Audit</button>
-          </form>
-        </section>
-
-        <section className="card grid">
-          <h2>وضعیت Run</h2>
-          <p>{message || "هنوز درخواستی ثبت نشده است."}</p>
-          {reportPath ? (
-            <p>
-              <Link href={reportPath}>باز کردن گزارش</Link>
-            </p>
-          ) : null}
-        </section>
-      </section>
-    </main>
-  );
+  return <AuditPageClient />;
 }
+

@@ -74,6 +74,7 @@ type LayoutCopy = {
     quickTitle: string;
     creatorTitle: string;
     portfolioTitle: string;
+    toolboxTitle: string;
     personalSiteTitle: string;
     repoTitle: string;
     contactTitle: string;
@@ -96,6 +97,7 @@ const faCopy: LayoutCopy = {
     quickTitle: "لینک‌های سریع",
     creatorTitle: "اتصال به سازنده",
     portfolioTitle: "صفحه برند ASDEV Portfolio",
+    toolboxTitle: "ASDEV PersianToolbox",
     personalSiteTitle: "سایت شخصی",
     repoTitle: "مخزن GitHub پروژه",
     contactTitle: "تماس",
@@ -118,6 +120,7 @@ const enCopy: LayoutCopy = {
     quickTitle: "Quick Links",
     creatorTitle: "Creator",
     portfolioTitle: "ASDEV Portfolio brand page",
+    toolboxTitle: "ASDEV PersianToolbox",
     personalSiteTitle: "Personal site",
     repoTitle: "Project GitHub repository",
     contactTitle: "Contact",
@@ -263,6 +266,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                   </li>
                   <li>
                     <Link href={withLocalePath("/brand/asdev-portfolio", locale)}>{copy.footer.portfolioTitle}</Link>
+                  </li>
+                  <li>
+                    <Link href={ASDEV_BRAND.persianToolboxUrl} target="_blank" rel="noopener noreferrer">
+                      {copy.footer.toolboxTitle}
+                    </Link>
                   </li>
                 </ul>
               </nav>

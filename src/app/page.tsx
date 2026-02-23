@@ -1,23 +1,20 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { buildPageMetadata } from "../lib/seoMeta";
+import SeoPageEvent from "../components/SeoPageEvent";
 
-const baseUrl = process.env.APP_BASE_URL ?? "http://localhost:3000";
-
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
+  locale: "fa",
+  path: "/",
   title: "پلتفرم تحلیل فنی و سئوی وب‌سایت",
   description: "اجرای audit فنی، تحلیل یافته‌ها، و تبدیل گزارش به جریان پرداخت و تحویل حرفه‌ای.",
-  alternates: {
-    canonical: `${baseUrl}/`,
-    languages: {
-      "fa-IR": `${baseUrl}/`,
-      en: `${baseUrl}/en`
-    }
-  }
-};
+  keywords: ["audit سایت", "سئو فنی", "security audit", "core web vitals"]
+});
 
 export default function HomePage() {
   return (
     <main>
+      <SeoPageEvent event="seo_landing_view" params={{ locale: "fa", path: "/" }} />
       <section className="card hero">
         <h1>پلتفرم Audit وب‌سایت برای تیم‌های رشد</h1>
         <p>تحلیل فنی، بررسی سئو، کنترل امنیت و تبدیل گزارش به جریان تحویل پولی با اتوماسیون Production-Ready.</p>

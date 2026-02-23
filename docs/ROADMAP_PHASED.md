@@ -60,3 +60,12 @@ Status: Done
 - [x] Locale-aware shell (`lang/dir/navigation/footer`) in unified layout
 - [x] Multi-language SEO coverage (hreflang alternates + bilingual sitemap)
 - [x] Edge security headers and liveness/readiness API model
+
+## Phase I — SEO Execution Automation
+Status: Done
+- [x] Base URL governance helper (`src/lib/site.ts`) and metadata utilities (`src/lib/seoMeta.ts`)
+- [x] Full metadata coverage for indexable templates (audit/sample/pillar/guides/home)
+- [x] Noindex policy for tokenized report routes and failed pages
+- [x] Localized guide content split (`fa/en`) + guide breadcrumbs/related links + article schema
+- [x] Real sitemap freshness model (`updatedAt`) and stricter robots disallow rules
+- [x] Automated SEO checks (`pnpm run seo:audit`) with artifacts in `logs/seo/`

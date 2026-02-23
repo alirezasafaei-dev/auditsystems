@@ -3,8 +3,10 @@ import type { Metadata, Viewport } from "next";
 import { ReactNode } from "react";
 import Link from "next/link";
 import { headers } from "next/headers";
+import Script from "next/script";
+import { getAppBaseUrl } from "../lib/site";
 
-const appBaseUrl = process.env.APP_BASE_URL ?? "http://localhost:3000";
+const appBaseUrl = getAppBaseUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(appBaseUrl),
@@ -139,6 +141,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const pathname = h.get("x-asdev-pathname") ?? "/";
   const copy = locale === "en" ? enCopy : faCopy;
   const currentYear = new Date().getFullYear();
+  const gaMeasurementId = String(process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID ?? "").trim();
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -180,6 +183,25 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             __html: JSON.stringify(jsonLd)
           }}
         />
+        {gaMeasurementId ? (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`} strategy="afterInteractive" />
+            <Script
+              id="ga4-bootstrap"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  window.gtag = gtag;
+                  gtag('js', new Date());
+                  gtag('consent', 'default', { analytics_storage: 'denied' });
+                  gtag('config', '${gaMeasurementId}', { anonymize_ip: true, send_page_view: false });
+                `
+              }}
+            />
+          </>
+        ) : null}
       </head>
       <body>
         <a href="#main-content" className="skip-link">

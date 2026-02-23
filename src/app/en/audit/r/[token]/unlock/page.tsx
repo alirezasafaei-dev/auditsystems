@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { trackSeoEvent } from "../../../../../../lib/analytics";
 
 export default function UnlockPageEn() {
   const router = useRouter();
@@ -11,34 +12,55 @@ export default function UnlockPageEn() {
   const [email, setEmail] = useState("");
   const [provider, setProvider] = useState<"MOCK" | "ZARINPAL">("MOCK");
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    trackSeoEvent("seo_unlock_page_view", { locale: "en", path: `/en/audit/r/${token}/unlock` });
+  }, [token]);
+
+  function toUserMessage(errorCode: string): string {
+    if (errorCode === "INVALID_EMAIL") return "Please enter a valid email address.";
+    if (errorCode === "NOT_FOUND") return "Report not found or unavailable.";
+    if (errorCode === "REPORT_NOT_READY") return "Report is not ready yet.";
+    return "Failed to create order. Please try again.";
+  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
-    const response = await fetch(`/api/orders`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, email, provider })
-    });
+    trackSeoEvent("seo_unlock_started", { locale: "en", provider });
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`/api/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, email, provider })
+      });
 
-    const body = await response.json();
-    if (!response.ok) {
-      setMessage(body.error ?? "Failed");
-      return;
+      const body = await response.json();
+      if (!response.ok) {
+        setMessage(toUserMessage(String(body.error ?? "")));
+        return;
+      }
+
+      if (body.downloadUrl) {
+        setMessage(`Order already paid. Download ready for order ${body.orderId}.`);
+        trackSeoEvent("seo_payment_success", { locale: "en", provider, reused_order: true });
+        router.push(`/en/audit/r/${token}/success?orderId=${body.orderId}&downloadUrl=${encodeURIComponent(body.downloadUrl)}`);
+        return;
+      }
+
+      if (body.redirectUrl) {
+        setMessage(`Redirecting to payment gateway for order ${body.orderId}...`);
+        window.location.href = body.redirectUrl;
+        return;
+      }
+
+      setMessage(`Order created: ${body.orderId}`);
+    } catch {
+      setMessage("Network error. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    if (body.downloadUrl) {
-      setMessage(`Order already paid. Download ready for order ${body.orderId}.`);
-      router.push(`/en/audit/r/${token}/success?orderId=${body.orderId}&downloadUrl=${encodeURIComponent(body.downloadUrl)}`);
-      return;
-    }
-
-    if (body.redirectUrl) {
-      setMessage(`Redirecting to payment gateway for order ${body.orderId}...`);
-      window.location.href = body.redirectUrl;
-      return;
-    }
-
-    setMessage(`Order created: ${body.orderId}`);
   }
 
   return (
@@ -57,9 +79,16 @@ export default function UnlockPageEn() {
               <option value="ZARINPAL">Zarinpal</option>
             </select>
           </label>
-          <button type="submit">Submit</button>
+          <p>Use Mock for local test flow and Zarinpal for real gateway checkout.</p>
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </button>
         </form>
-        {message ? <p>{message}</p> : null}
+        {message ? (
+          <p role="status" aria-live="polite">
+            {message}
+          </p>
+        ) : null}
       </section>
     </main>
   );

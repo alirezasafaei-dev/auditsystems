@@ -42,8 +42,10 @@ pnpm run check
 ## Roadmap Automation
 ```bash
 pnpm run roadmap:run
+pnpm run seo:audit
 ```
 گزارش اجرای فازها در `logs/roadmap/last-run.md` و `logs/roadmap/last-run.json` تولید می‌شود.
+گزارش اتوماسیون SEO در `logs/seo/last-run.md` و `logs/seo/last-run.json` تولید می‌شود.
 
 ## Docs Automation
 ```bash
@@ -84,6 +86,9 @@ pnpm run lighthouse:local
 - `WORKER_POLL_MS`
 - `WORKER_JOB_TIMEOUT_MS`
 - `IP_HASH_SALT`
+- `APP_BASE_URL`
+- `APP_BASE_URL_STRICT`
+- `NEXT_PUBLIC_GA4_MEASUREMENT_ID`
 
 ## Documentation
 - ایندکس مستندات: `docs/README.md`

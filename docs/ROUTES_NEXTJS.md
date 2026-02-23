@@ -62,3 +62,4 @@ Readiness probe: dependency-aware (`database`, `redis`) with `200/503`.
 - Sensitive API responses are `Cache-Control: no-store`.
 - API responses include `x-request-id`.
 - Global security headers are enforced via `middleware.ts`.
+- Tokenized report routes and failed routes are configured as non-indexable (`noindex,nofollow`).

@@ -1,18 +1,18 @@
 # Auto Generated Project Status
 
-Generated at: 2026-02-21T19:57:31.455Z
+Generated at: 2026-02-23T12:36:54.319Z
 
 ## Overview
 - API routes: 10
 - Page routes: 20
 - Test files: 6
-- NPM scripts: 22
+- NPM scripts: 24
 
 ## Roadmap Phases
 - Done: 8
 - In Progress: 0
 - Planned: 0
-- Last automation run: 2026-02-21T19:55:54.810Z
+- Last automation run: 2026-02-21T19:57:55.664Z
 - Last run results: passed=20, failed=0, skipped=0
 
 ## API Routes
@@ -60,6 +60,8 @@ Generated at: 2026-02-21T19:57:31.455Z
 - `REQUIRE_DISTRIBUTED_RATE_LIMIT`
 - `PAYMENT_PROVIDER_DEFAULT`
 - `APP_BASE_URL`
+- `APP_BASE_URL_STRICT`
+- `NEXT_PUBLIC_GA4_MEASUREMENT_ID`
 - `ZARINPAL_MERCHANT_ID`
 - `DOWNLOAD_TOKEN_SECRET`
 

@@ -8,6 +8,8 @@ pnpm-lock.yaml
 *.tsbuildinfo
 logs/roadmap/last-run.json
 logs/roadmap/last-run.md
+logs/seo/last-run.json
+logs/seo/last-run.md
 logs/preflight/payment-preflight.json
 logs/preflight/zarinpal-smoke.json
 logs/lighthouse/*.json

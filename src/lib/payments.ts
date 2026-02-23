@@ -1,4 +1,5 @@
 import { PaymentProvider } from "@prisma/client";
+import { getAppBaseUrl } from "./site";
 
 export type PaymentCheckoutResult = {
   redirectUrl: string;
@@ -14,7 +15,7 @@ export type PaymentVerifyResult = {
 };
 
 function getBaseUrl(): string {
-  return process.env.APP_BASE_URL ?? "http://localhost:3000";
+  return getAppBaseUrl();
 }
 
 function getDefaultProvider(): PaymentProvider {

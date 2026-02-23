@@ -19,6 +19,7 @@
 - `RELEASE_RUNBOOK.md`: چک‌لیست release
 - `ROLLBACK_RUNBOOK.md`: چک‌لیست rollback
 - `DEPLOYMENT_NO_DOCKER.md`: الگوی استقرار واقعی بدون Docker (PM2 + Nginx)
+- `ROADMAP_SHARED_VPS_PRODUCTION.md`: نقشه راه اجرایی استقرار روی VPS مشترک (ساب‌دامین + ایزولیشن runtime)
 - `PHASE_EXCELLENCE.md`: فاز ممتاز (UI/UX + SEO + Security excellence)
 - `ROADMAP_MOMTAZ.md`: نقشه راه اجرایی فاز ممتاز
 
@@ -26,6 +27,11 @@
 - `PHASES.md`: فازبندی اجرایی
 - `ROADMAP_PHASED.md`: نقشه راه مرحله‌ای + وضعیت
 - `FUNNEL.md`: مسیر تبدیل کاربر به لید/سفارش
+- `SEO_AUDIT_REAL_DATA.md`: گزارش SEO بر پایه داده واقعی همین repo
+- `PROJECT_ANALYSIS_REAL_DATA.md`: تحلیل جامع وضعیت فعلی پروژه بر پایه اجرای واقعی گیت‌ها و سنجه‌ها
+- `SEO_ROADMAP_PHASED_NO_TIMELINE.md`: نقشه راه ۳ فازی SEO بدون زمان‌بندی
+- `SEO_MEASUREMENT_AUTOMATION.md`: مدل KPI، taxonomy رویدادها و اتوماسیون سنجش SEO
+- `SEO_CONTENT_AUTHORITY_OPS.md`: چارچوب عملیات محتوا و authority برای رشد پایدار
 
 ## Team & Process
 - `ROLES_AND_SKILLS_SETUP.md`: نقش‌ها، مهارت‌ها، پیش‌نیازها و release gate

@@ -60,3 +60,46 @@ Status: Done
 - [x] Locale-aware shell (`lang/dir/navigation/footer`) in unified layout
 - [x] Multi-language SEO coverage (hreflang alternates + bilingual sitemap)
 - [x] Edge security headers and liveness/readiness API model
+
+## Phase I — SEO Execution Automation
+Status: Done
+- [x] Base URL governance helper (`src/lib/site.ts`) and metadata utilities (`src/lib/seoMeta.ts`)
+- [x] Full metadata coverage for indexable templates (audit/sample/pillar/guides/home)
+- [x] Noindex policy for tokenized report routes and failed pages
+- [x] Localized guide content split (`fa/en`) + guide breadcrumbs/related links + article schema
+- [x] Real sitemap freshness model (`updatedAt`) and stricter robots disallow rules
+- [x] Automated SEO checks (`pnpm run seo:audit`) with artifacts in `logs/seo/`
+
+## Phase J — Shared VPS Production Rollout
+Status: Done
+- [x] Roll out as independent app on shared VPS under brand subdomain: `audit.alirezasafaeisystems.ir`
+- [x] Keep isolation by app/runtime (dedicated PM2 app names + dedicated env files + dedicated release directory)
+- [x] Use existing deploy pattern (`ops/deploy/deploy.sh`) with production/staging ports (`3010`/`3011`)
+- [x] Provision Nginx site + TLS cert for production/staging audit domains
+- [x] Apply server hardening baseline: increase swap to `2G`, verify journald/log growth, keep release retention active
+- [x] Complete production env + data readiness: `DATABASE_URL`, payment provider, redis rate-limit config, strict base URL
+- [x] Execute go-live quality gates on target host:
+  - [x] `pnpm run roadmap:run`
+  - [x] `pnpm run seo:audit`
+  - [x] readiness checks on public domain (`production/staging`)
+- [x] Connect internal links from main brand site (`/fa` and `/en`) to audit product routes
+
+## Execution Backlog (No Timeline)
+
+### Phase 1 — Stabilize & Clarify
+Status: In Progress
+- [ ] یکسان‌سازی health probe policy روی `GET /api/ready` برای همه مانیتورینگ‌ها (حذف false-negative ناشی از `HEAD`)
+- [ ] مرور نهایی copy فارسی صفحه اصلی برند و `/fa/standards` با معیار «این سایت چیست/برای چه کسی است/خروجی چیست»
+- [ ] بررسی regression زبان پیش‌فرض فارسی در هر سه دامنه بعد از هر deploy
+
+### Phase 2 — Systemize Shared UX
+Status: Planned
+- [ ] استخراج الگوی مشترک `ASDEV` (footer signature + profile block + cross-link) برای سه پروژه
+- [ ] تعریف قرارداد component-level برای shared sections بدون شکستن معماری فعلی هر repo
+- [ ] کاهش تکرار microcopy در CTA/empty/error state بین `portfolio`, `persiantoolbox`, `audit`
+
+### Phase 3 — Optimize Growth & SEO
+Status: Planned
+- [ ] بهینه‌سازی CWV با تمرکز روی LCP صفحات کلیدی (`/fa`, `/fa/standards`, `/audit`)
+- [ ] تکمیل measurement واقعی (GA4/GSC + conversion events) و ثبت baseline KPI
+- [ ] ارتقای محتوای استانداردها با intent map فارسی و internal-link plan بین سه محصول

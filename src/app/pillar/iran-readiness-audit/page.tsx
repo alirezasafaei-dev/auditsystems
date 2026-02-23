@@ -1,3 +1,14 @@
+import type { Metadata } from "next";
+import { buildPageMetadata } from "../../../lib/seoMeta";
+
+export const metadata: Metadata = buildPageMetadata({
+  locale: "fa",
+  path: "/pillar/iran-readiness-audit",
+  title: "صفحه راهبردی Iran Readiness Audit",
+  description: "راهبرد جامع برای کارایی، سئو، امنیت و آمادگی پرداخت وب‌سایت‌های رشدگرا در ایران.",
+  keywords: ["iran readiness audit", "سئو ایران", "audit فنی", "پرداخت"]
+});
+
 export default function IranReadinessAuditPillarPage() {
   return (
     <main className="grid">

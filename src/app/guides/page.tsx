@@ -1,20 +1,17 @@
 import Link from "next/link";
-import { guides } from "../../content/guides";
+import { getGuides } from "../../content/guides";
 import type { Metadata } from "next";
+import { buildPageMetadata } from "../../lib/seoMeta";
 
-const baseUrl = process.env.APP_BASE_URL ?? "http://localhost:3000";
+const guides = getGuides("fa");
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
+  locale: "fa",
+  path: "/guides",
   title: "راهنماهای رشد و فنی",
   description: "راهنماهای عملی برای سئو، کارایی، امنیت و بهبود نرخ تبدیل.",
-  alternates: {
-    canonical: `${baseUrl}/guides`,
-    languages: {
-      "fa-IR": `${baseUrl}/guides`,
-      en: `${baseUrl}/en/guides`
-    }
-  }
-};
+  keywords: ["راهنمای سئو", "راهنمای کارایی وب", "راهنمای امنیت وب"]
+});
 
 export default function GuidesIndexPage() {
   return (

@@ -151,12 +151,16 @@ async function main(): Promise<void> {
         "check",
         "roadmap:run",
         "roadmap:dry",
+        "roadmap:phase",
+        "seo:audit",
+        "seo:audit:dry",
         "docs:generate",
         "docs:refresh",
         "payment:preflight",
         "payment:preflight:strict",
         "payment:zarinpal:smoke",
         "automation:run",
+        "lighthouse:local",
         "dev",
         "worker:dev"
       ].includes(name)

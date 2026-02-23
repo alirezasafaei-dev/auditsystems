@@ -1,3 +1,14 @@
+import type { Metadata } from "next";
+import { buildPageMetadata } from "../../../../lib/seoMeta";
+
+export const metadata: Metadata = buildPageMetadata({
+  locale: "en",
+  path: "/pillar/iran-readiness-audit",
+  title: "Iran Readiness Audit Pillar",
+  description: "A strategic pillar for technical SEO, performance, resilience, and payment readiness in Iran.",
+  keywords: ["iran readiness audit", "technical SEO", "website resilience", "payment readiness"]
+});
+
 export default function IranReadinessAuditPillarPageEn() {
   return (
     <main className="grid">

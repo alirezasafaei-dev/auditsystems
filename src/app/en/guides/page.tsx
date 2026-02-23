@@ -1,20 +1,17 @@
 import Link from "next/link";
-import { guides } from "../../../content/guides";
+import { getGuides } from "../../../content/guides";
 import type { Metadata } from "next";
+import { buildPageMetadata } from "../../../lib/seoMeta";
 
-const baseUrl = process.env.APP_BASE_URL ?? "http://localhost:3000";
+const guides = getGuides("en");
 
-export const metadata: Metadata = {
-  title: "Guides",
+export const metadata: Metadata = buildPageMetadata({
+  locale: "en",
+  path: "/guides",
+  title: "Growth and Technical Guides",
   description: "Growth and technical playbooks for performance, SEO, security, and conversion operations.",
-  alternates: {
-    canonical: `${baseUrl}/en/guides`,
-    languages: {
-      "fa-IR": `${baseUrl}/guides`,
-      en: `${baseUrl}/en/guides`
-    }
-  }
-};
+  keywords: ["technical SEO guides", "performance playbooks", "security playbooks"]
+});
 
 export default function GuidesIndexPageEn() {
   return (

@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "defaultMode": "done_and_in_progress",
   "phases": [
     {
@@ -172,6 +172,28 @@
           "id": "seo-audit-strict",
           "description": "Strict SEO automation checks pass",
           "command": "pnpm run seo:audit"
+        }
+      ]
+    },
+    {
+      "id": "J",
+      "title": "Shared VPS Production Rollout",
+      "status": "planned",
+      "checks": [
+        {
+          "id": "deploy-tooling-ready",
+          "description": "Deploy and rollback tooling for non-docker runtime exists",
+          "command": "test -f ops/deploy/deploy.sh && test -f ops/deploy/rollback.sh && test -f scripts/deploy/provision-nginx-site.sh"
+        },
+        {
+          "id": "nginx-template-ready",
+          "description": "Nginx template and production rollout runbook exist",
+          "command": "test -f ops/nginx/asdev-audit-ir.conf && test -f docs/ROADMAP_SHARED_VPS_PRODUCTION.md"
+        },
+        {
+          "id": "health-and-gates-ready",
+          "description": "Readiness endpoints and automation gates are available",
+          "command": "test -f src/app/api/live/route.ts && test -f src/app/api/ready/route.ts && pnpm run automation:run"
         }
       ]
     }

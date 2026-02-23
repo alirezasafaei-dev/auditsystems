@@ -105,6 +105,8 @@ export async function POST(request: NextRequest) {
 
     const normalized = await normalizeAuditTargetUrl(inputUrl, { verifyDnsPublicIp: true });
 
+    const explicitLocale = request.headers.get("x-asdev-locale") === "en" ? "en" : "fa";
+
     const run = await prisma.auditRun.create({
       data: {
         url: inputUrl,
@@ -113,7 +115,7 @@ export async function POST(request: NextRequest) {
         status: "QUEUED",
         ipHash,
         userAgent: request.headers.get("user-agent") ?? null,
-        locale: request.headers.get("accept-language") ?? null
+        locale: explicitLocale
       }
     });
 

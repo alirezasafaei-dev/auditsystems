@@ -83,3 +83,23 @@ Status: Done
   - [x] `pnpm run seo:audit`
   - [x] readiness checks on public domain (`production/staging`)
 - [x] Connect internal links from main brand site (`/fa` and `/en`) to audit product routes
+
+## Execution Backlog (No Timeline)
+
+### Phase 1 — Stabilize & Clarify
+Status: In Progress
+- [ ] یکسان‌سازی health probe policy روی `GET /api/ready` برای همه مانیتورینگ‌ها (حذف false-negative ناشی از `HEAD`)
+- [ ] مرور نهایی copy فارسی صفحه اصلی برند و `/fa/standards` با معیار «این سایت چیست/برای چه کسی است/خروجی چیست»
+- [ ] بررسی regression زبان پیش‌فرض فارسی در هر سه دامنه بعد از هر deploy
+
+### Phase 2 — Systemize Shared UX
+Status: Planned
+- [ ] استخراج الگوی مشترک `ASDEV` (footer signature + profile block + cross-link) برای سه پروژه
+- [ ] تعریف قرارداد component-level برای shared sections بدون شکستن معماری فعلی هر repo
+- [ ] کاهش تکرار microcopy در CTA/empty/error state بین `portfolio`, `persiantoolbox`, `audit`
+
+### Phase 3 — Optimize Growth & SEO
+Status: Planned
+- [ ] بهینه‌سازی CWV با تمرکز روی LCP صفحات کلیدی (`/fa`, `/fa/standards`, `/audit`)
+- [ ] تکمیل measurement واقعی (GA4/GSC + conversion events) و ثبت baseline KPI
+- [ ] ارتقای محتوای استانداردها با intent map فارسی و internal-link plan بین سه محصول

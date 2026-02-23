@@ -24,3 +24,4 @@ pnpm run payment:zarinpal:smoke
 ## Notes
 - برای smoke واقعی، `APP_BASE_URL` باید publicly reachable باشد.
 - اگر merchant فعال نیست، smoke با `SKIP` ثبت می‌شود.
+- برای rollout پیشنهادی shared VPS مقدار `APP_BASE_URL` را روی `https://audit.alirezasafaeisystems.ir` قرار دهید.

@@ -52,3 +52,12 @@
 - breadcrumb/article schema برای guide templates
 - `sitemap.xml` با `lastmod` واقعی بر پایه داده محتوا
 - اتوماسیون SEO checks با `pnpm run seo:audit`
+
+## Phase J — Shared VPS Production Rollout (Planned)
+- اپ روی ساب‌دامین مستقل برند (`audit.alirezasafaeisystems.ir`) بدون تداخل با سایت‌های فعلی publish شود.
+- health checks عمومی برقرار باشند: `GET /api/live` و `GET /api/ready` با وضعیت 200.
+- TLS معتبر و redirect کامل HTTP->HTTPS برای دامنه جدید فعال باشد.
+- env production کامل و معتبر باشد (`APP_BASE_URL_STRICT=true`, payment/redis/database secrets).
+- migration واقعی دیتابیس با `pnpm prisma migrate deploy` روی production DB موفق شود.
+- release/rollback عملی با اسکریپت‌های `ops/deploy/*` قابل اجرا و قابل بازگشت باشد.
+- لینک‌دهی داخلی از سایت اصلی به مسیرهای audit در `fa/en` اضافه و verify شود.

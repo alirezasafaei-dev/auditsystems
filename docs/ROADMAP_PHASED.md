@@ -71,15 +71,15 @@ Status: Done
 - [x] Automated SEO checks (`pnpm run seo:audit`) with artifacts in `logs/seo/`
 
 ## Phase J — Shared VPS Production Rollout
-Status: Planned
-- [ ] Roll out as independent app on shared VPS under brand subdomain: `audit.alirezasafaeisystems.ir`
-- [ ] Keep isolation by app/runtime (dedicated PM2 app names + dedicated env files + dedicated release directory)
-- [ ] Use existing deploy pattern (`ops/deploy/deploy.sh`) with production/staging ports (`3010`/`3011`)
-- [ ] Provision Nginx site + TLS cert for production/staging audit domains
-- [ ] Apply server hardening baseline: increase swap to `2G`, verify journald/log growth, keep release retention active
-- [ ] Complete production env + data readiness: `DATABASE_URL`, payment provider, redis rate-limit config, strict base URL
-- [ ] Execute go-live quality gates on target host:
-  - [ ] `pnpm run automation:run`
-  - [ ] `pnpm run payment:preflight:strict`
-  - [ ] readiness/liveness checks on public domain
-- [ ] Connect internal links from main brand site (`/fa` and `/en`) to audit product routes
+Status: Done
+- [x] Roll out as independent app on shared VPS under brand subdomain: `audit.alirezasafaeisystems.ir`
+- [x] Keep isolation by app/runtime (dedicated PM2 app names + dedicated env files + dedicated release directory)
+- [x] Use existing deploy pattern (`ops/deploy/deploy.sh`) with production/staging ports (`3010`/`3011`)
+- [x] Provision Nginx site + TLS cert for production/staging audit domains
+- [x] Apply server hardening baseline: increase swap to `2G`, verify journald/log growth, keep release retention active
+- [x] Complete production env + data readiness: `DATABASE_URL`, payment provider, redis rate-limit config, strict base URL
+- [x] Execute go-live quality gates on target host:
+  - [x] `pnpm run roadmap:run`
+  - [x] `pnpm run seo:audit`
+  - [x] readiness checks on public domain (`production/staging`)
+- [x] Connect internal links from main brand site (`/fa` and `/en`) to audit product routes

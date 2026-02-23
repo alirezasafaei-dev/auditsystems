@@ -52,9 +52,9 @@
 - Command: `pnpm run roadmap:run`
 - Report: `logs/roadmap/last-run.json`
 - Result:
-  - `passed=22`
+  - `passed=25`
   - `failed=0`
-  - `skipped=3` (Phase `J` planned checks)
+  - `skipped=0`
 
 ### SEO Gate
 - Command: `pnpm run seo:audit`
@@ -89,14 +89,27 @@
 | `/audit` | 82 | 91 | 96 | 96 | 0.8s | 5.0s | 60ms | 0 |
 | `/guides` | 82 | 91 | 95 | 96 | 0.8s | 5.0s | 60ms | 0 |
 
+## Live Deployment Snapshot (Measured)
+- VPS: `185.3.124.93`
+- Runtime: `Node v20.20.0`, `pnpm 9.15.0`, `nginx/1.18.0`, `PM2` with `pm2-deploy.service`
+- PM2 apps online: `6` (portfolio/staging + persiantoolbox/staging + audit/staging)
+- Port isolation: app runtimes روی `127.0.0.1:{3000,3001,3002,3003,3010,3011}`
+- Public health:
+  - `https://audit.alirezasafaeisystems.ir/api/ready` -> `200`
+  - `https://staging.audit.alirezasafaeisystems.ir/api/ready` -> `200`
+- TLS:
+  - `audit.alirezasafaeisystems.ir` valid certificate
+  - `staging.audit.alirezasafaeisystems.ir` valid certificate
+- Server hardening:
+  - swap ارتقا داده شد: `~2.1Gi`
+  - logrotate برای logs هر سه پروژه فعال شد
+
 ## Current Phase Status
-- Done: `A` تا `I`
-- Planned: `J` (Shared VPS production rollout)
+- Done: `A` تا `J`
+- Planned: `none`
 - Source of truth: `ops/roadmap/phases.json`
 
-## Remaining Production Blockers (Actionable)
-1. Provision production DB credentials and pass `pnpm prisma migrate deploy`.
-2. Set production payment credentials (`ZARINPAL_MERCHANT_ID`) and rerun smoke.
-3. Enable distributed rate limiting in production (`UPSTASH_*`, `REQUIRE_DISTRIBUTED_RATE_LIMIT=true`).
-4. Deploy under target subdomain (`audit.alirezasafaeisystems.ir`) with TLS and readiness checks.
-5. Link main brand site (`/fa`, `/en`) to audit app routes for discovery/conversion.
+## Remaining Post-GoLive Tasks (Actionable)
+1. Replace mock payment with live gateway credentials (`ZARINPAL_MERCHANT_ID`) and rerun `pnpm run payment:zarinpal:smoke`.
+2. Enable distributed rate limiting in production (`UPSTASH_*`, `REQUIRE_DISTRIBUTED_RATE_LIMIT=true`) after credential provisioning.
+3. Run production DB migration policy on server-side secrets context and archive migration evidence.

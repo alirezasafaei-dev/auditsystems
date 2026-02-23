@@ -5,7 +5,8 @@ export const ASDEV_BRAND = {
   ownerSiteUrl: "https://alirezasafaeisystems.ir",
   portfolioBrandPageFa: "https://alirezasafaeisystems.ir/fa/about-brand",
   portfolioBrandPageEn: "https://alirezasafaeisystems.ir/en/about-brand",
-  portfolioHomeUrl: "https://alirezasafaeisystems.ir"
+  portfolioHomeUrl: "https://alirezasafaeisystems.ir",
+  persianToolboxUrl: "https://persiantoolbox.ir"
 } as const;
 
 export function getAsdevSignature(locale: "fa" | "en"): string {

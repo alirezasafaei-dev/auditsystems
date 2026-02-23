@@ -99,7 +99,7 @@ module.exports = {
       name: '$APP_NAME',
       cwd: '$RELEASE_DIR',
       script: 'pnpm',
-      args: 'exec next start -p $PORT',
+      args: 'exec next start -H 127.0.0.1 -p $PORT',
       env_file: '$ENV_FILE',
       env: {
         NODE_ENV: 'production',

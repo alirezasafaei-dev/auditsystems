@@ -53,11 +53,11 @@
 - `sitemap.xml` با `lastmod` واقعی بر پایه داده محتوا
 - اتوماسیون SEO checks با `pnpm run seo:audit`
 
-## Phase J — Shared VPS Production Rollout (Planned)
-- اپ روی ساب‌دامین مستقل برند (`audit.alirezasafaeisystems.ir`) بدون تداخل با سایت‌های فعلی publish شود.
-- health checks عمومی برقرار باشند: `GET /api/live` و `GET /api/ready` با وضعیت 200.
-- TLS معتبر و redirect کامل HTTP->HTTPS برای دامنه جدید فعال باشد.
-- env production کامل و معتبر باشد (`APP_BASE_URL_STRICT=true`, payment/redis/database secrets).
-- migration واقعی دیتابیس با `pnpm prisma migrate deploy` روی production DB موفق شود.
-- release/rollback عملی با اسکریپت‌های `ops/deploy/*` قابل اجرا و قابل بازگشت باشد.
-- لینک‌دهی داخلی از سایت اصلی به مسیرهای audit در `fa/en` اضافه و verify شود.
+## Phase J — Shared VPS Production Rollout (Done)
+- اپ روی ساب‌دامین مستقل برند (`audit.alirezasafaeisystems.ir`) و staging (`staging.audit.alirezasafaeisystems.ir`) publish شده است.
+- health checks عمومی برقرار است: `GET /api/ready` روی production/staging با `200` و دیتابیس `pass`.
+- TLS معتبر و redirect HTTP->HTTPS فعال است.
+- runtime isolation عملیاتی اعمال شده: bind روی `127.0.0.1` + reverse proxy در Nginx.
+- PM2 startup پایدار با `pm2-deploy.service` نهایی شده و سرویس‌های متداخل غیرفعال شده‌اند.
+- server hardening baseline تکمیل شده: swap به `2G` ارتقا یافت و logrotate اپلیکیشن‌ها فعال شد.
+- لینک‌دهی داخلی از مسیرهای برند به مسیرهای audit و صفحه برند ASDEV Portfolio در `fa/en` برقرار است.

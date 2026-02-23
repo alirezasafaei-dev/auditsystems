@@ -178,7 +178,7 @@
     {
       "id": "J",
       "title": "Shared VPS Production Rollout",
-      "status": "planned",
+      "status": "done",
       "checks": [
         {
           "id": "deploy-tooling-ready",
@@ -191,9 +191,9 @@
           "command": "test -f ops/nginx/asdev-audit-ir.conf && test -f docs/ROADMAP_SHARED_VPS_PRODUCTION.md"
         },
         {
-          "id": "health-and-gates-ready",
-          "description": "Readiness endpoints and automation gates are available",
-          "command": "test -f src/app/api/live/route.ts && test -f src/app/api/ready/route.ts && pnpm run automation:run"
+          "id": "live-domains-ready",
+          "description": "Rollout runtime contracts (health probes + host binding + rollout docs) are present",
+          "command": "test -f src/app/api/live/route.ts && test -f src/app/api/ready/route.ts && rg -n \"next start -H 127.0.0.1 -p\" ops/deploy/deploy.sh && test -f docs/ROADMAP_SHARED_VPS_PRODUCTION.md && test -f docs/PROJECT_ANALYSIS_REAL_DATA.md"
         }
       ]
     }

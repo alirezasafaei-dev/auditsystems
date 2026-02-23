@@ -10,7 +10,7 @@
 - Templates with metadata/generateMetadata: `14`
 - Sitemap URLs: `30` (10 static localized pairs + 20 guides localized pairs)
 - SEO automation status: `passed=7 / failed=0` (`logs/seo/last-run.json`)
-- Roadmap gate status: `passed=22 / failed=0 / skipped=3` (`logs/roadmap/last-run.json`)
+- Roadmap gate status: `passed=25 / failed=0 / skipped=0` (`logs/roadmap/last-run.json`)
 
 ## Stack & SEO Infra
 - Next.js App Router + TypeScript
@@ -66,8 +66,9 @@
 | `/guides` | 82 | 91 | 95 | 96 | 0.8s | 5.0s | 60ms | 0 |
 
 ## Live URL Verification
-- `https://YOUR-DOMAIN.COM` is not this project (parked/placeholder domain).
-- Audit remains repo-first by design.
+- `https://audit.alirezasafaeisystems.ir/api/ready` -> `200` (ready)
+- `https://staging.audit.alirezasafaeisystems.ir/api/ready` -> `200` (ready)
+- TLS certificates for both production/staging audit domains are valid on server.
 
 ## Current Residual Risks
 - GA4 event pipeline نیازمند مقدار واقعی `NEXT_PUBLIC_GA4_MEASUREMENT_ID` در production است.

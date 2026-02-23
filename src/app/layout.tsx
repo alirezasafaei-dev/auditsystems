@@ -183,6 +183,21 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       }
     ]
   };
+  const networkLinks = [
+    {
+      label: locale === "en" ? "Portfolio & contact" : "پورتفولیو و راه‌های ارتباطی",
+      href: `https://alirezasafaeisystems.ir/?utm_source=audit&utm_medium=cross_site&utm_campaign=asdev_network&utm_content=footer`
+    },
+    {
+      label: "PersianToolbox — ابزارهای فارسی (لوکال و امن)",
+      href: `https://persiantoolbox.ir/?utm_source=audit&utm_medium=cross_site&utm_campaign=asdev_network&utm_content=footer`
+    },
+    {
+      label: "Audit IR — بررسی فنی و امنیتی",
+      href: `https://audit.alirezasafaeisystems.ir/?utm_source=audit&utm_medium=cross_site&utm_campaign=asdev_network&utm_content=footer`
+    }
+  ];
+  const telegramLink = "https://t.me/asdevsystems";
 
   return (
     <html lang={locale === "en" ? "en" : "fa"} dir={locale === "en" ? "ltr" : "rtl"}>
@@ -313,12 +328,32 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               <p>
                 {copy.footer.rights} © {currentYear}
               </p>
-              <p>
-                {copy.footer.builtBy}{" "}
-                <Link href={ASDEV_BRAND.ownerSiteUrl} target="_blank" rel="noopener noreferrer">
-                  {signature}
-                </Link>
-              </p>
+              <div className="footer-signature">
+                <p>
+                  {copy.footer.builtBy}{" "}
+                  <Link href={ASDEV_BRAND.ownerSiteUrl} target="_blank" rel="noopener noreferrer">
+                    {signature}
+                  </Link>
+                </p>
+                <p className="text-sm">
+                  ASDEV | Alireza Safaei — علیرضا صفایی · Portfolio & contact:
+                  {" "}
+                  <Link href="https://alirezasafaeisystems.ir/" target="_blank" rel="noopener noreferrer" className="link">
+                    alirezasafaeisystems.ir
+                  </Link>
+                  {" · "}
+                  <Link href={telegramLink} target="_blank" rel="noopener noreferrer" className="link">
+                    Telegram: @asdevsystems
+                  </Link>
+                </p>
+                <div className="footer-links">
+                  {networkLinks.map((item) => (
+                    <Link key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" className="link">
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </footer>

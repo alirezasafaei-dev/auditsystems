@@ -3,6 +3,7 @@
 export type SeoEventName =
   | "seo_landing_view"
   | "seo_guide_view"
+  | "seo_brand_portfolio_view"
   | "seo_audit_page_view"
   | "seo_audit_start"
   | "seo_audit_run_created"
@@ -48,4 +49,3 @@ export function trackSeoEvent(event: SeoEventName, params: SeoEventParams = {}):
     ...payload
   });
 }
-

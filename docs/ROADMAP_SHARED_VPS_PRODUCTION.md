@@ -13,11 +13,13 @@
 |---|---|---|
 | CPU | 4 vCPU | کافی برای اضافه‌شدن یک Next.js service دیگر |
 | RAM | 7.8Gi total, ~749Mi used, ~6.7Gi available | ظرفیت مناسب |
+| Swap | 128MB (used ~6.8MB) | برای پایداری build/restart باید به 2GB افزایش یابد |
 | Disk | 59G total, 42G free | ظرفیت مناسب |
 | Load Avg | 0.58 / 0.13 / 0.04 | فشار پایین |
 | Running Node Apps | 4 PM2 apps (2 production + 2 staging) | قابل توسعه |
 | Bound App Ports | 3000, 3001, 3002, 3003 | بدون تداخل با 3010/3011 |
 | DB Engine | PostgreSQL 14 | سازگار با پروژه |
+| Existing release footprint | `/var/www/my-portfolio/releases` ≈ 2.9G, `/var/www/persian-tools/releases` ≈ 3.2G | نیازمند retention monitoring |
 
 ## Work Packages
 

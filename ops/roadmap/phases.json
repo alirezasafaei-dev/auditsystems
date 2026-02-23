@@ -157,6 +157,23 @@
           "command": "test -f src/app/api/live/route.ts && test -f src/app/api/ready/route.ts && test -f src/lib/health.ts"
         }
       ]
+    },
+    {
+      "id": "I",
+      "title": "SEO Execution Automation",
+      "status": "done",
+      "checks": [
+        {
+          "id": "seo-infra-files",
+          "description": "SEO automation infrastructure files exist",
+          "command": "test -f src/lib/site.ts && test -f src/lib/seoMeta.ts && test -f src/scripts/seo-audit-automation.ts"
+        },
+        {
+          "id": "seo-audit-strict",
+          "description": "Strict SEO automation checks pass",
+          "command": "pnpm run seo:audit"
+        }
+      ]
     }
   ]
 }

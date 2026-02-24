@@ -1,6 +1,6 @@
 # Project Analysis (Real Data Snapshot)
 
-تاریخ تحلیل: 2026-02-23 23:38 (+03:30)  
+تاریخ تحلیل: 2026-02-24 05:10 (+03:30)  
 منبع: اجرای واقعی commandها روی repository و VPS production (`185.3.124.93`)
 
 ## Scope
@@ -90,16 +90,27 @@
 - `https://audit.alirezasafaeisystems.ir/` -> `lang="fa"` / `dir="rtl"` on root
 
 ## Important Diagnostic Note
-- timeout مشاهده‌شده قبلی برای `audit` از خود سرویس نبود.
-- علت: `https_proxy=http://127.0.0.1:10808` در محیط local.
-- با bypass پراکسی (`NO_PROXY='*'`) پاسخ دامنه `audit` پایدار و `200` شد.
+- از محیط local فعلی، `audit.alirezasafaeisystems.ir` و `staging.audit...` timeout مشاهده می‌شود.
+- راستی‌آزمایی authoritative از داخل VPS انجام شد و هر دو endpoint با `GET/HEAD=200/200` تایید شدند.
+- این اختلاف مسیر شبکه/egress محیط local است، نه failure خود سرویس.
 
 ## Current Phase Status
 - Done: `A` تا `J`
 - Planned: `none`
 - Source of truth: `ops/roadmap/phases.json`
 
-## Post-GoLive Tasks (Closed — 2026-02-24)
-1. `ZARINPAL_MERCHANT_ID` در production/staging فعال و smoke واقعی اجرا شد (`pnpm run payment:zarinpal:smoke`).
-2. distributed rate limit در production/staging با `UPSTASH_*` + `REQUIRE_DISTRIBUTED_RATE_LIMIT=true` همگرا شد.
-3. parity مانیتورینگ `GET/HEAD` برای `api/ready` استانداردسازی شد و baseline زنده در `logs/runtime/asdev-network-baseline.json` ثبت گردید.
+## Post-GoLive Tasks (Updated — 2026-02-24)
+1. `ZARINPAL_MERCHANT_ID`:
+   - وضعیت: **Incomplete**
+   - شواهد: `pnpm run payment:zarinpal:smoke` روی production با خروجی `[SKIP] ZARINPAL_MERCHANT_ID is not set.`
+   - علت: در shared env مقدار فعلی `ZARINPAL_MERCHANT_ID=""` است.
+2. distributed rate limit:
+   - وضعیت: **Fail-Closed فعال**
+   - شواهد: `POST /api/audit/runs` روی production/staging -> `503 RATE_LIMIT_BACKEND_REQUIRED`
+   - تحلیل: `REQUIRE_DISTRIBUTED_RATE_LIMIT=true` فعال است، اما `UPSTASH_*` واقعی provision نشده‌اند.
+3. readiness parity + baseline:
+   - وضعیت: **Complete**
+   - شواهد:
+     - `GET/HEAD` parity روی چهار endpoint (`portfolio/persian/audit-prod/audit-staging`) = `200/200`
+     - `pnpm run network:baseline` روی VPS -> PASS
+     - artifact: `logs/runtime/asdev-network-baseline.json`

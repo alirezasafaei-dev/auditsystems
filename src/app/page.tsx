@@ -17,13 +17,18 @@ export default function HomePage() {
       <SeoPageEvent event="seo_landing_view" params={{ locale: "fa", path: "/" }} />
       <section className="card hero">
         <h1>پلتفرم Audit وب‌سایت برای تیم‌های رشد</h1>
-        <p>تحلیل فنی، بررسی سئو، کنترل امنیت و تبدیل گزارش به جریان تحویل پولی با اتوماسیون Production-Ready.</p>
+        <p>
+          این سایت برای تیم‌های فنی/رشد ساخته شده تا تحلیل فنی، بررسی سئو و کنترل امنیت را به خروجی اجرایی قابل‌تحویل تبدیل کند.
+        </p>
         <div className="hero-actions">
           <Link className="button" href="/audit">
             شروع Audit جدید
           </Link>
           <Link className="button secondary" href="/guides">
             مشاهده راهنماها
+          </Link>
+          <Link className="button secondary" href="/standards">
+            استانداردهای تحویل
           </Link>
         </div>
       </section>
@@ -57,6 +62,7 @@ export default function HomePage() {
           <h2>ابزارهای عملیاتی</h2>
           <p>اتوماسیون roadmap، تولید مستندات، preflight پرداخت و workflow آماده‌سازی Production یکپارچه شده‌اند.</p>
           <Link href="/pillar/iran-readiness-audit">مطالعه صفحه راهبردی</Link>
+          <Link href="/standards">تعریف خروجی و intent map فارسی</Link>
           <Link href="/brand/asdev-portfolio">صفحه مرجع ASDEV Portfolio</Link>
         </article>
       </section>

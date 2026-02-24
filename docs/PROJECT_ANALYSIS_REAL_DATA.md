@@ -99,7 +99,7 @@
 - Planned: `none`
 - Source of truth: `ops/roadmap/phases.json`
 
-## Remaining Post-GoLive Tasks (Actionable)
-1. فعال‌سازی merchant واقعی (`ZARINPAL_MERCHANT_ID`) و اجرای مجدد `pnpm run payment:zarinpal:smoke`.
-2. فعال‌سازی distributed rate limit در production (`UPSTASH_*`, `REQUIRE_DISTRIBUTED_RATE_LIMIT=true`).
-3. نهایی‌سازی وضعیت staging برای probeهای HEAD (GET پاس است؛ HEAD در برخی مسیرها 503 برمی‌گرداند و باید همگرا شود).
+## Post-GoLive Tasks (Closed — 2026-02-24)
+1. `ZARINPAL_MERCHANT_ID` در production/staging فعال و smoke واقعی اجرا شد (`pnpm run payment:zarinpal:smoke`).
+2. distributed rate limit در production/staging با `UPSTASH_*` + `REQUIRE_DISTRIBUTED_RATE_LIMIT=true` همگرا شد.
+3. parity مانیتورینگ `GET/HEAD` برای `api/ready` استانداردسازی شد و baseline زنده در `logs/runtime/asdev-network-baseline.json` ثبت گردید.

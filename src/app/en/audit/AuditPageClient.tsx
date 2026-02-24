@@ -17,6 +17,7 @@ export default function AuditPageClientEn() {
 
   function toUserMessage(errorCode: string): string {
     if (errorCode === "RATE_LIMITED") return "Too many requests. Please retry in a few minutes.";
+    if (errorCode === "RATE_LIMIT_BACKEND_REQUIRED") return "Distributed rate-limit backend is temporarily unavailable. Please retry shortly.";
     if (errorCode === "INVALID_URL_EMPTY") return "Target URL is required.";
     if (errorCode === "INVALID_URL_TOO_LONG") return "Target URL is too long.";
     if (errorCode.startsWith("INVALID_URL_")) return "URL is invalid. Provide a full public URL.";

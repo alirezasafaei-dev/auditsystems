@@ -54,6 +54,12 @@ jobs:
             echo "ZARINPAL_MERCHANT_ID is not set; skipping zarinpal smoke test."
           fi
 
+      - name: ASDEV network baseline (live GET/HEAD + locale)
+        env:
+          NO_PROXY: "*"
+          no_proxy: "*"
+        run: pnpm run network:baseline
+
       - name: Upload readiness artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -62,4 +68,5 @@ jobs:
           path: |
             logs/roadmap/
             logs/preflight/
+            logs/runtime/
             docs/AUTO_GENERATED_STATUS.md

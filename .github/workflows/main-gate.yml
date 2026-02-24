@@ -53,6 +53,11 @@ jobs:
           done
           grep -q "ASDEV" /tmp/asdev.html
           grep -q "asdev_network" /tmp/asdev.html
+          GET_CODE="$(curl -sS -o /tmp/ready.json -w '%{http_code}' http://127.0.0.1:3110/api/ready)"
+          HEAD_CODE="$(curl -sSI -o /tmp/ready.head -w '%{http_code}' -X HEAD http://127.0.0.1:3110/api/ready)"
+          test "${GET_CODE}" = "200"
+          test "${HEAD_CODE}" = "${GET_CODE}"
+          grep -q '"status":"ready"' /tmp/ready.json || grep -q '"status":"degraded"' /tmp/ready.json
 
       - name: Upload automation artifacts
         if: always()

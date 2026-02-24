@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-
-const utmSource = "audit";
-
-function withUtm(baseUrl: string, content: "footer" | "asdev_page") {
-  const url = new URL(baseUrl);
-  url.searchParams.set("utm_source", utmSource);
-  url.searchParams.set("utm_medium", "cross_site");
-  url.searchParams.set("utm_campaign", "asdev_network");
-  url.searchParams.set("utm_content", content);
-  return url.toString();
-}
+import {
+  ASDEV_BRAND,
+  ASDEV_PORTFOLIO_LINE,
+  ASDEV_SIGNATURE_FULL,
+  ASDEV_TELEGRAM_URL,
+  buildAsdevNetworkLinks
+} from "../../lib/brand";
 
 export const metadata: Metadata = {
   title: "ASDEV — صفحه برند و لینک‌های شبکه",
@@ -31,29 +27,48 @@ export const metadata: Metadata = {
 };
 
 export default function AsdevPage() {
-  const links = [
-    {
-      label: "پورتفولیو و راه‌های ارتباطی",
-      href: withUtm("https://alirezasafaeisystems.ir/", "asdev_page"),
-      desc: "معرفی و کانال‌های تماس مستقیم با علیرضا صفایی."
-    },
-    {
-      label: "PersianToolbox — ابزارهای فارسی (لوکال و امن)",
-      href: withUtm("https://persiantoolbox.ir/", "asdev_page"),
-      desc: "ابزارهای فارسی با پردازش لوکال و حریم خصوصی کاربر."
-    },
-    {
-      label: "Audit IR — بررسی فنی و امنیتی",
-      href: withUtm("https://audit.alirezasafaeisystems.ir/", "asdev_page"),
-      desc: "همین پلتفرم برای Audit Performance/SEO/Security."
+  const links = buildAsdevNetworkLinks("audit", "asdev_page").map((item) => {
+    if (item.key === "portfolio") {
+      return {
+        ...item,
+        desc: "معرفی و کانال‌های تماس مستقیم با علیرضا صفایی."
+      };
     }
-  ];
+    if (item.key === "toolbox") {
+      return {
+        ...item,
+        desc: "ابزارهای فارسی با پردازش لوکال و حریم خصوصی کاربر."
+      };
+    }
+    return {
+      ...item,
+      desc: "همین پلتفرم برای Audit Performance/SEO/Security."
+    };
+  });
 
   const contactLinks = [
     { label: "GitHub", href: "https://github.com/alirezasafaeisystems" },
-    { label: "Telegram", href: "https://t.me/asdevsystems" },
-    { label: "Portfolio & contact", href: "https://alirezasafaeisystems.ir/" }
+    { label: "Telegram", href: ASDEV_TELEGRAM_URL },
+    { label: "Portfolio & contact", href: ASDEV_BRAND.ownerSiteUrl }
   ];
+
+  const orgPersonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        name: "ASDEV",
+        url: ASDEV_BRAND.ownerSiteUrl,
+        sameAs: [ASDEV_BRAND.ownerSiteUrl, "https://github.com/alirezasafaeisystems", ASDEV_TELEGRAM_URL]
+      },
+      {
+        "@type": "Person",
+        name: "Alireza Safaei",
+        url: ASDEV_BRAND.ownerSiteUrl,
+        jobTitle: "Architecture & Systems DEV"
+      }
+    ]
+  };
 
   const faqLd = {
     "@context": "https://schema.org",
@@ -86,6 +101,10 @@ export default function AsdevPage() {
       </header>
       <script
         type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgPersonLd) }}
+      />
+      <script
+        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
 
@@ -103,11 +122,10 @@ export default function AsdevPage() {
 
       <section className="card space-y-2">
         <h2 className="text-sm font-semibold">امضای برند</h2>
-        <p className="text-sm text-muted">ASDEV | Alireza Safaei — علیرضا صفایی</p>
+        <p className="text-sm text-muted">{ASDEV_SIGNATURE_FULL}</p>
         <p className="text-sm text-muted">
-          Portfolio &amp; contact:{" "}
-          <Link href="https://alirezasafaeisystems.ir/" target="_blank" rel="noopener noreferrer" className="link">
-            alirezasafaeisystems.ir
+          <Link href={ASDEV_BRAND.ownerSiteUrl} target="_blank" rel="noopener noreferrer" className="link">
+            {ASDEV_PORTFOLIO_LINE}
           </Link>
         </p>
         <div className="footer-links">
@@ -117,6 +135,9 @@ export default function AsdevPage() {
             </Link>
           ))}
         </div>
+        <Link href="/standards" className="link">
+          استانداردهای تحویل و نقشه intent فارسی
+        </Link>
       </section>
     </main>
   );

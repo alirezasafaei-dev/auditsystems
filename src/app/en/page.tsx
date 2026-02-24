@@ -17,10 +17,13 @@ export default function HomePageEn() {
       <SeoPageEvent event="seo_landing_view" params={{ locale: "en", path: "/en" }} />
       <section className="card hero">
         <h1>Website Audit Platform for Growth Teams</h1>
-        <p>Run technical audits, analyze findings, and convert reports into paid delivery workflows with production-ready automation.</p>
+        <p>
+          Built for engineering and growth teams to transform technical/SEO/security findings into clear, execution-ready delivery output.
+        </p>
         <div className="hero-actions">
           <Link className="button" href="/en/audit">Start New Audit</Link>
           <Link className="button secondary" href="/en/guides">Explore Guides</Link>
+          <Link className="button secondary" href="/en/standards">Delivery Standards</Link>
         </div>
       </section>
 
@@ -41,6 +44,7 @@ export default function HomePageEn() {
           <h2>Operational Tooling</h2>
           <p>Roadmap automation, docs generation, payment preflight checks, and production readiness workflow are fully integrated.</p>
           <Link href="/en/pillar/iran-readiness-audit">Read Platform Pillar</Link>
+          <Link href="/en/standards">Output definition and intent map</Link>
           <Link href="/en/brand/asdev-portfolio">Open ASDEV Portfolio Reference</Link>
         </article>
       </section>

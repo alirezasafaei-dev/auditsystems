@@ -4,7 +4,7 @@ import { normalizeAuditTargetUrl } from "../../../../lib/normalizeAuditTargetUrl
 import { createReportToken } from "../../../../lib/token";
 import { observeApiRequest } from "../../../../lib/metrics";
 import { createRequestId, logEvent, respondJson } from "../../../../lib/observability";
-import { consumeDistributedRateLimit } from "../../../../lib/rateLimit";
+import { consumeDistributedRateLimit, isDistributedRateLimitRequired } from "../../../../lib/rateLimit";
 import { getClientIp, hashClientIp, sanitizeApiError } from "../../../../lib/security";
 import { NextRequest } from "next/server";
 
@@ -58,6 +58,22 @@ export async function POST(request: NextRequest) {
       limit: RATE_LIMIT_MAX_RUNS,
       windowSec: Math.floor(RATE_LIMIT_WINDOW_MS / 1000)
     });
+    const requireDistributed = isDistributedRateLimitRequired();
+
+    if (requireDistributed && distributed.backend !== "upstash-redis") {
+      statusCode = 503;
+      logEvent("error", "audit_run_rate_limit_backend_required", { requestId, backend: distributed.backend });
+      return respondJson(
+        { error: "RATE_LIMIT_BACKEND_REQUIRED", requestId },
+        requestId,
+        {
+          status: statusCode,
+          headers: {
+            "Cache-Control": "no-store"
+          }
+        }
+      );
+    }
 
     if (!distributed.allowed) {
       statusCode = 429;

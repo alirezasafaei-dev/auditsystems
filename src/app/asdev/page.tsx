@@ -55,12 +55,39 @@ export default function AsdevPage() {
     { label: "Portfolio & contact", href: "https://alirezasafaeisystems.ir/" }
   ];
 
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "چطور می‌توان از نتایج Audit استفاده کرد؟",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "از لینک‌های همین صفحه به پورتفولیو و PersianToolbox بروید تا اقدام‌های اصلاحی را اجرا کنید."
+        }
+      },
+      {
+        "@type": "Question",
+        name: "کانال رسمی ASDEV چیست؟",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "کانال تلگرام رسمی: https://t.me/asdevsystems"
+        }
+      }
+    ]
+  };
+
   return (
     <main className="container page-shell space-y-8 py-10" id="main-content">
       <header className="card">
         <h1 className="text-2xl font-bold">ASDEV — علیرضا صفایی</h1>
         <p className="text-muted">معرفی برند ASDEV و لینک‌های رسمی شبکه محصولات.</p>
       </header>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+      />
 
       <section className="grid gap-4 md:grid-cols-3">
         {links.map((item) => (

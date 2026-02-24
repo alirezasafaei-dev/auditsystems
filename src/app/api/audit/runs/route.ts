@@ -59,20 +59,14 @@ export async function POST(request: NextRequest) {
       windowSec: Math.floor(RATE_LIMIT_WINDOW_MS / 1000)
     });
     const requireDistributed = isDistributedRateLimitRequired();
+    const useDatabaseFallback = distributed.backend !== "upstash-redis";
 
-    if (requireDistributed && distributed.backend !== "upstash-redis") {
-      statusCode = 503;
-      logEvent("error", "audit_run_rate_limit_backend_required", { requestId, backend: distributed.backend });
-      return respondJson(
-        { error: "RATE_LIMIT_BACKEND_REQUIRED", requestId },
+    if (requireDistributed && useDatabaseFallback) {
+      logEvent("warn", "audit_run_rate_limit_backend_fallback", {
         requestId,
-        {
-          status: statusCode,
-          headers: {
-            "Cache-Control": "no-store"
-          }
-        }
-      );
+        backend: distributed.backend,
+        fallback: "database"
+      });
     }
 
     if (!distributed.allowed) {
@@ -93,7 +87,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (distributed.backend !== "upstash-redis") {
+    if (useDatabaseFallback) {
       const recentRuns = await prisma.auditRun.count({
         where: {
           ipHash,

@@ -1,30 +1,8 @@
-import { observeApiRequest } from "../../../lib/metrics";
-import { createRequestId, respondJson } from "../../../lib/observability";
-import { buildReadinessReport } from "../../../lib/health";
+import { NextResponse } from "next/server";
 
-export async function GET(): Promise<Response> {
-  const requestId = createRequestId();
-  const startedAt = Date.now();
-  let statusCode = 200;
+export const dynamic = "force-dynamic";
 
-  try {
-    const report = await buildReadinessReport();
-    statusCode = report.ok ? 200 : 503;
-    return respondJson(
-      {
-        status: report.ok ? "ready" : "degraded",
-        requestId,
-        ...report
-      },
-      requestId,
-      {
-        status: statusCode,
-        headers: {
-          "Cache-Control": "no-store"
-        }
-      }
-    );
-  } finally {
-    observeApiRequest("/api/ready", statusCode, Date.now() - startedAt);
-  }
+export async function GET() {
+  // TODO: در آینده اتصال DB/Redis را هم بررسی کنید
+  return NextResponse.json({ status: "ready" });
 }

@@ -1,7 +1,7 @@
 # Enterprise Runtime Status
 
-Last updated (UTC): 2026-02-24T01:40:52Z
-Base commit at capture: `c5254ba`
+Last updated (UTC): 2026-02-24T02:06:58Z
+Base commit at capture: `178c5c3`
 
 ## Implemented baseline
 - ASDEV cross-site contract: `/asdev` page + footer signature + UTM links + Telegram (`@asdevsystems`).
@@ -19,6 +19,9 @@ Base commit at capture: `c5254ba`
   - `my-portfolio-production` روی `3002`
   - `persian-tools-production` روی `3000`
   - `asdev-audit-ir-production/staging` روی `3010/3011`
+- Audit patch deploy (`manual-20260224T015807Z-audit-fallback-fix`) -> PASS
+  - production release: `20260224T015815Z`
+  - staging release: `20260224T020348Z`
 - `pm2 status` -> 6 app آنلاین (3 production + 3 staging)
 - Loopback readiness (روی VPS):
   - `http://127.0.0.1:3002/api/ready` -> `GET=200 HEAD=200`
@@ -34,8 +37,9 @@ Base commit at capture: `c5254ba`
   - report: `logs/runtime/asdev-network-baseline.json`
 - `pnpm run payment:zarinpal:smoke` (روی VPS) -> SKIP
   - evidence: `ZARINPAL_MERCHANT_ID=""` در shared env
-- `POST /api/audit/runs` روی production/staging -> `503 RATE_LIMIT_BACKEND_REQUIRED` (مطابق strict-mode وقتی backend واقعی Upstash تنظیم نیست)
+- `POST /api/audit/runs` روی production/staging -> `200 QUEUED` (database fallback فعال)
 
 ## Notes
 - از محیط local فعلی، دامنه‌های `audit*` ممکن است timeout شوند؛ راستی‌آزمایی نهایی public با egress خود VPS انجام شده و مبنا قرار گرفته است.
-- برای برداشتن `RATE_LIMIT_BACKEND_REQUIRED` و اجرای smoke واقعی پرداخت، باید credential واقعی `UPSTASH_*` و `ZARINPAL_MERCHANT_ID` در shared env ست شود.
+- برای اجرای smoke واقعی پرداخت، باید credential واقعی `ZARINPAL_MERCHANT_ID` در shared env ست شود.
+- برای نرخ‌محدودسازی external-backed، باید credential واقعی `UPSTASH_*` در shared env ست شود (در حال حاضر fallback دیتابیس فعال است).

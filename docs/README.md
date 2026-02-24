@@ -11,6 +11,7 @@
 - `WORKER_RUNBOOK.md`: اجرای Worker، چرخه job و عیب‌یابی
 - `SECURITY_SSRF.md`: کنترل‌های امنیتی فعلی و Hardening بعدی
 - `SUMMARY_JSON.md`: قرارداد Summary نسخه‌بندی‌شده
+- `ENTERPRISE_RUNTIME_STATUS.md`: وضعیت baseline سازمانی با داده اجرای واقعی
 - `FINDINGS_10_RULES.md`: قواعد اولیه Findings
 - `ROADMAP_AUTOMATION.md`: اتوماسیون اجرای roadmap و گزارش‌گیری
 - `AUTO_GENERATED_STATUS.md`: گزارش خودکار وضعیت پروژه (تولیدشده توسط اسکریپت)

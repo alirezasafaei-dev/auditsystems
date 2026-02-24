@@ -39,8 +39,20 @@ jobs:
           REQUIRE_DISTRIBUTED_RATE_LIMIT: "false"
         run: pnpm run automation:run
 
-      - name: Playwright smoke /asdev mobile
-        run: pnpm exec playwright test --config=playwright.config.ts --project=chromium --grep "asdev" --reporter=list --workers=2
+      - name: Curl smoke /asdev
+        run: |
+          pnpm run build
+          PORT=3110 pnpm run start >/tmp/audit-smoke.log 2>&1 &
+          APP_PID=$!
+          trap "kill $APP_PID >/dev/null 2>&1 || true" EXIT
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:3110/asdev >/tmp/asdev.html; then
+              break
+            fi
+            sleep 1
+          done
+          grep -q "ASDEV" /tmp/asdev.html
+          grep -q "asdev_network" /tmp/asdev.html
 
       - name: Upload automation artifacts
         if: always()

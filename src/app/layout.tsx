@@ -5,7 +5,15 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import Script from "next/script";
 import { getAppBaseUrl } from "../lib/site";
-import { ASDEV_BRAND, getAsdevSignature } from "../lib/brand";
+import {
+  ASDEV_BRAND,
+  ASDEV_PORTFOLIO_LINE,
+  ASDEV_SIGNATURE_FULL,
+  ASDEV_TELEGRAM_LINE,
+  ASDEV_TELEGRAM_URL,
+  buildAsdevNetworkLinks,
+  getAsdevSignature
+} from "../lib/brand";
 
 const appBaseUrl = getAppBaseUrl();
 
@@ -72,6 +80,7 @@ type LayoutCopy = {
     aboutText: string;
     location: string;
     quickTitle: string;
+    standardsTitle: string;
     creatorTitle: string;
     portfolioTitle: string;
     toolboxTitle: string;
@@ -95,6 +104,7 @@ const faCopy: LayoutCopy = {
     aboutText: "Asdev Audit Platform برای تحلیل فنی، سئو، امنیت و بهبود نرخ تبدیل در اکوسیستم محصولات ASDEV.",
     location: "تهران — همکاری حضوری/ریموت در سراسر ایران",
     quickTitle: "لینک‌های سریع",
+    standardsTitle: "استانداردهای تحویل",
     creatorTitle: "اتصال به سازنده",
     portfolioTitle: "صفحه برند ASDEV Portfolio",
     toolboxTitle: "ASDEV PersianToolbox",
@@ -118,6 +128,7 @@ const enCopy: LayoutCopy = {
     aboutText: "Asdev Audit Platform for technical audits, SEO growth, security, and conversion performance within ASDEV product ecosystem.",
     location: "Tehran — Remote and on-site collaboration",
     quickTitle: "Quick Links",
+    standardsTitle: "Delivery Standards",
     creatorTitle: "Creator",
     portfolioTitle: "ASDEV Portfolio brand page",
     toolboxTitle: "ASDEV PersianToolbox",
@@ -183,21 +194,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       }
     ]
   };
-  const networkLinks = [
-    {
-      label: locale === "en" ? "Portfolio & contact" : "پورتفولیو و راه‌های ارتباطی",
-      href: `https://alirezasafaeisystems.ir/?utm_source=audit&utm_medium=cross_site&utm_campaign=asdev_network&utm_content=footer`
-    },
-    {
-      label: "PersianToolbox — ابزارهای فارسی (لوکال و امن)",
-      href: `https://persiantoolbox.ir/?utm_source=audit&utm_medium=cross_site&utm_campaign=asdev_network&utm_content=footer`
-    },
-    {
-      label: "Audit IR — بررسی فنی و امنیتی",
-      href: `https://audit.alirezasafaeisystems.ir/?utm_source=audit&utm_medium=cross_site&utm_campaign=asdev_network&utm_content=footer`
-    }
-  ];
-  const telegramLink = "https://t.me/asdevsystems";
+  const networkLinks = buildAsdevNetworkLinks("audit", "footer").map((item) =>
+    item.key === "portfolio" && locale === "en"
+      ? { ...item, label: "Portfolio & contact" }
+      : item
+  );
 
   return (
     <html lang={locale === "en" ? "en" : "fa"} dir={locale === "en" ? "ltr" : "rtl"}>
@@ -280,6 +281,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                     <Link href={withLocalePath("/sample-report", locale)}>{copy.nav.sample}</Link>
                   </li>
                   <li>
+                    <Link href={withLocalePath("/standards", locale)}>{copy.footer.standardsTitle}</Link>
+                  </li>
+                  <li>
                     <Link href={withLocalePath("/brand/asdev-portfolio", locale)}>{copy.footer.portfolioTitle}</Link>
                   </li>
                   <li>
@@ -335,15 +339,14 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                     {signature}
                   </Link>
                 </p>
+                <p className="text-sm">{ASDEV_SIGNATURE_FULL}</p>
                 <p className="text-sm">
-                  ASDEV | Alireza Safaei — علیرضا صفایی · Portfolio & contact:
-                  {" "}
                   <Link href="https://alirezasafaeisystems.ir/" target="_blank" rel="noopener noreferrer" className="link">
-                    alirezasafaeisystems.ir
+                    {ASDEV_PORTFOLIO_LINE}
                   </Link>
                   {" · "}
-                  <Link href={telegramLink} target="_blank" rel="noopener noreferrer" className="link">
-                    Telegram: @asdevsystems
+                  <Link href={ASDEV_TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="link">
+                    {ASDEV_TELEGRAM_LINE}
                   </Link>
                 </p>
                 <div className="footer-links">

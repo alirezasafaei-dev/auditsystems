@@ -8,6 +8,10 @@ export type RateLimitResult = {
   backend: "upstash-redis" | "disabled" | "error";
 };
 
+export function isDistributedRateLimitRequired(): boolean {
+  return String(process.env.REQUIRE_DISTRIBUTED_RATE_LIMIT ?? "").trim().toLowerCase() === "true";
+}
+
 function getRedisConfig(): { url: string; token: string } | null {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;

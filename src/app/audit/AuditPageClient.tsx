@@ -17,6 +17,7 @@ export default function AuditPageClient() {
 
   function toUserMessage(errorCode: string): string {
     if (errorCode === "RATE_LIMITED") return "تعداد درخواست‌ها زیاد است. چند دقیقه بعد دوباره تلاش کنید.";
+    if (errorCode === "RATE_LIMIT_BACKEND_REQUIRED") return "سرویس محدودسازی توزیع‌شده موقتاً در دسترس نیست. کمی بعد دوباره تلاش کنید.";
     if (errorCode === "INVALID_URL_EMPTY") return "آدرس وارد نشده است.";
     if (errorCode === "INVALID_URL_TOO_LONG") return "آدرس خیلی طولانی است.";
     if (errorCode.startsWith("INVALID_URL_")) return "آدرس معتبر نیست. لطفا URL کامل و عمومی وارد کنید.";

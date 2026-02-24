@@ -39,6 +39,9 @@ jobs:
           REQUIRE_DISTRIBUTED_RATE_LIMIT: "false"
         run: pnpm run automation:run
 
+      - name: Playwright smoke /asdev mobile
+        run: pnpm exec playwright test --config=playwright.config.ts --project=chromium --grep "asdev" --reporter=list --workers=2
+
       - name: Upload automation artifacts
         if: always()
         uses: actions/upload-artifact@v4

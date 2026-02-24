@@ -105,9 +105,9 @@
    - شواهد: `pnpm run payment:zarinpal:smoke` روی production با خروجی `[SKIP] ZARINPAL_MERCHANT_ID is not set.`
    - علت: در shared env مقدار فعلی `ZARINPAL_MERCHANT_ID=""` است.
 2. distributed rate limit:
-   - وضعیت: **Fail-Closed فعال**
-   - شواهد: `POST /api/audit/runs` روی production/staging -> `503 RATE_LIMIT_BACKEND_REQUIRED`
-   - تحلیل: `REQUIRE_DISTRIBUTED_RATE_LIMIT=true` فعال است، اما `UPSTASH_*` واقعی provision نشده‌اند.
+   - وضعیت: **Operational with DB fallback**
+   - شواهد: `POST /api/audit/runs` روی production/staging -> `200 QUEUED`
+   - تحلیل: در نبود `UPSTASH_*` واقعی، fallback دیتابیس فعال است و سرویس fail-open کنترل‌شده دارد.
 3. readiness parity + baseline:
    - وضعیت: **Complete**
    - شواهد:

@@ -60,6 +60,11 @@ jobs:
           no_proxy: "*"
         run: pnpm run network:baseline
 
+      - name: Hosting sync check (non-SSH, non-blocking network-aware)
+        run: |
+          mkdir -p logs/deploy
+          bash scripts/deploy/check-hosting-sync.sh | tee logs/deploy/ci-hosting-sync.log
+
       - name: Upload readiness artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -69,4 +74,5 @@ jobs:
             logs/roadmap/
             logs/preflight/
             logs/runtime/
+            logs/deploy/
             docs/AUTO_GENERATED_STATUS.md

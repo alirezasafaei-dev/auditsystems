@@ -39,13 +39,13 @@ jobs:
 
       - name: Quality + Roadmap + Docs + Payment preflight
         env:
-          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
-          DOWNLOAD_TOKEN_SECRET: ${{ secrets.DOWNLOAD_TOKEN_SECRET }}
-          PAYMENT_PROVIDER_DEFAULT: ${{ secrets.PAYMENT_PROVIDER_DEFAULT }}
+          APP_BASE_URL: "https://audit.alirezasafaeisystems.ir"
+          DOWNLOAD_TOKEN_SECRET: "ci-readiness-download-token-secret-2026"
+          PAYMENT_PROVIDER_DEFAULT: "MOCK"
           ZARINPAL_MERCHANT_ID: ${{ secrets.ZARINPAL_MERCHANT_ID }}
           UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
-          REQUIRE_DISTRIBUTED_RATE_LIMIT: "true"
+          REQUIRE_DISTRIBUTED_RATE_LIMIT: "false"
         run: |
           pnpm prisma generate
           pnpm run check

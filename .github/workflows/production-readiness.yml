@@ -42,6 +42,7 @@ jobs:
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
           REQUIRE_DISTRIBUTED_RATE_LIMIT: "true"
         run: |
+          pnpm prisma generate
           pnpm run check
           pnpm run roadmap:run
           pnpm run docs:generate

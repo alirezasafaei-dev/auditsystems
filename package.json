@@ -28,7 +28,9 @@
     "payment:preflight:strict": "tsx src/scripts/payment-preflight.ts --strict",
     "payment:zarinpal:smoke": "tsx src/scripts/zarinpal-smoke.ts",
     "automation:run": "tsx src/scripts/automation-master.ts --strict",
-    "lighthouse:local": "tsx src/scripts/lighthouse-local.ts"
+    "lighthouse:local": "tsx src/scripts/lighthouse-local.ts",
+    "deploy:check:hosting": "bash scripts/deploy/check-hosting-sync.sh --strict",
+    "deploy:readiness": "bash scripts/deploy/run-readiness-suite.sh --strict"
   },
   "dependencies": {
     "@prisma/client": "^6.19.2",

@@ -13,3 +13,9 @@ logs/seo/last-run.md
 logs/preflight/payment-preflight.json
 logs/preflight/zarinpal-smoke.json
 logs/lighthouse/*.json
+logs/deploy/*.log
+logs/deploy/*.tsv
+logs/deploy/readiness-*.json
+logs/deploy/readiness-*.md
+logs/deploy/last-readiness.json
+logs/deploy/last-readiness.md

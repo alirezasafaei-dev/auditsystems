@@ -57,7 +57,6 @@ jobs:
       - name: ASDEV network baseline (live GET/HEAD + locale)
         env:
           NO_PROXY: "*"
-          no_proxy: "*"
         run: pnpm run network:baseline
 
       - name: Hosting sync check (non-SSH, non-blocking network-aware)

@@ -32,6 +32,11 @@ jobs:
             pnpm install --no-frozen-lockfile
           fi
 
+      - name: Install CI toolchain (ripgrep)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep
+
       - name: Quality + Roadmap + Docs + Payment preflight
         env:
           APP_BASE_URL: ${{ secrets.APP_BASE_URL }}

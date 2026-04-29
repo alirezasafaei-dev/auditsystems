@@ -1,164 +1,155 @@
-# asdev-audit-ir
+# AuditSystems
 
-سرویس Audit برای بررسی آماده‌بودن سایت (Performance / SEO / Security / Resilience) با گزارش قابل اشتراک، Worker صف، و جریان Unlock (lead/order).
+Technical SEO, performance, security, and resilience audit platform built to turn website issues into actionable reports and qualified leads.
+
+[Live platform](https://audit.alirezasafaeisystems.ir) - [Portfolio hub](https://alirezasafaeisystems.ir)
+
+## What This Project Does
+
+`auditsystems` is a production-focused audit service for websites that need more than a vague score.
+
+It is designed to:
+
+- analyze site readiness across SEO, performance, security, and reliability
+- generate reportable outputs that can be shared with clients or stakeholders
+- support a service-led conversion flow from audit to project inquiry
+- run in a practical local-first setup with reduced platform dependency
+
+## Why It Matters
+
+Most audit tools stop at generic metrics.
+
+This project is built around a stronger business outcome:
+
+- surface meaningful technical issues
+- make them understandable
+- connect findings to remediation work
+- turn the audit itself into a high-trust entry offer
+
+## Core Capabilities
+
+- website audit workflow with actionable reporting
+- bilingual product surface with `fa/en` and RTL/LTR support
+- queue-backed worker processing
+- production readiness checks for payment, docs, and release flow
+- liveness and readiness endpoints for operational visibility
 
 ## Stack
-- Next.js App Router + TypeScript
-- Prisma + PostgreSQL
-- Worker اختصاصی با queue در DB
-- Vitest + ESLint
-- Bilingual product surface (`fa/en`) with RTL/LTR support
+
+- Next.js App Router
+- TypeScript
+- Prisma
+- PostgreSQL
+- worker pipeline backed by database queueing
+- Vitest and ESLint
+
+## Project Role in Portfolio
+
+This repository demonstrates:
+
+- technical SEO product thinking
+- service packaging through software
+- full-stack implementation with operational awareness
+- practical delivery under real deployment constraints
+
+## Live Surface
+
+- App: `https://audit.alirezasafaeisystems.ir`
+- health endpoints:
+  - `GET /api/live`
+  - `GET /api/ready`
 
 ## Quick Start
-1. نصب وابستگی‌ها:
+
+### Prerequisites
+
+- Node.js
+- `pnpm`
+- PostgreSQL
+
+### Install
+
 ```bash
 pnpm install
-```
-2. تنظیم env:
-```bash
 cp .env.example .env
 ```
-3. اجرای دیتابیس PostgreSQL (بدون Docker) و تنظیم `DATABASE_URL` معتبر در `.env`.
-4. مایگریشن و Prisma Client:
+
+### Database
+
+Set a valid `DATABASE_URL`, then run:
+
 ```bash
 pnpm run db:migrate
 pnpm prisma generate
 ```
-5. اجرای وب:
+
+### Run the app
+
 ```bash
 pnpm run dev
 ```
-6. اجرای Worker (ترمینال جدا):
+
+### Run the worker
+
 ```bash
 pnpm run worker:dev
 ```
 
-## Quality Gate
+## Quality Gates
+
+Full verification:
+
 ```bash
 pnpm run check
 ```
-این دستور `lint + typecheck + test + build` را کامل اجرا می‌کند.
 
-## Roadmap Automation
-```bash
-pnpm run roadmap:run
-pnpm run seo:audit
-```
-گزارش اجرای فازها در `logs/roadmap/last-run.md` و `logs/roadmap/last-run.json` تولید می‌شود.
-گزارش اتوماسیون SEO در `logs/seo/last-run.md` و `logs/seo/last-run.json` تولید می‌شود.
+That runs:
 
-## Docs Automation
-```bash
-pnpm run docs:generate
-```
-گزارش خودکار مستندات در `docs/AUTO_GENERATED_STATUS.md` تولید می‌شود.
+- lint
+- typecheck
+- test
+- build
 
-## Production Readiness Automation
+Useful focused commands:
+
 ```bash
 pnpm run payment:preflight
 pnpm run payment:zarinpal:smoke
 pnpm run automation:run
 pnpm run lighthouse:local
 ```
-- `payment:preflight`: بررسی آماده‌بودن env/redis/provider پرداخت
-- `payment:zarinpal:smoke`: تست واقعی اتصال request/verify به Zarinpal (با merchant id)
-- `automation:run`: اجرای یکپارچه quality + roadmap + docs + preflight
-- `lighthouse:local`: اجرای Lighthouse روی مسیرهای اصلی (`/`, `/audit`, `/guides`) و تولید artifact در `logs/lighthouse`
 
-## Deployment Guard
-- Deploy روی سرور واقعی نیازمند تایید مستقیم است.
-- برای آماده‌سازی runtime از فایل‌های `ops/systemd/*` و `ops/pm2/ecosystem.config.cjs` استفاده کنید.
-- الگوی رسمی no-docker deploy: `docs/DEPLOYMENT_NO_DOCKER.md`
-- health endpoints:
-  - `GET /api/live` for liveness
-  - `GET /api/ready` for dependency-aware readiness (`200/503`)
+## Environment Highlights
 
-## Momtaz Phase
-- فاز ممتاز (`Phase H`) تکمیل شده است:
-  - UI/UX دوزبانه
-  - SEO چندزبانه
-  - security hardening + readiness model
-- مرجع: `docs/PHASE_EXCELLENCE.md`, `docs/ROADMAP_MOMTAZ.md`
+Important runtime variables include:
 
-## Environment Variables
 - `DATABASE_URL`
+- `APP_BASE_URL`
+- `APP_BASE_URL_STRICT`
 - `AUDIT_DNS_GUARD`
 - `WORKER_POLL_MS`
 - `WORKER_JOB_TIMEOUT_MS`
 - `IP_HASH_SALT`
-- `APP_BASE_URL`
-- `APP_BASE_URL_STRICT`
 - `NEXT_PUBLIC_GA4_MEASUREMENT_ID`
 
+See `.env.example` for the working set.
+
+## Deployment Notes
+
+- production deployment is designed for real VPS usage
+- official no-docker deployment guidance lives in `docs/DEPLOYMENT_NO_DOCKER.md`
+- runtime support files are available in `ops/systemd/*` and `ops/pm2/ecosystem.config.cjs`
+
 ## Documentation
-- ایندکس مستندات: `docs/README.md`
-- مسیرهای API و صفحات: `docs/ROUTES_NEXTJS.md`
-- امنیت SSRF و Hardening: `docs/SECURITY_SSRF.md`
-- راهنمای Worker: `docs/WORKER_RUNBOOK.md`
-- فازها و نقشه راه: `docs/PHASES.md`, `docs/ROADMAP_PHASED.md`
-- تحلیل واقعی وضعیت پروژه: `docs/PROJECT_ANALYSIS_REAL_DATA.md`
-- اتوماسیون roadmap: `docs/ROADMAP_AUTOMATION.md`
-- گزارش خودکار وضعیت: `docs/AUTO_GENERATED_STATUS.md`
-- نقش‌ها و مهارت‌ها: `docs/ROLES_AND_SKILLS_SETUP.md`
-- env پروداکشن: `docs/PRODUCTION_ENV.md`
-- اجرای ۱ تا ۱۰: `docs/EXECUTION_1_TO_10.md`
-- release: `docs/RELEASE_RUNBOOK.md`
-- rollback: `docs/ROLLBACK_RUNBOOK.md`
-- دیپلوی بدون Docker: `docs/DEPLOYMENT_NO_DOCKER.md`
 
-## همگام‌سازی مستندات (2026-02-23)
+- docs index: `docs/README.md`
+- routes and page map: `docs/ROUTES_NEXTJS.md`
+- SSRF and hardening notes: `docs/SECURITY_SSRF.md`
+- worker runbook: `docs/WORKER_RUNBOOK.md`
+- phased roadmap: `docs/PHASES.md`
+- release runbook: `docs/RELEASE_RUNBOOK.md`
+- rollback runbook: `docs/ROLLBACK_RUNBOOK.md`
 
-### 1) معرفی
-پروژه `asdev-audit-ir` سرویس Audit وب‌سایت با خروجی عملیاتی و گزارش‌پذیر است.
+## Positioning
 
-### 2) استک و معماری
-- Next.js (App Router) + React + TypeScript
-- Prisma + PostgreSQL (`db:migrate`, `db:studio`)
-- Worker محلی برای پردازش صف (`worker:dev`)
-- Quality gates با `lint`, `typecheck`, `test`, `build`
-- اتوماسیون roadmap/SEO/docs با scripts داخلی
-
-### 3) پیش‌نیازها
-- Node.js و pnpm
-- PostgreSQL قابل دسترس در `DATABASE_URL`
-
-### 4) نصب و اجرا
-```bash
-pnpm install
-cp .env.example .env
-pnpm run db:migrate
-pnpm run dev
-pnpm run worker:dev
-```
-
-### 5) تست و کیفیت
-```bash
-pnpm run lint
-pnpm run typecheck
-pnpm run test
-pnpm run check
-pnpm run lighthouse:local
-```
-
-### 6) کانفیگ و env
-- `APP_BASE_URL`, `APP_BASE_URL_STRICT`, `AUDIT_DNS_GUARD`
-- `DATABASE_URL`, `DOWNLOAD_TOKEN_SECRET`, `IP_HASH_SALT`
-- `NEXT_PUBLIC_GA4_MEASUREMENT_ID`, `PAYMENT_PROVIDER_DEFAULT`
-- `REQUIRE_DISTRIBUTED_RATE_LIMIT`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
-- `WORKER_POLL_MS`, `WORKER_JOB_TIMEOUT_MS`, `ZARINPAL_MERCHANT_ID`
-
-### 7) Deploy/Operations
-- آماده‌سازی release: `pnpm run payment:preflight` و `pnpm run automation:run`
-- smoke پرداخت: `pnpm run payment:zarinpal:smoke`
-- runbook دیپلوی بدون Docker: `docs/DEPLOYMENT_NO_DOCKER.md`
-- health checks: `GET /api/live` و `GET /api/ready`
-
-### 8) لینک‌ها
-- Repo: https://github.com/alirezasafaeisystems/asdev-audit-ir
-- Site: https://audit.alirezasafaeisystems.ir
-- Issues: https://github.com/alirezasafaeisystems/asdev-audit-ir/issues
-- Discussions: https://github.com/alirezasafaeisystems/asdev-audit-ir/discussions
-
-### 9) Status & Compatibility
-- آخرین بروزرسانی مستندات: 2026-02-23
-- وضعیت sync (snapshot پایه): `main`, `dirty`, `ahead 8`, `behind 0`
+If you need a technical audit platform, a service-led SEO workflow, or a production-ready website analysis system, this repository shows how I approach the problem from architecture to operations.

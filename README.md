@@ -1,5 +1,9 @@
 # AuditSystems
 
+<p align="center">
+  <img src="./assets/repo-preview.svg" alt="AuditSystems preview" width="100%" />
+</p>
+
 Technical SEO, performance, security, and resilience audit platform built to turn website issues into actionable reports and qualified leads.
 
 [Live platform](https://audit.alirezasafaeisystems.ir) - [Portfolio hub](https://alirezasafaeisystems.ir)

@@ -34,6 +34,9 @@ export default function HomePage() {
           <Link className="button secondary" href="/guides">
             راهنماها
           </Link>
+          <Link className="button secondary" href="/faq">
+            سوالات متداول
+          </Link>
           <Link className="button secondary" href="/standards">
             نمونه گزارش
           </Link>

@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { route: "/", priority: 1, changeFrequency: "weekly" },
     { route: "/audit", priority: 0.8, changeFrequency: "weekly" },
     { route: "/guides", priority: 0.8, changeFrequency: "weekly" },
+    { route: "/faq", priority: 0.85, changeFrequency: "monthly" },
     { route: "/standards", priority: 0.72, changeFrequency: "monthly" },
     { route: "/sample-report", priority: 0.7, changeFrequency: "monthly" },
     { route: "/pillar/iran-readiness-audit", priority: 0.75, changeFrequency: "monthly" }

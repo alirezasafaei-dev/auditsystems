@@ -1,0 +1,89 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+interface Stats {
+  totalAudits: number
+  totalOrders: number
+  pendingOrders: number
+  recentAudits: Array<{
+    id: string
+    url: string
+    status: string
+    createdAt: string
+  }>
+}
+
+export function AdminDashboard() {
+  const [stats, setStats] = useState<Stats | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/admin/stats')
+      .then(res => res.json())
+      .then(data => {
+        setStats(data)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return <div className="p-8">Loading...</div>
+  }
+
+  return (
+    <div className="container mx-auto p-8">
+      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+      
+      <div className="grid gap-6 md:grid-cols-3 mb-8">
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold">Total Audits</h3>
+          </div>
+          <div>
+            <p className="text-4xl font-bold">{stats?.totalAudits || 0}</p>
+          </div>
+        </div>
+        
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold">Total Orders</h3>
+          </div>
+          <div>
+            <p className="text-4xl font-bold">{stats?.totalOrders || 0}</p>
+          </div>
+        </div>
+        
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold">Pending Orders</h3>
+          </div>
+          <div>
+            <p className="text-4xl font-bold">{stats?.pendingOrders || 0}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white p-6 rounded-lg shadow">
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold">Recent Audits</h3>
+        </div>
+        <div>
+          <div className="space-y-4">
+            {stats?.recentAudits?.map(audit => (
+              <div key={audit.id} className="flex justify-between items-center border-b pb-2">
+                <div>
+                  <p className="font-medium">{audit.url}</p>
+                  <p className="text-sm text-gray-500">{new Date(audit.createdAt).toLocaleString('fa-IR')}</p>
+                </div>
+                <span className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                  {audit.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

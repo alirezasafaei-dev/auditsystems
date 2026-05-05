@@ -7,8 +7,8 @@ import IntentRouter from "../components/IntentRouter";
 export const metadata: Metadata = buildPageMetadata({
   locale: "fa",
   path: "/",
-  title: "ارزیابی فنی، سئو و امنیت وب‌سایت",
-  description: "آدرس سایت را وارد کنید و یک گزارش قابل‌اجرا برای تیم فنی و تیم رشد دریافت کنید.",
+  title: "چک کردن سایت - مشکلات و راه حل",
+  description: "آدرس سایت خود را وارد کنید و ببینید چه مشکلاتی دارد و چطور می‌توانید آن‌ها را حل کنید.",
   keywords: ["ارزیابی سایت", "سئو فنی", "امنیت سایت", "core web vitals"]
 });
 
@@ -17,25 +17,25 @@ export default function HomePage() {
     <main className="landing">
       <SeoPageEvent event="seo_landing_view" params={{ locale: "fa", path: "/" }} />
       <section className="card hero hero-large">
-        <span className="badge hero-badge">گزارش اجرایی برای تیم فنی و رشد</span>
-        <h1>ارزیابی سایت با خروجی قابل‌اجرا، نه فقط لیست خطا</h1>
+        <span className="badge hero-badge">گزارش کامل با راه حل عملی</span>
+        <h1>سایت شما چه مشکلاتی دارد و چطور حلشان کنیم؟</h1>
         <p className="hero-lead">
-          در کمتر از چند دقیقه، مشکلات فنی، سئو و امنیت سایت شما اولویت‌بندی می‌شود و مسیر اصلاح مرحله‌به‌مرحله دریافت می‌کنید.
+          فقط آدرس سایت را بدهید. ما مشکلات را پیدا می‌کنیم و به شما می‌گوییم کدام یکی مهم‌تر است و چطور حلش کنید.
         </p>
         <ul className="hero-checklist">
-          <li>خروجی واضح برای تیم فنی، محتوا و رشد</li>
-          <li>طبقه‌بندی ریسک: بحرانی، بالا، متوسط</li>
-          <li>قابل استفاده برای برنامه ۷ تا ۳۰ روزه</li>
+          <li>گزارش ساده و قابل فهم برای همه</li>
+          <li>مشکلات مهم را اول نشان می‌دهیم</li>
+          <li>راه حل گام به گام برای هر مشکل</li>
         </ul>
         <div className="hero-actions">
           <Link className="button" href="/audit">
             شروع ارزیابی جدید
           </Link>
           <Link className="button secondary" href="/guides">
-            راهنماهای کاربردی
+            راهنماها
           </Link>
           <Link className="button secondary" href="/standards">
-            استاندارد تحویل
+            نمونه گزارش
           </Link>
           <Link
             className="button secondary"
@@ -58,16 +58,16 @@ export default function HomePage() {
 
       <section className="trust-strip">
         <article>
-          <strong>تحویل سریع</strong>
-          <p>ثبت درخواست و شروع پردازش به‌صورت خودکار</p>
+          <strong>سریع و آسان</strong>
+          <p>فقط آدرس سایت را بدهید، بقیه‌اش با ماست</p>
         </article>
         <article>
-          <strong>خروجی قابل پیگیری</strong>
-          <p>برای هر یافته، اقدام پیشنهادی مشخص دریافت می‌کنید</p>
+          <strong>راه حل مشخص</strong>
+          <p>برای هر مشکل، دقیقاً می‌گوییم چکار کنید</p>
         </article>
         <article>
-          <strong>زیرساخت پایدار</strong>
-          <p>مسیر آماده برای تیم‌های تولیدی و عملیاتی</p>
+          <strong>قابل اعتماد</strong>
+          <p>روی سیستم‌های واقعی تست شده</p>
         </article>
       </section>
 

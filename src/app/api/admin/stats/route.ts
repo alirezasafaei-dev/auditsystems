@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { validateAdminSession } from '@/lib/admin-auth'
 
 export async function GET() {
   try {
+    const isAuthenticated = await validateAdminSession()
+    if (!isAuthenticated) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const [totalAudits, totalOrders, pendingOrders, recentAudits] = await Promise.all([
       prisma.auditRun.count(),
       prisma.auditOrder.count(),

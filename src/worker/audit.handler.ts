@@ -5,6 +5,8 @@ import { normalizeAuditTargetUrl } from "../lib/normalizeAuditTargetUrl";
 import { evaluateAuditRules } from "../lib/rules";
 import { parseSeoBasics } from "../lib/seo";
 import { buildAuditSummaryV1 } from "../lib/summary";
+import { logEvent } from "../lib/observability";
+import { isDnsLookupFailure } from "../lib/security";
 
 export type JobHandler = (job: Job, signal: AbortSignal) => Promise<void>;
 
@@ -43,9 +45,9 @@ export const auditRunHandler: JobHandler = async (job, signal) => {
     throw new Error("RUN_NOT_FOUND");
   }
 
-  const normalized = await normalizeAuditTargetUrl(run.url, {
-    verifyDnsPublicIp: String(process.env.AUDIT_DNS_GUARD ?? "true") !== "false"
-  });
+  const verifyDns = String(process.env.AUDIT_DNS_GUARD ?? "true").toLowerCase() !== "false";
+  const failOpenOnDnsLookupFailure = String(process.env.AUDIT_DNS_FAIL_OPEN ?? "true").toLowerCase() === "true";
+  const normalized = await withResolvedAuditTarget(run.url, verifyDns, failOpenOnDnsLookupFailure);
 
   await prisma.auditRun.update({
     where: { id: run.id },
@@ -153,3 +155,19 @@ export const auditRunHandler: JobHandler = async (job, signal) => {
 export const handlers: Record<JobType, JobHandler> = {
   AUDIT_RUN: auditRunHandler
 };
+
+async function withResolvedAuditTarget(
+  url: string,
+  verifyDns: boolean,
+  failOpenOnDnsLookupFailure: boolean
+): ReturnType<typeof normalizeAuditTargetUrl> {
+  try {
+    return await normalizeAuditTargetUrl(url, { verifyDnsPublicIp: verifyDns });
+  } catch (error) {
+    if (verifyDns && failOpenOnDnsLookupFailure && isDnsLookupFailure(error)) {
+      logEvent("warn", "worker_audit_dns_lookup_failed_fallback", { url, backend: "dns" });
+      return normalizeAuditTargetUrl(url, { verifyDnsPublicIp: false });
+    }
+    throw error;
+  }
+}

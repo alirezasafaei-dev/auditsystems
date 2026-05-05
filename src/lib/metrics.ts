@@ -1,7 +1,12 @@
 const apiCounters = new Map<string, number>();
 const apiDurationBuckets = new Map<string, number>();
+const rumCounters = new Map<string, number>();
+const rumDurationBuckets = new Map<string, number>();
 
 const LATENCY_BUCKETS_MS = [50, 100, 250, 500, 1000, 2500, 5000, 10000];
+const RUM_BUCKETS_MS = [100, 250, 500, 1000, 2500, 4000, 6000, 10000];
+const RUM_WEB_VITALS = new Set(["TTFB", "FCP", "LCP", "CLS", "FID", "INP"]);
+const RUM_ERROR_TYPES = new Set(["error", "unhandledrejection"]);
 
 function incrementCounter(key: string, by: number = 1): void {
   apiCounters.set(key, (apiCounters.get(key) ?? 0) + by);
@@ -18,9 +23,46 @@ function observeLatency(route: string, durationMs: number): void {
   apiDurationBuckets.set(`audit_api_duration_count{route="${route}"}`, (apiDurationBuckets.get(`audit_api_duration_count{route="${route}"}`) ?? 0) + 1);
 }
 
+function incrementRumCounter(key: string, by: number = 1): void {
+  rumCounters.set(key, (rumCounters.get(key) ?? 0) + by);
+}
+
 export function observeApiRequest(route: string, status: number, durationMs: number): void {
   incrementCounter(`audit_api_requests_total{route="${route}",status="${status}"}`);
   observeLatency(route, durationMs);
+}
+
+export function observeRumWebVital(metric: string, valueMs: number): void {
+  if (!RUM_WEB_VITALS.has(metric)) {
+    return;
+  }
+  if (!Number.isFinite(valueMs) || valueMs < 0 || valueMs > 120000) {
+    return;
+  }
+
+  incrementRumCounter(`audit_rum_web_vital_total{metric="${metric}"}`);
+  for (const bucket of RUM_BUCKETS_MS) {
+    if (valueMs <= bucket) {
+      incrementRumCounter(`audit_rum_web_vital_bucket{metric="${metric}",le="${bucket}"}`);
+    }
+  }
+  incrementRumCounter(`audit_rum_web_vital_bucket{metric="${metric}",le="+Inf"}`);
+
+  rumDurationBuckets.set(
+    `audit_rum_web_vital_sum{metric="${metric}"}`,
+    (rumDurationBuckets.get(`audit_rum_web_vital_sum{metric="${metric}"}`) ?? 0) + valueMs,
+  );
+  rumDurationBuckets.set(
+    `audit_rum_web_vital_count{metric="${metric}"}`,
+    (rumDurationBuckets.get(`audit_rum_web_vital_count{metric="${metric}"}`) ?? 0) + 1,
+  );
+}
+
+export function observeRumError(type: string): void {
+  if (!RUM_ERROR_TYPES.has(type)) {
+    return;
+  }
+  incrementRumCounter(`audit_rum_js_error_total{type="${type}"}`);
 }
 
 export function renderPrometheusMetrics(): string {
@@ -57,6 +99,51 @@ export function renderPrometheusMetrics(): string {
   lines.push("# TYPE audit_api_duration_count counter");
   for (const [k, v] of apiDurationBuckets.entries()) {
     if (k.startsWith("audit_api_duration_count")) {
+      lines.push(`${k} ${v}`);
+    }
+  }
+
+  lines.push("");
+  lines.push("# HELP audit_rum_web_vital_total Total browser web-vital samples");
+  lines.push("# TYPE audit_rum_web_vital_total counter");
+  for (const [k, v] of rumCounters.entries()) {
+    if (k.startsWith("audit_rum_web_vital_total")) {
+      lines.push(`${k} ${v}`);
+    }
+  }
+
+  lines.push("");
+  lines.push("# HELP audit_rum_web_vital_bucket Browser web-vital histogram buckets in milliseconds");
+  lines.push("# TYPE audit_rum_web_vital_bucket counter");
+  for (const [k, v] of rumCounters.entries()) {
+    if (k.startsWith("audit_rum_web_vital_bucket")) {
+      lines.push(`${k} ${v}`);
+    }
+  }
+
+  lines.push("");
+  lines.push("# HELP audit_rum_web_vital_sum Total browser web-vital duration in milliseconds");
+  lines.push("# TYPE audit_rum_web_vital_sum counter");
+  for (const [k, v] of rumDurationBuckets.entries()) {
+    if (k.startsWith("audit_rum_web_vital_sum")) {
+      lines.push(`${k} ${v}`);
+    }
+  }
+
+  lines.push("");
+  lines.push("# HELP audit_rum_web_vital_count Browser web-vital sample count");
+  lines.push("# TYPE audit_rum_web_vital_count counter");
+  for (const [k, v] of rumDurationBuckets.entries()) {
+    if (k.startsWith("audit_rum_web_vital_count")) {
+      lines.push(`${k} ${v}`);
+    }
+  }
+
+  lines.push("");
+  lines.push("# HELP audit_rum_js_error_total Total browser JS errors by type");
+  lines.push("# TYPE audit_rum_js_error_total counter");
+  for (const [k, v] of rumCounters.entries()) {
+    if (k.startsWith("audit_rum_js_error_total")) {
       lines.push(`${k} ${v}`);
     }
   }

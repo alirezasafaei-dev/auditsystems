@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return buildPageMetadata({
     locale: "en",
     path: `/guides/${guide.slug}`,
-    title: `${guide.title} | asdev-audit-ir`,
+    title: `${guide.title} | Alireza Safaei Audit System`,
     description: guide.summary,
     type: "article",
     keywords: ["technical SEO guide", "website audit guide", guide.slug.replaceAll("-", " ")]

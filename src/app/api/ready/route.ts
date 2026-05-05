@@ -3,8 +3,10 @@ import { buildReadinessReport } from "../../../lib/health";
 import { createRequestId } from "../../../lib/observability";
 
 export const dynamic = "force-dynamic";
+const READINESS_CACHE_CONTROL = "no-store";
 
 export async function GET() {
+  const startedAt = Date.now();
   const requestId = createRequestId();
   const report = await buildReadinessReport("asdev-audit-ir");
   const statusCode = report.ok ? 200 : 503;
@@ -12,13 +14,17 @@ export async function GET() {
   return NextResponse.json(
     {
       status: report.ok ? "ready" : "degraded",
+      ok: report.ok,
+      service: "auditsystems",
       requestId,
-      ...report
+      responseMs: Date.now() - startedAt,
+      timestamp: report.timestamp,
+      checks: report.checks,
     },
     {
       status: statusCode,
       headers: {
-        "Cache-Control": "no-store"
+        "Cache-Control": READINESS_CACHE_CONTROL
       }
     }
   );

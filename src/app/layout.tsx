@@ -6,50 +6,54 @@ import { headers } from "next/headers";
 import Script from "next/script";
 import { getAppBaseUrl } from "../lib/site";
 import {
-  ASDEV_BRAND,
-  ASDEV_PORTFOLIO_LINE,
-  ASDEV_SIGNATURE_FULL,
-  ASDEV_TELEGRAM_LINE,
   ASDEV_TELEGRAM_URL,
-  buildAsdevNetworkLinks,
-  getAsdevSignature
 } from "../lib/brand";
+import RumTracker from "../components/RumTracker";
 
 const appBaseUrl = getAppBaseUrl();
+const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim();
 
 export const metadata: Metadata = {
   metadataBase: new URL(appBaseUrl),
   title: {
-    default: "Asdev Audit Platform",
-    template: "%s | Asdev Audit Platform"
+    default: "سیستم ممیزی علیرضا صفایی | ارزیابی فنی، سئو و امنیت",
+    template: "%s | سیستم ممیزی علیرضا صفایی"
   },
-  description: "Advanced website audit and conversion platform for performance, SEO, security, and growth operations.",
+  description: "پلتفرم حرفه ای ارزیابی سایت برای تحلیل فنی، سئو، امنیت و بهینه سازی رشد با خروجی عملیاتی و قابل اجرا.",
   keywords: [
-    "website audit",
+    "ممیزی سایت",
+    "ممیزی فنی",
+    "ممیزی سئو",
+    "ممیزی امنیت",
+    "بهینه سازی سرعت سایت",
+    "Core Web Vitals",
     "technical seo audit",
-    "performance audit",
-    "security audit",
-    "core web vitals",
-    "iran readiness audit"
+    "website performance audit"
   ],
+  authors: [{ name: "Alireza Safaei", url: "https://alirezasafaeisystems.ir/" }],
+  creator: "Alireza Safaei",
+  publisher: "Alireza Safaei",
   alternates: {
     canonical: "/",
     languages: {
       "fa-IR": "/",
-      en: "/en"
+      "en-US": "/en",
+      "x-default": "/"
     }
   },
   openGraph: {
     type: "website",
     url: appBaseUrl,
-    title: "Asdev Audit Platform",
-    description: "Advanced website audit and conversion platform for performance, SEO, security, and growth operations.",
-    siteName: "Asdev Audit Platform"
+    title: "سیستم ممیزی علیرضا صفایی",
+    description: "ممیزی فنی، سئو و امنیت با خروجی قابل اجرا برای تیم محصول و فنی.",
+    siteName: "سیستم ممیزی علیرضا صفایی",
+    locale: "fa_IR",
+    alternateLocale: ["en_US"]
   },
   twitter: {
     card: "summary_large_image",
-    title: "Asdev Audit Platform",
-    description: "Advanced website audit and conversion platform."
+    title: "سیستم ممیزی علیرضا صفایی",
+    description: "ارزیابی فنی، سئو و امنیت سایت با خروجی عملیاتی."
   },
   robots: {
     index: true,
@@ -61,14 +65,15 @@ export const metadata: Metadata = {
       "max-snippet": -1,
       "max-video-preview": -1
     }
-  }
+  },
+  ...(googleVerification ? { verification: { google: googleVerification } } : {})
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: "#0f7a66",
-  colorScheme: "light"
+  colorScheme: "light dark"
 };
 
 type LayoutCopy = {
@@ -96,48 +101,48 @@ type LayoutCopy = {
 };
 
 const faCopy: LayoutCopy = {
-  brand: "Asdev Audit",
-  nav: { audit: "شروع Audit", guides: "راهنماها", sample: "گزارش نمونه", pillar: "صفحه راهبردی" },
+  brand: "Audit Systems",
+  nav: { audit: "شروع ارزیابی", guides: "راهنماهای کاربردی", sample: "نمونه گزارش", pillar: "چارچوب ارزیابی" },
   skipToContent: "رفتن به محتوای اصلی",
   footer: {
-    aboutTitle: "ASDEV",
-    aboutText: "Asdev Audit Platform برای تحلیل فنی، سئو، امنیت و بهبود نرخ تبدیل در اکوسیستم محصولات ASDEV.",
-    location: "تهران — همکاری حضوری/ریموت در سراسر ایران",
-    quickTitle: "لینک‌های سریع",
-    standardsTitle: "استانداردهای تحویل",
-    creatorTitle: "اتصال به سازنده",
-    portfolioTitle: "صفحه برند ASDEV Portfolio",
-    toolboxTitle: "ASDEV PersianToolbox",
-    personalSiteTitle: "سایت شخصی",
-    repoTitle: "مخزن GitHub پروژه",
-    contactTitle: "تماس",
-    contactText: "برای همکاری، ارزیابی زیرساخت یا اجرای فاز Production تماس بگیرید.",
+    aboutTitle: "Audit Systems",
+    aboutText: "سایت شما را از نظر فنی، سئو و امنیت ارزیابی می‌کنیم و خروجی قابل‌اجرا برای تیم فنی و رشد تحویل می‌دهیم.",
+    location: "تهران — همکاری حضوری و ریموت در سراسر ایران",
+    quickTitle: "دسترسی سریع",
+    standardsTitle: "استاندارد تحویل",
+    creatorTitle: "شبکه علیرضا صفایی",
+    portfolioTitle: "پورتفولیو و راه‌های ارتباطی",
+    toolboxTitle: "PersianToolbox",
+    personalSiteTitle: "سایت اصلی علیرضا صفایی",
+    repoTitle: "کد پروژه در GitHub",
+    contactTitle: "شروع همکاری",
+    contactText: "برای ارزیابی زیرساخت، بهبود فنی سایت یا اجرای برنامه رشد، همین حالا پیام بدهید.",
     messageCta: "ارسال پیام",
-    rights: "تمامی حقوق محفوظ است. Asdev Audit",
-    builtBy: "ساخته شده توسط",
+    rights: "تمام حقوق محفوظ است.",
+    builtBy: "طراحی و اجرا:",
     langSwitch: "English"
   }
 };
 
 const enCopy: LayoutCopy = {
-  brand: "Asdev Audit",
+  brand: "Alireza Safaei Audit",
   nav: { audit: "Start Audit", guides: "Guides", sample: "Sample Report", pillar: "Pillar" },
   skipToContent: "Skip to main content",
   footer: {
-    aboutTitle: "ASDEV",
-    aboutText: "Asdev Audit Platform for technical audits, SEO growth, security, and conversion performance within ASDEV product ecosystem.",
+    aboutTitle: "Alireza Safaei",
+    aboutText: "Audit platform for technical SEO, security, and conversion-focused delivery across Alireza Safaei products.",
     location: "Tehran — Remote and on-site collaboration",
     quickTitle: "Quick Links",
     standardsTitle: "Delivery Standards",
-    creatorTitle: "Creator",
-    portfolioTitle: "ASDEV Portfolio brand page",
-    toolboxTitle: "ASDEV PersianToolbox",
+    creatorTitle: "Network",
+    portfolioTitle: "Portfolio & contact page",
+    toolboxTitle: "PersianToolbox",
     personalSiteTitle: "Personal site",
     repoTitle: "Project GitHub repository",
     contactTitle: "Contact",
     contactText: "For production rollout and infrastructure consulting, get in touch.",
     messageCta: "Send Message",
-    rights: "All rights reserved. Asdev Audit",
+    rights: "All rights reserved. Alireza Safaei Audit Platform",
     builtBy: "Built by",
     langSwitch: "فارسی"
   }
@@ -164,7 +169,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const locale = h.get("x-asdev-locale") === "en" ? "en" : "fa";
   const pathname = h.get("x-asdev-pathname") ?? "/";
   const copy = locale === "en" ? enCopy : faCopy;
-  const signature = getAsdevSignature(locale);
   const currentYear = new Date().getFullYear();
   const gaMeasurementId = String(process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID ?? "").trim();
   const jsonLd = {
@@ -172,18 +176,26 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     "@graph": [
       {
         "@type": "Organization",
-        name: "Asdev Audit Platform",
-        url: appBaseUrl
+        name: "Alireza Safaei Audit Platform",
+        url: appBaseUrl,
+        sameAs: [
+          "https://alirezasafaeisystems.ir",
+          "https://persiantoolbox.ir"
+        ]
       },
       {
         "@type": "WebSite",
-        name: "Asdev Audit Platform",
+        name: "Alireza Safaei Audit Platform",
         url: appBaseUrl,
-        inLanguage: locale === "en" ? "en-US" : "fa-IR"
+        inLanguage: locale === "en" ? "en-US" : "fa-IR",
+        isPartOf: {
+          "@type": "Organization",
+          name: "Alireza Safaei"
+        }
       },
       {
         "@type": "SoftwareApplication",
-        name: "Asdev Audit Platform",
+        name: "Alireza Safaei Audit Platform",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
         offers: {
@@ -191,15 +203,19 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           price: "0",
           priceCurrency: "USD"
         }
+      },
+      {
+        "@type": "WebSite",
+        name: "Alireza Safaei Systems",
+        url: "https://alirezasafaeisystems.ir"
+      },
+      {
+        "@type": "WebSite",
+        name: "PersianToolbox",
+        url: "https://persiantoolbox.ir"
       }
     ]
   };
-  const networkLinks = buildAsdevNetworkLinks("audit", "footer").map((item) =>
-    item.key === "portfolio" && locale === "en"
-      ? { ...item, label: "Portfolio & contact" }
-      : item
-  );
-
   return (
     <html lang={locale === "en" ? "en" : "fa"} dir={locale === "en" ? "ltr" : "rtl"}>
       <head>
@@ -240,7 +256,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <header className="topbar">
           <div className="container topbar-inner">
             <Link href={withLocalePath("/", locale)} className="brand">
-              {copy.brand}
+              <span className="brand-title">{copy.brand}</span>
+              <span className="brand-subtitle">{locale === "en" ? "Technical SEO + Security" : "ارزیابی فنی، سئو و امنیت"}</span>
             </Link>
             <nav className="nav">
               <Link href={withLocalePath("/audit", locale)}>{copy.nav.audit}</Link>
@@ -254,18 +271,20 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           </div>
         </header>
         <div className="container page-shell">
-          <main id="main-content">{children}</main>
+          <div id="main-content" role="main" className="main-content">
+            {children}
+          </div>
         </div>
         <footer className="footer">
           <div className="container footer-content">
-            <section className="footer-grid">
-              <article>
+            <section className="footer-grid footer-grid-enhanced">
+              <article className="footer-col footer-col-brand">
                 <h2>{copy.footer.aboutTitle}</h2>
-                <p>{copy.footer.aboutText}</p>
+                <p className="footer-lead">{copy.footer.aboutText}</p>
                 <p>{copy.footer.location}</p>
               </article>
 
-              <nav aria-label={copy.footer.quickTitle}>
+              <nav className="footer-col" aria-label={copy.footer.quickTitle}>
                 <h3>{copy.footer.quickTitle}</h3>
                 <ul>
                   <li>
@@ -283,83 +302,40 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                   <li>
                     <Link href={withLocalePath("/standards", locale)}>{copy.footer.standardsTitle}</Link>
                   </li>
-                  <li>
-                    <Link href={withLocalePath("/brand/asdev-portfolio", locale)}>{copy.footer.portfolioTitle}</Link>
-                  </li>
-                  <li>
-                    <Link href={ASDEV_BRAND.persianToolboxUrl} target="_blank" rel="noopener noreferrer">
-                      {copy.footer.toolboxTitle}
-                    </Link>
-                  </li>
                 </ul>
               </nav>
 
-              <section>
-                <h3>{copy.footer.creatorTitle}</h3>
-                <ul>
-                  <li>
-                    <Link href={ASDEV_BRAND.ownerSiteUrl} target="_blank" rel="noopener noreferrer">
-                      {copy.footer.personalSiteTitle}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href={locale === "en" ? ASDEV_BRAND.portfolioBrandPageEn : ASDEV_BRAND.portfolioBrandPageFa}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {copy.footer.portfolioTitle}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="https://github.com/alirezasafaeisystems/asdev-audit-ir" target="_blank" rel="noopener noreferrer">
-                      {copy.footer.repoTitle}
-                    </Link>
-                  </li>
-                </ul>
-              </section>
-
-              <section>
+              <section className="footer-col footer-contact">
                 <h3>{copy.footer.contactTitle}</h3>
                 <p>{copy.footer.contactText}</p>
-                <a className="button" href="mailto:team@alirezasafaeisystems.ir">
-                  {copy.footer.messageCta}
-                </a>
+                <div className="footer-actions">
+                  <a className="button" href="mailto:team@alirezasafaeisystems.ir">
+                    {copy.footer.messageCta}
+                  </a>
+                  <Link className="button secondary" href={ASDEV_TELEGRAM_URL} target="_blank" rel="noopener noreferrer">
+                    {locale === "en" ? "Telegram" : "تلگرام"}
+                  </Link>
+                </div>
               </section>
             </section>
 
-            <div className="footer-bottom">
-              <p>
-                {copy.footer.rights} © {currentYear}
-              </p>
-              <div className="footer-signature">
-                <p>
-                  {copy.footer.builtBy}{" "}
-                  <Link href={ASDEV_BRAND.ownerSiteUrl} target="_blank" rel="noopener noreferrer">
-                    {signature}
-                  </Link>
-                </p>
-                <p className="text-sm">{ASDEV_SIGNATURE_FULL}</p>
-                <p className="text-sm">
-                  <Link href="https://alirezasafaeisystems.ir/" target="_blank" rel="noopener noreferrer" className="link">
-                    {ASDEV_PORTFOLIO_LINE}
-                  </Link>
-                  {" · "}
-                  <Link href={ASDEV_TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="link">
-                    {ASDEV_TELEGRAM_LINE}
-                  </Link>
-                </p>
-                <div className="footer-links">
-                  {networkLinks.map((item) => (
-                    <Link key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" className="link">
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
+            <div className="mt-8 pt-5 border-t text-xs text-muted-foreground flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <span>© {currentYear} سیستم ممیزی. همه حقوق محفوظ است.</span>
+              <span>
+                طراحی و توسعه توسط{" "}
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-4 hover:text-primary"
+                  href="https://alirezasafaeisystems.ir/"
+                >
+                  علیرضا صفایی مهندس سیستم های وب
+                </a>
+              </span>
             </div>
           </div>
         </footer>
+        <RumTracker locale={locale} />
       </body>
     </html>
   );

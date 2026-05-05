@@ -1,5 +1,5 @@
 export const ASDEV_BRAND = {
-  masterBrand: "ASDEV",
+  masterBrand: "Alireza Safaei",
   ownerNameFa: "علیرضا صفایی",
   ownerNameEn: "Alireza Safaei",
   ownerSiteUrl: "https://alirezasafaeisystems.ir",
@@ -9,15 +9,15 @@ export const ASDEV_BRAND = {
   persianToolboxUrl: "https://persiantoolbox.ir"
 } as const;
 
-export const ASDEV_SIGNATURE_FULL = "ASDEV | Alireza Safaei — علیرضا صفایی" as const;
+export const ASDEV_SIGNATURE_FULL = "Alireza Safaei — علیرضا صفایی" as const;
 export const ASDEV_PORTFOLIO_LINE = "Portfolio & contact: alirezasafaeisystems.ir" as const;
 export const ASDEV_TELEGRAM_URL = "https://t.me/asdevsystems" as const;
 export const ASDEV_TELEGRAM_LINE = "Telegram: @asdevsystems" as const;
 
 export function getAsdevSignature(locale: "fa" | "en"): string {
   return locale === "fa"
-    ? `${ASDEV_BRAND.masterBrand} | ${ASDEV_BRAND.ownerNameFa}`
-    : `${ASDEV_BRAND.masterBrand} | ${ASDEV_BRAND.ownerNameEn}`;
+    ? `${ASDEV_BRAND.ownerNameFa}`
+    : `${ASDEV_BRAND.ownerNameEn}`;
 }
 
 type AsdevUtmContent = "footer" | "asdev_page" | "standards_page";
@@ -45,7 +45,7 @@ export function buildAsdevNetworkLinks(utmSource: "audit", utmContent: AsdevUtmC
     const url = new URL(item.baseUrl);
     url.searchParams.set("utm_source", utmSource);
     url.searchParams.set("utm_medium", "cross_site");
-    url.searchParams.set("utm_campaign", "asdev_network");
+    url.searchParams.set("utm_campaign", "alireza_safaei_network");
     url.searchParams.set("utm_content", utmContent);
     return {
       ...item,

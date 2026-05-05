@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { getLocalRedisUrl, pingLocalRedis } from "../lib/localRedis";
 
 type Level = "info" | "warn" | "error";
 
@@ -44,14 +45,34 @@ async function checkRedis(): Promise<Check> {
   const requireDistributed = env("REQUIRE_DISTRIBUTED_RATE_LIMIT").toLowerCase() === "true";
   const url = env("UPSTASH_REDIS_REST_URL");
   const token = env("UPSTASH_REDIS_REST_TOKEN");
+  const localRedisUrl = getLocalRedisUrl();
   if (!url || !token) {
+    if (localRedisUrl) {
+      try {
+        const ok = await pingLocalRedis();
+        return {
+          id: "redis-ping-local",
+          level: ok ? "info" : "error",
+          ok,
+          message: ok ? "Local Redis ping succeeded." : "Local Redis ping failed."
+        };
+      } catch (error) {
+        return {
+          id: "redis-ping-local",
+          level: "error",
+          ok: false,
+          message: `Local Redis ping error: ${error instanceof Error ? error.message : String(error)}`
+        };
+      }
+    }
+
     return {
       id: "redis-config",
       level: requireDistributed ? "error" : "info",
       ok: !requireDistributed,
       message: requireDistributed
-        ? "UPSTASH_REDIS_REST_URL/TOKEN are required but missing."
-        : "UPSTASH_REDIS_REST_URL/TOKEN are not set; distributed rate-limit is intentionally disabled."
+        ? "No Redis backend is configured. Set UPSTASH_REDIS_REST_* or REDIS_URL."
+        : "No Redis backend is configured; distributed rate-limit is intentionally disabled."
     };
   }
 

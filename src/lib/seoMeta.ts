@@ -40,7 +40,7 @@ export function buildLocaleAlternates(path: string, locale: SeoLocale): NonNulla
     canonical: toAbsoluteUrl(canonical),
     languages: {
       "fa-IR": toAbsoluteUrl(faPath),
-      en: toAbsoluteUrl(enPath),
+      "en-US": toAbsoluteUrl(enPath),
       "x-default": toAbsoluteUrl(faPath)
     }
   };
@@ -61,7 +61,7 @@ export function buildPageMetadata(input: MetadataInput): Metadata {
       description: input.description,
       type: ogType,
       url: canonical,
-      siteName: "Asdev Audit Platform"
+      siteName: "Alireza Safaei Audit Platform"
     },
     twitter: {
       card: "summary_large_image",
@@ -123,12 +123,11 @@ export function buildArticleSchema(input: {
     dateModified: input.dateModified ?? input.datePublished,
     author: {
       "@type": "Organization",
-      name: "Asdev Audit Platform"
+      name: "Alireza Safaei Audit Platform"
     },
     publisher: {
       "@type": "Organization",
-      name: "Asdev Audit Platform"
+      name: "Alireza Safaei Audit Platform"
     }
   };
 }
-

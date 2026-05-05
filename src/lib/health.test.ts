@@ -7,6 +7,8 @@ describe("health checks", () => {
     vi.restoreAllMocks();
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    delete process.env.REDIS_URL;
+    delete process.env.ASDEV_REDIS_URL;
   });
 
   it("returns database pass when query succeeds", async () => {
@@ -29,4 +31,3 @@ describe("health checks", () => {
     expect(report.checks.find((x) => x.name === "redis")?.status).toBe("skip");
   });
 });
-

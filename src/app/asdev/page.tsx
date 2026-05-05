@@ -9,20 +9,31 @@ import {
 } from "../../lib/brand";
 
 export const metadata: Metadata = {
-  title: "ASDEV — صفحه برند و لینک‌های شبکه",
-  description: "لینک‌دهی رسمی بین پورتفولیو، PersianToolbox و Audit IR همراه با امضای برند ASDEV.",
+  title: "Alireza Safaei Network — صفحه برند و لینک‌های شبکه",
+  description: "لینک‌دهی رسمی بین پورتفولیو، PersianToolbox و Audit IR همراه با امضای برند علیرضا صفایی.",
   alternates: {
     canonical: "https://audit.alirezasafaeisystems.ir/asdev"
   },
   openGraph: {
-    title: "ASDEV | شبکه محصولات",
-    description: "صفحه برند ASDEV با لینک‌های متقابل سه سایت اصلی.",
+    title: "Alireza Safaei | شبکه محصولات",
+    description: "صفحه برند علیرضا صفایی با لینک‌های متقابل سه سایت اصلی.",
     url: "https://audit.alirezasafaeisystems.ir/asdev"
   },
   twitter: {
     card: "summary_large_image",
-    title: "ASDEV — صفحه برند",
-    description: "لینک‌های رسمی ASDEV و راه‌های ارتباطی علیرضا صفایی."
+    title: "Alireza Safaei — صفحه برند",
+    description: "لینک‌های رسمی و راه‌های ارتباطی علیرضا صفایی."
+  },
+  robots: {
+    index: false,
+    follow: true,
+    googleBot: {
+      index: false,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1
+    }
   }
 };
 
@@ -57,7 +68,7 @@ export default function AsdevPage() {
     "@graph": [
       {
         "@type": "Organization",
-        name: "ASDEV",
+        name: "Alireza Safaei",
         url: ASDEV_BRAND.ownerSiteUrl,
         sameAs: [ASDEV_BRAND.ownerSiteUrl, "https://github.com/alirezasafaeisystems", ASDEV_TELEGRAM_URL]
       },
@@ -84,7 +95,7 @@ export default function AsdevPage() {
       },
       {
         "@type": "Question",
-        name: "کانال رسمی ASDEV چیست؟",
+        name: "کانال رسمی علیرضا صفایی چیست؟",
         acceptedAnswer: {
           "@type": "Answer",
           text: "کانال تلگرام رسمی: https://t.me/asdevsystems"
@@ -96,8 +107,8 @@ export default function AsdevPage() {
   return (
     <main className="container page-shell space-y-8 py-10" id="main-content">
       <header className="card">
-        <h1 className="text-2xl font-bold">ASDEV — علیرضا صفایی</h1>
-        <p className="text-muted">معرفی برند ASDEV و لینک‌های رسمی شبکه محصولات.</p>
+        <h1 className="text-2xl font-bold">Alireza Safaei Network — علیرضا صفایی</h1>
+        <p className="text-muted">معرفی برند شخصی و لینک‌های رسمی شبکه محصولات.</p>
       </header>
       <script
         type="application/ld+json"

@@ -22,9 +22,28 @@ export function sanitizeApiError(error: unknown): { status: number; code: string
     return { status: 500, code: "INTERNAL_ERROR" };
   }
 
+  if (isDnsLookupFailure(error)) {
+    return { status: 503, code: "DNS_LOOKUP_FAILED" };
+  }
+
   if (error.message.startsWith("INVALID_URL_") || error.message.startsWith("SSRF_BLOCKED_")) {
     return { status: 400, code: error.message };
   }
 
   return { status: 500, code: "INTERNAL_ERROR" };
+}
+
+export function isDnsLookupFailure(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const code = (error as { code?: string }).code;
+  if (typeof code === "string") {
+    const normalized = code.toUpperCase();
+    return ["ENOTFOUND", "EAI_AGAIN", "ENODATA", "ETIMEOUT", "ETIMEDOUT", "EAI_NODATA"].includes(normalized);
+  }
+
+  const message = error.message.toLowerCase();
+  return message.includes("getaddrinfo") || message.includes("query timed out");
 }

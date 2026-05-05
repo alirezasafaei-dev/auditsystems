@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { getGuideSlugs, getGuideUpdatedAtMap } from "../content/guides";
 import { getAppBaseUrl } from "../lib/site";
 
-const STATIC_LASTMOD = "2026-02-23";
+const STATIC_LASTMOD = process.env.NEXT_PUBLIC_BUILD_DATE ?? "2026-03-01";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = getAppBaseUrl();
@@ -17,7 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { route: "/", priority: 1, changeFrequency: "weekly" },
     { route: "/audit", priority: 0.8, changeFrequency: "weekly" },
     { route: "/guides", priority: 0.8, changeFrequency: "weekly" },
-    { route: "/brand/asdev-portfolio", priority: 0.7, changeFrequency: "monthly" },
+    { route: "/standards", priority: 0.72, changeFrequency: "monthly" },
     { route: "/sample-report", priority: 0.7, changeFrequency: "monthly" },
     { route: "/pillar/iran-readiness-audit", priority: 0.75, changeFrequency: "monthly" }
   ];
@@ -36,7 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         alternates: {
           languages: {
             "fa-IR": `${baseUrl}${entry.route}`,
-            en: `${baseUrl}${enRoute}`,
+            "en-US": `${baseUrl}${enRoute}`,
             "x-default": `${baseUrl}${entry.route}`
           }
         }
@@ -49,7 +49,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         alternates: {
           languages: {
             "fa-IR": `${baseUrl}${entry.route}`,
-            en: `${baseUrl}${enRoute}`,
+            "en-US": `${baseUrl}${enRoute}`,
             "x-default": `${baseUrl}${entry.route}`
           }
         }
@@ -71,7 +71,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         alternates: {
           languages: {
             "fa-IR": faUrl,
-            en: enUrl,
+            "en-US": enUrl,
             "x-default": faUrl
           }
         }
@@ -84,7 +84,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         alternates: {
           languages: {
             "fa-IR": faUrl,
-            en: enUrl,
+            "en-US": enUrl,
             "x-default": faUrl
           }
         }

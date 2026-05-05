@@ -5,7 +5,7 @@ import { createReportToken } from "../../../../lib/token";
 import { observeApiRequest } from "../../../../lib/metrics";
 import { createRequestId, logEvent, respondJson } from "../../../../lib/observability";
 import { consumeDistributedRateLimit, isDistributedRateLimitRequired } from "../../../../lib/rateLimit";
-import { getClientIp, hashClientIp, sanitizeApiError } from "../../../../lib/security";
+import { getClientIp, hashClientIp, isDnsLookupFailure, sanitizeApiError } from "../../../../lib/security";
 import { NextRequest } from "next/server";
 
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       windowSec: Math.floor(RATE_LIMIT_WINDOW_MS / 1000)
     });
     const requireDistributed = isDistributedRateLimitRequired();
-    const useDatabaseFallback = distributed.backend !== "upstash-redis";
+    const useDatabaseFallback = distributed.backend !== "upstash-redis" && distributed.backend !== "local-redis";
 
     if (requireDistributed && useDatabaseFallback) {
       logEvent("warn", "audit_run_rate_limit_backend_fallback", {
@@ -113,7 +113,24 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const normalized = await normalizeAuditTargetUrl(inputUrl, { verifyDnsPublicIp: true });
+    const verifyDns = String(process.env.AUDIT_DNS_GUARD ?? "true").toLowerCase() !== "false";
+    const failOpenOnDnsLookupFailure = String(process.env.AUDIT_DNS_FAIL_OPEN ?? "true").toLowerCase() === "true";
+
+    let normalized;
+    try {
+      normalized = await normalizeAuditTargetUrl(inputUrl, { verifyDnsPublicIp: verifyDns });
+    } catch (error) {
+      if (verifyDns && failOpenOnDnsLookupFailure && isDnsLookupFailure(error)) {
+        logEvent("warn", "audit_run_dns_lookup_failed_fallback", {
+          requestId,
+          url: normalizedUrlSafe(inputUrl),
+          backend: "dns"
+        });
+        normalized = await normalizeAuditTargetUrl(inputUrl, { verifyDnsPublicIp: false });
+      } else {
+        throw error;
+      }
+    }
 
     const explicitLocale = request.headers.get("x-asdev-locale") === "en" ? "en" : "fa";
 
@@ -160,4 +177,8 @@ export async function POST(request: NextRequest) {
   } finally {
     observeApiRequest("/api/audit/runs", statusCode, Date.now() - startedAt);
   }
+}
+
+function normalizedUrlSafe(value: string): string {
+  return value.length > 220 ? `${value.slice(0, 220)}...` : value;
 }

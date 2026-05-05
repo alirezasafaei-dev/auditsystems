@@ -6,9 +6,9 @@ import { ASDEV_SIGNATURE_FULL, buildAsdevNetworkLinks } from "../../../lib/brand
 export const metadata: Metadata = buildPageMetadata({
   locale: "en",
   path: "/standards",
-  title: "ASDEV Delivery Standards",
+  title: "Alireza Safaei Delivery Standards",
   description: "Clear contract for what this product is, who it serves, and what measurable delivery output is expected.",
-  keywords: ["delivery standards", "technical audit", "internal links", "asdev network"],
+  keywords: ["delivery standards", "technical audit", "internal links", "alireza safaei network"],
   type: "article"
 });
 
@@ -17,7 +17,7 @@ export default function StandardsPageEn() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "ASDEV cross-site intent links",
+    name: "Alireza Safaei cross-site intent links",
     itemListElement: networkLinks.map((item, index) => ({
       "@type": "ListItem",
       position: index + 1,
@@ -30,7 +30,7 @@ export default function StandardsPageEn() {
     <main className="container page-shell space-y-8 py-10" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <section className="card hero">
-        <h1>ASDEV Delivery Standards</h1>
+        <h1>Alireza Safaei Delivery Standards</h1>
         <p>This page states what this site is, who it is for, and what measurable output every delivery should produce.</p>
       </section>
 

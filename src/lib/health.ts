@@ -1,4 +1,5 @@
 import { prisma } from "./db";
+import { getLocalRedisUrl, pingLocalRedis } from "./localRedis";
 
 export type HealthCheckStatus = "pass" | "fail" | "skip";
 
@@ -54,13 +55,33 @@ export async function checkRedisHealth(timeoutMs: number = 1200): Promise<Health
   const startedAt = Date.now();
   const url = String(process.env.UPSTASH_REDIS_REST_URL ?? "").trim();
   const token = String(process.env.UPSTASH_REDIS_REST_TOKEN ?? "").trim();
+  const localRedisUrl = getLocalRedisUrl();
 
   if (!url || !token) {
+    if (localRedisUrl) {
+      try {
+        const ok = await withTimeout(pingLocalRedis(), timeoutMs);
+        return {
+          name: "redis",
+          status: ok ? "pass" : "fail",
+          latencyMs: Date.now() - startedAt,
+          detail: ok ? "Local Redis ping succeeded" : "Local Redis ping did not return PONG"
+        };
+      } catch (error) {
+        return {
+          name: "redis",
+          status: "fail",
+          latencyMs: Date.now() - startedAt,
+          detail: `Local Redis not ready (${error instanceof Error ? error.message : String(error)})`
+        };
+      }
+    }
+
     return {
       name: "redis",
       status: "skip",
       latencyMs: Date.now() - startedAt,
-      detail: "Upstash Redis is not configured"
+      detail: "Redis backend is not configured"
     };
   }
 
@@ -108,4 +129,3 @@ export async function buildReadinessReport(service = "asdev-audit-ir"): Promise<
     checks
   };
 }
-

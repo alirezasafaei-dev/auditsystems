@@ -48,18 +48,31 @@ export function middleware(request: NextRequest): NextResponse {
   const requestHeaders = new Headers(request.headers);
   const pathname = request.nextUrl.pathname;
   const locale = pathname === "/en" || pathname.startsWith("/en/") ? "en" : "fa";
+  const requestId =
+    request.headers.get("x-request-id") ??
+    request.headers.get("x-correlation-id") ??
+    crypto.randomUUID();
 
+  requestHeaders.set("x-request-id", requestId);
+  requestHeaders.set("x-correlation-id", requestId);
   requestHeaders.set("x-asdev-locale", locale);
   requestHeaders.set("x-asdev-pathname", pathname);
+  requestHeaders.set("x-site-locale", locale);
+  requestHeaders.set("x-site-pathname", pathname);
 
-  return withSecurityHeaders(
-    request,
-    NextResponse.next({
-      request: {
-        headers: requestHeaders
-      }
-    })
-  );
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders
+    }
+  });
+  response.headers.set("x-request-id", requestId);
+  response.headers.set("x-correlation-id", requestId);
+  response.headers.set("x-asdev-locale", locale);
+  response.headers.set("x-asdev-pathname", pathname);
+  response.headers.set("x-site-locale", locale);
+  response.headers.set("x-site-pathname", pathname);
+
+  return withSecurityHeaders(request, response);
 }
 
 export const config = {

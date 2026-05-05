@@ -183,7 +183,11 @@ run_ssh_checks() {
   done <<< "$ports_line"
 
   local apps_line
-  apps_line="$("${ssh_cmd[@]}" "set -euo pipefail; if command -v pm2 >/dev/null 2>&1; then pm2 jlist --silent 2>/dev/null | jq -r '.[] | select(.name==\"asdev-audit-ir-production\" or .name==\"asdev-audit-ir-staging\") | \"APP:\(.name):\(.pid)\"'; fi" || true)"
+  local saw_prod_web=false
+  local saw_prod_worker=false
+  local saw_staging_web=false
+  local saw_staging_worker=false
+  apps_line="$("${ssh_cmd[@]}" "set -euo pipefail; if command -v pm2 >/dev/null 2>&1; then pm2 jlist --silent 2>/dev/null | jq -r '.[] | select(.name==\"asdev-audit-ir-production\" or .name==\"asdev-audit-ir-production-worker\" or .name==\"asdev-audit-ir-staging\" or .name==\"asdev-audit-ir-staging-worker\") | \"APP:\(.name):\(.pid)\"'; fi" || true)"
 
   while IFS= read -r line; do
     [[ -z "$line" ]] && continue
@@ -202,7 +206,31 @@ run_ssh_checks() {
         log_ok "remote $app_name cwd: $cwd_link"
       fi
     fi
+  if [[ "$app_name" == "asdev-audit-ir-production" ]]; then
+    saw_prod_web=true
+  elif [[ "$app_name" == "asdev-audit-ir-production-worker" ]]; then
+    saw_prod_worker=true
+  elif [[ "$app_name" == "asdev-audit-ir-staging" ]]; then
+    saw_staging_web=true
+  elif [[ "$app_name" == "asdev-audit-ir-staging-worker" ]]; then
+    saw_staging_worker=true
+  fi
+
   done <<< "$apps_line"
+
+
+  if ! $saw_prod_web; then
+    log_fail "remote pm2 app asdev-audit-ir-production missing"
+  fi
+  if ! $saw_prod_worker; then
+    log_warn "remote pm2 app asdev-audit-ir-production-worker missing"
+  fi
+  if ! $saw_staging_web; then
+    log_fail "remote pm2 app asdev-audit-ir-staging missing"
+  fi
+  if ! $saw_staging_worker; then
+    log_warn "remote pm2 app asdev-audit-ir-staging-worker missing"
+  fi
 
   local ready_line
   ready_line="$("${ssh_cmd[@]}" "set -euo pipefail; for u in http://127.0.0.1:$PROD_PORT/api/ready http://127.0.0.1:$STAGING_PORT/api/ready; do code=\$(curl -sS -o /dev/null -w \"%{http_code}\" --max-time 20 \"\$u\" || true); echo READY:\$u:\$code; done" || true)"

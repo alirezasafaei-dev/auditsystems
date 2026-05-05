@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return buildPageMetadata({
     locale: "fa",
     path: `/guides/${guide.slug}`,
-    title: `${guide.title} | asdev-audit-ir`,
+    title: `${guide.title} | سیستم ممیزی علیرضا صفایی`,
     description: guide.summary,
     type: "article",
     keywords: ["راهنمای سئو", "راهنمای فنی", "audit", guide.slug.replaceAll("-", " ")]

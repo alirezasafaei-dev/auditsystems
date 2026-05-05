@@ -12,6 +12,7 @@
 - `UPSTASH_REDIS_REST_URL`
 - `UPSTASH_REDIS_REST_TOKEN`
 - `REQUIRE_DISTRIBUTED_RATE_LIMIT=true`
+- `AUDIT_DNS_FAIL_OPEN` (اختیاری: true/false; در حالت پیش‌فرض `true`)
 - `ZARINPAL_MERCHANT_ID` (when provider=ZARINPAL)
 - `NEXT_PUBLIC_GA4_MEASUREMENT_ID` (optional, for SEO measurement events)
 

@@ -4,30 +4,44 @@ import { buildPageMetadata } from "../../../lib/seoMeta";
 import { ASDEV_BRAND, getAsdevSignature } from "../../../lib/brand";
 import SeoPageEvent from "../../../components/SeoPageEvent";
 
-export const metadata: Metadata = buildPageMetadata({
+const baseMetadata = buildPageMetadata({
   locale: "fa",
   path: "/brand/asdev-portfolio",
-  title: "ASDEV Portfolio | صفحه مرجع برند",
-  description: "معرفی صفحه مرجع برند ASDEV در سایت اصلی علیرضا صفایی و ارتباط آن با محصول Asdev Audit.",
-  keywords: ["ASDEV", "علیرضا صفایی", "portfolio", "برند", "asdev audit"]
+  title: "Alireza Safaei Portfolio | صفحه مرجع برند",
+  description: "معرفی صفحه مرجع برند علیرضا صفایی در سایت اصلی و ارتباط آن با پلتفرم Audit.",
+  keywords: ["Alireza Safaei", "علیرضا صفایی", "portfolio", "برند", "audit"]
 });
+export const metadata: Metadata = {
+  ...baseMetadata,
+  robots: {
+    index: false,
+    follow: true,
+    googleBot: {
+      index: false,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1
+    }
+  }
+};
 
 export default function AsdevPortfolioBrandFaPage() {
   return (
     <main>
       <SeoPageEvent event="seo_brand_portfolio_view" params={{ locale: "fa", path: "/brand/asdev-portfolio" }} />
       <section className="card hero">
-        <h1>صفحه مرجع برند ASDEV Portfolio</h1>
+        <h1>صفحه مرجع برند Alireza Safaei Portfolio</h1>
         <p>
-          {getAsdevSignature("fa")} | محصول Asdev Audit بخشی از اکوسیستم محصولات ASDEV است و صفحه مرجع روایت برند و مطالعات
+          {getAsdevSignature("fa")} | پلتفرم Audit بخشی از شبکه محصولات علیرضا صفایی است و صفحه مرجع روایت برند و مطالعات
           موردی در سایت اصلی نگهداری می‌شود.
         </p>
         <div className="hero-actions">
           <a className="button" href={ASDEV_BRAND.portfolioBrandPageFa} target="_blank" rel="noopener noreferrer">
-            مشاهده صفحه برند ASDEV
+            مشاهده صفحه برند
           </a>
           <a className="button secondary" href={ASDEV_BRAND.portfolioHomeUrl} target="_blank" rel="noopener noreferrer">
-            ورود به ASDEV Portfolio
+            ورود به Portfolio
           </a>
         </div>
       </section>
@@ -35,7 +49,7 @@ export default function AsdevPortfolioBrandFaPage() {
       <section className="grid-2">
         <article className="card grid">
           <h2>چرا این صفحه مهم است؟</h2>
-          <p>استانداردهای تحویل، مدل خدمات و اعتبار بین‌پروژه‌ای ASDEV در این صفحه و صفحات مرتبط آن تعریف می‌شود.</p>
+          <p>استانداردهای تحویل، مدل خدمات و اعتبار بین‌پروژه‌ای در این صفحه و صفحات مرتبط آن تعریف می‌شود.</p>
           <Link href="/guides">مشاهده راهنماهای Asdev Audit</Link>
         </article>
         <article className="card grid">

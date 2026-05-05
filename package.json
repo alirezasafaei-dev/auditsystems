@@ -28,6 +28,7 @@
     "payment:preflight:strict": "tsx src/scripts/payment-preflight.ts --strict",
     "payment:zarinpal:smoke": "tsx src/scripts/zarinpal-smoke.ts",
     "automation:run": "tsx src/scripts/automation-master.ts --strict",
+    "smoke:audit-flow": "node scripts/deploy/smoke-audit-flow.cjs",
     "lighthouse:local": "tsx src/scripts/lighthouse-local.ts",
     "deploy:check:hosting": "bash scripts/deploy/check-hosting-sync.sh --strict",
     "deploy:readiness": "bash scripts/deploy/run-readiness-suite.sh --strict"

@@ -73,8 +73,8 @@ async function checkHost(host: HostCheck): Promise<HostResult> {
   if (asdev.status !== 200) {
     failures.push("asdev_page_unavailable");
   }
-  if (!asdev.body.includes("asdev_network")) {
-    failures.push("asdev_network_utm_missing");
+  if (!asdev.body.includes("alireza_safaei_network")) {
+    failures.push("network_utm_missing");
   }
 
   const readyGet = await request(`${host.baseUrl}/api/ready`);

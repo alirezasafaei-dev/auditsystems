@@ -64,6 +64,8 @@ CURRENT_LINK="$BASE_DIR/current/$ENVIRONMENT"
 RELEASE_DIR="$RELEASES_DIR/$RELEASE_ID"
 ENV_FILE="$ENV_DIR/$ENVIRONMENT.env"
 APP_NAME="$APP_SLUG-$ENVIRONMENT"
+APP_WEB_NAME="${APP_NAME}-web"
+APP_WORKER_NAME="${APP_NAME}-worker"
 PORT="3011"
 [[ "$ENVIRONMENT" == "production" ]] && PORT="3010"
 
@@ -96,7 +98,7 @@ cat > ecosystem.config.cjs <<ECOSYSTEM
 module.exports = {
   apps: [
     {
-      name: '$APP_NAME',
+      name: '$APP_WEB_NAME',
       cwd: '$RELEASE_DIR',
       script: 'pnpm',
       args: 'exec next start -H 127.0.0.1 -p $PORT',
@@ -108,17 +110,34 @@ module.exports = {
       },
       max_restarts: 10,
       restart_delay: 3000,
-      out_file: '$LOG_DIR/$APP_NAME.out.log',
-      error_file: '$LOG_DIR/$APP_NAME.err.log',
+      out_file: '$LOG_DIR/$APP_WEB_NAME.out.log',
+      error_file: '$LOG_DIR/$APP_WEB_NAME.err.log',
+      merge_logs: true,
+      time: true
+    },
+    {
+      name: '$APP_WORKER_NAME',
+      cwd: '$RELEASE_DIR',
+      script: 'pnpm',
+      args: 'run worker:dev',
+      env_file: '$ENV_FILE',
+      env: {
+        NODE_ENV: 'production'
+      },
+      max_restarts: 10,
+      restart_delay: 3000,
+      out_file: '$LOG_DIR/$APP_WORKER_NAME.out.log',
+      error_file: '$LOG_DIR/$APP_WORKER_NAME.err.log',
       merge_logs: true,
       time: true
     }
   ]
 };
 ECOSYSTEM
-
-pm2 delete "$APP_NAME" >/dev/null 2>&1 || true
-pm2 start ecosystem.config.cjs --only "$APP_NAME" --update-env
+ 
+pm2 delete "$APP_WEB_NAME" >/dev/null 2>&1 || true
+pm2 delete "$APP_WORKER_NAME" >/dev/null 2>&1 || true
+pm2 start ecosystem.config.cjs --update-env
 pm2 save >/dev/null 2>&1 || true
 
 ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"

@@ -6,9 +6,9 @@ import { ASDEV_SIGNATURE_FULL, buildAsdevNetworkLinks } from "../../lib/brand";
 export const metadata: Metadata = buildPageMetadata({
   locale: "fa",
   path: "/standards",
-  title: "استانداردهای تحویل ASDEV",
-  description: "تعریف روشن «این سایت چیست/برای چه کسی است/خروجی چیست» + intent map فارسی و لینک داخلی بین سه محصول ASDEV.",
-  keywords: ["استاندارد تحویل", "audit فنی", "intent map فارسی", "ASDEV network"],
+  title: "استانداردهای تحویل علیرضا صفایی",
+  description: "تعریف روشن «این سایت چیست/برای چه کسی است/خروجی چیست» + intent map فارسی و لینک داخلی بین محصولات علیرضا صفایی.",
+  keywords: ["استاندارد تحویل", "audit فنی", "intent map فارسی", "Alireza Safaei network"],
   type: "article"
 });
 
@@ -17,7 +17,7 @@ export default function StandardsPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "ASDEV cross-site intent links",
+    name: "Alireza Safaei cross-site intent links",
     itemListElement: networkLinks.map((item, index) => ({
       "@type": "ListItem",
       position: index + 1,
@@ -30,7 +30,7 @@ export default function StandardsPage() {
     <main className="container page-shell space-y-8 py-10" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <section className="card hero">
-        <h1>استانداردهای تحویل ASDEV</h1>
+        <h1>استانداردهای تحویل علیرضا صفایی</h1>
         <p>این صفحه مرجع کوتاه، مسئله، مخاطب و خروجی اجرایی هر تحویل را شفاف می‌کند تا تصمیم‌گیری محصول/فنی سریع‌تر شود.</p>
       </section>
 
@@ -59,7 +59,7 @@ export default function StandardsPage() {
         <ul>
           <li>جست‌وجوی «بررسی فنی سایت / audit امنیتی» → Audit IR</li>
           <li>جست‌وجوی «ابزار سریع فارسی / تبدیل و محاسبه» → PersianToolbox</li>
-          <li>جست‌وجوی «مشاوره زیرساخت / استاندارد تحویل» → ASDEV Portfolio</li>
+          <li>جست‌وجوی «مشاوره زیرساخت / استاندارد تحویل» → پورتفولیو علیرضا صفایی</li>
         </ul>
         <div className="footer-links">
           {networkLinks.map((item) => (

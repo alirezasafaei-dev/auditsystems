@@ -68,6 +68,7 @@ model Organization {
   scheduledAudits        ScheduledAudit[]
   notificationPreference NotificationPreference?
   notificationHistory    NotificationHistory[]
+  billingEvents          BillingEvent[]
 }
 
 model Membership {
@@ -485,4 +486,20 @@ model NotificationHistory {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([organizationId, sentAt])
+}
+
+model BillingEvent {
+  id             String   @id @default(cuid())
+  organizationId String
+  entityType     String   // ORDER | SUBSCRIPTION | INVOICE
+  entityId       String
+  eventType      String
+  actor          String?
+  details        Json?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, eventType, createdAt])
+  @@index([entityType, entityId])
 }

@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: main-gate-${{ github.repository }}
+  group: main-gate-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -59,7 +59,8 @@ jobs:
           pnpm run build
           PORT=3110 pnpm run start >/tmp/audit-smoke.log 2>&1 &
           APP_PID=$!
-          trap "kill $APP_PID >/dev/null 2>&1 || true" EXIT
+          echo "$APP_PID" > /tmp/audit-app.pid
+          trap "kill $APP_PID 2>/dev/null || true" EXIT
           for i in {1..40}; do
             if curl -fsS http://127.0.0.1:3110/asdev >/tmp/asdev.html; then
               break
@@ -88,8 +89,10 @@ jobs:
         if: always()
         run: |
           set -euo pipefail
-          pkill -f "next start" 2>/dev/null || true
-          sleep 1
+          if [ -f /tmp/audit-app.pid ]; then
+            kill "$(cat /tmp/audit-app.pid)" 2>/dev/null || true
+            rm -f /tmp/audit-app.pid
+          fi
           if [ -n "${GITHUB_WORKSPACE:-}" ] && [ -d "${GITHUB_WORKSPACE:-}" ]; then
             find "$GITHUB_WORKSPACE" -mindepth 1 -maxdepth 1 -exec rm -rf {} + || true
           fi

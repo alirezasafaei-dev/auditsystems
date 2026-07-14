@@ -61,7 +61,7 @@ jobs:
           setsid env PORT=3110 pnpm run start >"${RUNNER_TEMP}/audit-smoke.log" 2>&1 &
           APP_PID=$!
           echo "$APP_PID" > "$APP_PID_FILE"
-          trap 'kill -- "-'${APP_PID}'" 2>/dev/null || true' EXIT
+          trap 'kill -- "-$APP_PID" 2>/dev/null || true' EXIT
           for i in {1..40}; do
             if curl -fsS http://127.0.0.1:3110/asdev >/tmp/asdev.html; then
               break

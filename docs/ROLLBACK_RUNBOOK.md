@@ -108,21 +108,23 @@ Database restore is destructive. It requires explicit confirmation of:
 - owner authorization for restore;
 - a post-restore validation plan.
 
-First validate without mutation:
+Until [Issue #55](https://github.com/alirezasafaei-dev/auditsystems/issues/55) is fixed, use explicit protected PostgreSQL variables for the restore target; do not rely on `DATABASE_URL` alone for a remote target.
 
 ```bash
-DATABASE_URL='<target-url>' bash scripts/restore-db.sh \
-  ops/backups/<verified-backup>.sql.gz --dry-run
+export POSTGRES_HOST='<target-host>'
+export POSTGRES_PORT='5432'
+export POSTGRES_DB='<target-db>'
+export POSTGRES_USER='<target-user>'
+export POSTGRES_PASSWORD='<target-password>'
+
+# Validate without mutation
+bash scripts/restore-db.sh ops/backups/<verified-backup>.sql.gz --dry-run
+
+# Restore only after authorization
+bash scripts/restore-db.sh ops/backups/<verified-backup>.sql.gz --force
 ```
 
-Then restore only after authorization:
-
-```bash
-DATABASE_URL='<target-url>' bash scripts/restore-db.sh \
-  ops/backups/<verified-backup>.sql.gz --force
-```
-
-The restore script verifies gzip/dump structure, uses `ON_ERROR_STOP` and a single transaction for SQL gzip backups, checks key tables, and verifies connectivity.
+Verify the target host, port, database, and user from protected operational context before the destructive command. The restore script verifies gzip/dump structure, uses `ON_ERROR_STOP` and a single transaction for SQL gzip backups, checks key tables, and verifies connectivity.
 
 Never improvise a production down migration. Prisma migrations are normally forward-only; if a schema correction can be safely shipped forward, prefer an emergency fix release over restoring production data.
 

@@ -46,8 +46,13 @@ jobs:
       - name: Verify Actions are pinned
         run: pnpm run check:actions-pinned
 
+      - name: Reject tracked database dumps
+        run: pnpm run check:no-database-dumps
+
       - name: Verify release backup and rollback safety
-        run: bash scripts/tests/test-release-safety.sh
+        run: |
+          bash scripts/tests/test-database-dump-guard.sh
+          bash scripts/tests/test-release-safety.sh
 
       - name: Run automation hard gate
         env:

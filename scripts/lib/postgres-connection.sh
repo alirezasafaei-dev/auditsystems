@@ -141,18 +141,25 @@ NODE
   POSTGRES_TARGET_DISPLAY="${host:-<local-default>}:${port:-5432}/$database user=${user:-<os-default>}"
 }
 
-run_postgres_command() {
-  env \
-    -u PGHOST \
-    -u PGPORT \
-    -u PGUSER \
-    -u PGPASSWORD \
-    -u PGDATABASE \
-    -u PGSSLMODE \
-    -u PGSSLCERT \
-    -u PGSSLKEY \
-    -u PGSSLROOTCERT \
-    -u PGSSLCRL \
-    "${POSTGRES_COMMAND_ENV[@]}" \
-    "$@"
-}
+run_postgres_command() (
+  # Use shell builtins so credentials never become arguments to an intermediate
+  # `env` process. The subshell keeps the caller environment unchanged.
+  unset \
+    PGHOST \
+    PGPORT \
+    PGUSER \
+    PGPASSWORD \
+    PGDATABASE \
+    PGSSLMODE \
+    PGSSLCERT \
+    PGSSLKEY \
+    PGSSLROOTCERT \
+    PGSSLCRL
+
+  local assignment
+  for assignment in "${POSTGRES_COMMAND_ENV[@]}"; do
+    export "$assignment"
+  done
+
+  exec "$@"
+)

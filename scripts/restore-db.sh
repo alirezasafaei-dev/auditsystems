@@ -2,6 +2,7 @@
 # Restore script for AuditSystems PostgreSQL database
 # Usage: ./restore-db.sh [backup-file.sql.gz] [--dry-run] [--force]
 set -euo pipefail
+umask 077
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
@@ -160,7 +161,7 @@ else
   HEALTH_OK=false
 fi
 
-for tbl in "User" "Audit" "AuditReport" "Subscription"; do
+for tbl in "User" "AuditRun" "AuditLead" "Subscription"; do
   COUNT="$(run_psql -t -c "SELECT count(*) FROM \"${tbl}\";" 2>/dev/null | tr -d ' ' || echo "N/A")"
   log "  ${tbl}: ${COUNT} rows"
   [[ "$COUNT" != "N/A" ]] || HEALTH_OK=false

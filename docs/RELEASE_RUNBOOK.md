@@ -50,7 +50,7 @@ pnpm run deploy:readiness
 
 `pnpm run check` includes lint, typecheck, tests, and build. Treat any required CI job that did not receive a runner as an infrastructure blocker, not a pass.
 
-Before the next production release, [Issue #52](https://github.com/alirezasafaei-dev/auditsystems/issues/52) must make database-dump detection per-file and enforce it in required CI.
+Before the next production release, [Issue #52](https://github.com/alirezasafaei-dev/auditsystems/issues/52) must make database-dump detection per-file and enforce it in required CI. Before the next database-affecting production release, [Issue #55](https://github.com/alirezasafaei-dev/auditsystems/issues/55) must fix remote backup/restore target propagation.
 
 ## 3. PostgreSQL rehearsal
 
@@ -68,13 +68,24 @@ Prove and record:
 8. the source database is unchanged;
 9. artifacts and logs contain no secret.
 
-Use the repository scripts so `DATABASE_URL` normalization follows tested code:
+Use the repository scripts with explicit protected PostgreSQL target variables:
 
 ```bash
-DATABASE_URL='<disposable-source-url>' bash scripts/backup-db.sh
-DATABASE_URL='<disposable-restore-url>' bash scripts/restore-db.sh \
-  ops/backups/<verified-backup>.sql.gz --force
+export POSTGRES_HOST='<source-host>'
+export POSTGRES_PORT='5432'
+export POSTGRES_DB='<source-db>'
+export POSTGRES_USER='<source-user>'
+export POSTGRES_PASSWORD='<source-password>'
+bash scripts/backup-db.sh
+
+export POSTGRES_HOST='<restore-host>'
+export POSTGRES_DB='<restore-db>'
+export POSTGRES_USER='<restore-user>'
+export POSTGRES_PASSWORD='<restore-password>'
+bash scripts/restore-db.sh ops/backups/<verified-backup>.sql.gz --force
 ```
+
+Until [Issue #55](https://github.com/alirezasafaei-dev/auditsystems/issues/55) is fixed and integration-tested, do not rely on `DATABASE_URL` alone for a remote backup or restore target. The current URL mode preserves the database name but does not propagate the full host/user/port/auth target to libpq tools.
 
 Store the evidence SHA-256 and the exact source SHA. Do not commit the database dump.
 
@@ -87,7 +98,9 @@ bash scripts/backup-db.sh --dry-run
 bash scripts/backup-db.sh
 ```
 
-The script requires either `DATABASE_URL` or the complete `POSTGRES_HOST`, `POSTGRES_DB`, and `POSTGRES_USER` set. It:
+For production, use the complete `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD` set in protected server environment. Verify the resolved target before running without `--dry-run`. `DATABASE_URL`-only remote targeting is blocked operationally by [Issue #55](https://github.com/alirezasafaei-dev/auditsystems/issues/55).
+
+The script:
 
 - creates `ops/backups/asdev-audit-<timestamp>.sql.gz`;
 - verifies file size and gzip integrity;

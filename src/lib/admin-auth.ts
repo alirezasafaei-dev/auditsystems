@@ -10,6 +10,7 @@ const SESSION_MAX_AGE_SECONDS = 24 * 60 * 60
 const SESSION_MAX_AGE_MS = SESSION_MAX_AGE_SECONDS * 1000
 const MAX_CLOCK_SKEW_MS = 60 * 1000
 const TOKEN_VERSION = 'v1'
+const SESSION_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const SIGNING_DOMAIN = 'asdev-admin-session-signature:v1'
 const HASH_DOMAIN = 'asdev-admin-session-token-hash:v1'
 
@@ -62,7 +63,7 @@ export function verifySignedAdminSessionToken(
 
   const [version, sessionId, issuedAtRaw, tokenSecret, signature] = parts
   if (version !== TOKEN_VERSION) return null
-  if (!/^[0-9a-f-]{36}$/i.test(sessionId)) return null
+  if (!SESSION_ID_PATTERN.test(sessionId)) return null
   if (!/^[0-9a-f]{64}$/i.test(tokenSecret)) return null
 
   const issuedAt = Number.parseInt(issuedAtRaw, 10)

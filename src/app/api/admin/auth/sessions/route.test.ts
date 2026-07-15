@@ -80,7 +80,7 @@ describe("/api/admin/auth/sessions", () => {
     const { DELETE } = await import("./route");
     const request = new NextRequest("http://localhost/api/admin/auth/sessions", {
       method: "DELETE",
-      body: JSON.stringify({ sessionId: "invalid" }),
+      body: JSON.stringify({ sessionId: "-".repeat(36) }),
       headers: { "content-type": "application/json" },
     });
     const response = await DELETE(request);

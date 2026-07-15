@@ -13,7 +13,7 @@
 - Documented the Release #103-only acceptance of stateless admin sessions with a 24-hour maximum lifetime and emergency revoke-all by rotating `ADMIN_SESSION_SECRET`.
 
 #### Release and Data Safety
-- Corrected `DATABASE_URL` handling in `scripts/backup-db.sh` and `scripts/restore-db.sh`.
+- Added database-name normalization and release-safety coverage to `scripts/backup-db.sh` and `scripts/restore-db.sh`; remote URL target propagation remains tracked in Issue #55.
 - Rehearsed clean and idempotent PostgreSQL 16 migrations.
 - Verified backup integrity, disposable restore, key table/migration counts, connectivity, and source database immutability.
 - Removed the tracked rehearsal database dump and added a CI guard.

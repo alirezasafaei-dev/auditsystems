@@ -56,7 +56,7 @@ Do not use `prisma db push` in staging or production.
 | `POST` | `/api/admin/auth/sessions/revoke-all` | Revoke every active session |
 | `GET` | `/api/admin/stats` | Get dashboard statistics |
 
-State-changing session-management endpoints must use the existing CSRF header helper.
+Individual and revoke-all requests must use the existing CSRF header helper.
 
 ## Incident Response
 

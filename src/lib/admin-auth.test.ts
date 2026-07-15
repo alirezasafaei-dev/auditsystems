@@ -112,6 +112,18 @@ describe("signed session token", () => {
     });
   });
 
+  it("invalidates existing tokens after signing-secret rotation", async () => {
+    const issuedAt = Date.now();
+    const beforeRotation = await loadModule();
+    const token = beforeRotation.createSignedAdminSessionToken(SESSION_ID, TOKEN_SECRET, issuedAt);
+
+    process.env.ADMIN_SESSION_SECRET = "rotated-session-signing-secret";
+    vi.resetModules();
+    const afterRotation = await loadModule();
+
+    expect(afterRotation.verifySignedAdminSessionToken(token, issuedAt)).toBeNull();
+  });
+
   it("rejects signature tampering", async () => {
     const mod = await loadModule();
     const now = Date.now();
@@ -208,6 +220,28 @@ describe("server-side session lifecycle", () => {
     expect(await mod.validateAdminSession()).toBe(false);
   });
 
+  it("rejects replay of the same token after server-side revocation", async () => {
+    const mod = await loadModule();
+    const now = Date.now();
+    const token = mod.createSignedAdminSessionToken(SESSION_ID, TOKEN_SECRET, now);
+    const claims = mod.verifySignedAdminSessionToken(token, now);
+    mocks.cookieGet.mockReturnValue({ value: token });
+    mocks.findUnique
+      .mockResolvedValueOnce({
+        tokenHash: claims?.tokenHash,
+        expiresAt: new Date(now + 60_000),
+        revokedAt: null,
+      })
+      .mockResolvedValueOnce({
+        tokenHash: claims?.tokenHash,
+        expiresAt: new Date(now + 60_000),
+        revokedAt: new Date(now),
+      });
+
+    await expect(mod.validateAdminSession()).resolves.toBe(true);
+    await expect(mod.validateAdminSession()).resolves.toBe(false);
+  });
+
   it("revokes the current session during logout and always deletes the cookie", async () => {
     const mod = await loadModule();
     const token = mod.createSignedAdminSessionToken(SESSION_ID, TOKEN_SECRET);
@@ -224,6 +258,16 @@ describe("server-side session lifecycle", () => {
       },
       data: { revokedAt: expect.any(Date) },
     });
+    expect(mocks.cookieDelete).toHaveBeenCalledWith("admin_session");
+  });
+
+  it("deletes the cookie even when database revocation fails", async () => {
+    const mod = await loadModule();
+    const token = mod.createSignedAdminSessionToken(SESSION_ID, TOKEN_SECRET);
+    mocks.cookieGet.mockReturnValue({ value: token });
+    mocks.updateMany.mockRejectedValue(new Error("database unavailable"));
+
+    await expect(mod.clearAdminSession()).rejects.toThrow("database unavailable");
     expect(mocks.cookieDelete).toHaveBeenCalledWith("admin_session");
   });
 

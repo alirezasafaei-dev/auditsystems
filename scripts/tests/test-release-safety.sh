@@ -100,17 +100,39 @@ if [[ "$missing_env_rc" -eq 0 ]]; then
   exit 1
 fi
 
+# A credential-bearing `env PGPASSWORD=...` wrapper would expose the password
+# in process arguments. Database commands must be launched through shell
+# exports instead, so make any external env invocation fail the fixture.
+cat > "$TEST_BIN/env" <<'STUB'
+#!/usr/bin/env bash
+echo "unexpected external env wrapper" >&2
+exit 97
+STUB
+chmod +x "$TEST_BIN/env"
+
 PATH="$TEST_BIN:$PATH" DATABASE_URL="$CANARY_URL" \
   bash "$PROJECT/scripts/backup-db.sh" >"$TMP_ROOT/backup.log"
 backup_file="$(find "$PROJECT/ops/backups" -maxdepth 1 -name 'asdev-audit-*.sql.gz' -type f -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
 test -n "$backup_file"
 gzip -t "$backup_file"
+backup_mode="$(stat -c '%a' "$backup_file")"
+if [[ "$backup_mode" != "600" ]]; then
+  echo "backup permissions must be 0600, got $backup_mode" >&2
+  exit 1
+fi
 grep -Fx -- '--clean' "$TMP_ROOT/pg-dump.args" >/dev/null
 grep -Fx -- '--if-exists' "$TMP_ROOT/pg-dump.args" >/dev/null
 
 PATH="$TEST_BIN:$PATH" DATABASE_URL="$CANARY_URL" \
   bash "$PROJECT/scripts/restore-db.sh" "$backup_file" --force >"$TMP_ROOT/restore.log"
 grep -Fx -- '--single-transaction' "$TMP_ROOT/psql.args" >/dev/null
+for table in User AuditRun AuditLead Subscription; do
+  grep -F -- "SELECT count(*) FROM \"$table\";" "$TMP_ROOT/psql.args" >/dev/null
+done
+if grep -F -- 'SELECT count(*) FROM "AuditReport";' "$TMP_ROOT/psql.args" >/dev/null; then
+  echo "restore verification referenced legacy table AuditReport" >&2
+  exit 1
+fi
 test "$(wc -l < "$TMP_ROOT/target-checks")" -ge 6
 
 # Connection secrets and the raw URL must never appear in command arguments or logs.

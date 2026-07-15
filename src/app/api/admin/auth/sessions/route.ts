@@ -6,7 +6,7 @@ import {
 } from '@/lib/admin-auth'
 import { csrfProtection } from '@/lib/csrf'
 
-const SESSION_ID_PATTERN = /^[0-9a-f-]{36}$/i
+const SESSION_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 export async function GET() {
   try {

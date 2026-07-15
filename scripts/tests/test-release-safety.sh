@@ -7,16 +7,30 @@ trap 'rm -rf "$TMP_ROOT"' EXIT
 
 PROJECT="$TMP_ROOT/project"
 TEST_BIN="$TMP_ROOT/bin"
-mkdir -p "$PROJECT/scripts" "$PROJECT/ops/deploy" "$TEST_BIN"
+mkdir -p "$PROJECT/scripts/lib" "$PROJECT/ops/deploy" "$TEST_BIN"
 cp "$REPO_ROOT/scripts/backup-db.sh" "$PROJECT/scripts/backup-db.sh"
 cp "$REPO_ROOT/scripts/restore-db.sh" "$PROJECT/scripts/restore-db.sh"
+cp "$REPO_ROOT/scripts/lib/postgres-connection.sh" "$PROJECT/scripts/lib/postgres-connection.sh"
 cp "$REPO_ROOT/ops/deploy/deploy.sh" "$PROJECT/ops/deploy/deploy.sh"
+
+cat > "$TEST_BIN/assert-target" <<'STUB'
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "${PGHOST:-}" == "${ASDEV_EXPECTED_PGHOST}" ]]
+[[ "${PGPORT:-}" == "${ASDEV_EXPECTED_PGPORT}" ]]
+[[ "${PGUSER:-}" == "${ASDEV_EXPECTED_PGUSER}" ]]
+[[ "${PGDATABASE:-}" == "${ASDEV_EXPECTED_PGDATABASE}" ]]
+[[ "${PGPASSWORD:-}" == "${ASDEV_EXPECTED_PGPASSWORD}" ]]
+[[ "${PGSSLMODE:-}" == "${ASDEV_EXPECTED_PGSSLMODE}" ]]
+[[ "${PGSSLROOTCERT:-}" == "${ASDEV_EXPECTED_PGSSLROOTCERT}" ]]
+printf 'target-ok\n' >> "$ASDEV_TEST_TMP/target-checks"
+STUB
 
 cat > "$TEST_BIN/pg_dump" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
+"$ASDEV_TEST_BIN/assert-target"
 printf '%s\n' "$@" > "$ASDEV_TEST_TMP/pg-dump.args"
-printf '%s\n' "${PGDATABASE:-}" > "$ASDEV_TEST_TMP/pg-dump.database"
 printf '%s\n' '-- PostgreSQL database dump'
 for i in {1..40}; do printf 'CREATE TABLE "T%s" (id integer);\n' "$i"; done
 STUB
@@ -24,15 +38,15 @@ STUB
 cat > "$TEST_BIN/pg_isready" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
+"$ASDEV_TEST_BIN/assert-target"
 printf '%s\n' "$@" >> "$ASDEV_TEST_TMP/pg-isready.args"
-printf '%s\n' "${PGDATABASE:-}" >> "$ASDEV_TEST_TMP/pg-isready.database"
 STUB
 
 cat > "$TEST_BIN/psql" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
+"$ASDEV_TEST_BIN/assert-target"
 printf '%s\n' "$@" >> "$ASDEV_TEST_TMP/psql.args"
-printf '%s\n' "${PGDATABASE:-}" >> "$ASDEV_TEST_TMP/psql.database"
 if [[ " $* " == *" -c "* ]]; then
   if [[ "${ASDEV_TEST_ZERO_TABLES:-0}" == "1" ]]; then
     printf ' 0\n'
@@ -49,19 +63,35 @@ STUB
 cat > "$TEST_BIN/pg_restore" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
+"$ASDEV_TEST_BIN/assert-target"
 printf '%s\n' "$@" > "$ASDEV_TEST_TMP/pg-restore.args"
 STUB
 
-chmod +x "$TEST_BIN/pg_dump" "$TEST_BIN/pg_isready" "$TEST_BIN/psql" "$TEST_BIN/pg_restore"
+chmod +x "$TEST_BIN"/*
 
-CANARY_URL='postgresql://release_test@db.invalid:5432/audit_release_test?schema=public&sslmode=require'
-EXPECTED_DB_NAME="audit_release_test"
+CANARY_URL='postgresql://release%5Ftest:p%40ss%3Aword@[2001:db8::1]:6543/audit%5Frelease%5Ftest?schema=public&connection_limit=5&sslmode=require&sslrootcert=%2Ftmp%2Frelease-root.crt'
 export ASDEV_TEST_TMP="$TMP_ROOT"
+export ASDEV_TEST_BIN="$TEST_BIN"
+export ASDEV_EXPECTED_PGHOST='2001:db8::1'
+export ASDEV_EXPECTED_PGPORT='6543'
+export ASDEV_EXPECTED_PGUSER='release_test'
+export ASDEV_EXPECTED_PGDATABASE='audit_release_test'
+export ASDEV_EXPECTED_PGPASSWORD='p@ss:word'
+export ASDEV_EXPECTED_PGSSLMODE='require'
+export ASDEV_EXPECTED_PGSSLROOTCERT='/tmp/release-root.crt'
 
-bash -n "$PROJECT/scripts/backup-db.sh" "$PROJECT/scripts/restore-db.sh" "$PROJECT/ops/deploy/deploy.sh"
+bash -n \
+  "$PROJECT/scripts/lib/postgres-connection.sh" \
+  "$PROJECT/scripts/backup-db.sh" \
+  "$PROJECT/scripts/restore-db.sh" \
+  "$PROJECT/ops/deploy/deploy.sh"
 
 set +e
-PATH="$TEST_BIN:$PATH" env -u DATABASE_URL -u POSTGRES_HOST -u POSTGRES_DB -u POSTGRES_USER \
+PATH="$TEST_BIN:$PATH" env \
+  -u DATABASE_URL \
+  -u POSTGRES_HOST \
+  -u POSTGRES_DB \
+  -u POSTGRES_USER \
   bash "$PROJECT/scripts/backup-db.sh" --dry-run >"$TMP_ROOT/missing-env.log" 2>&1
 missing_env_rc=$?
 set -e
@@ -75,23 +105,26 @@ PATH="$TEST_BIN:$PATH" DATABASE_URL="$CANARY_URL" \
 backup_file="$(find "$PROJECT/ops/backups" -maxdepth 1 -name 'asdev-audit-*.sql.gz' -type f -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
 test -n "$backup_file"
 gzip -t "$backup_file"
-grep -Fx -- "$EXPECTED_DB_NAME" "$TMP_ROOT/pg-dump.database" >/dev/null
-if grep -F -- 'postgresql://' "$TMP_ROOT/pg-dump.args" >/dev/null; then
-  echo "database URL leaked into pg_dump process arguments" >&2
-  exit 1
-fi
 grep -Fx -- '--clean' "$TMP_ROOT/pg-dump.args" >/dev/null
 grep -Fx -- '--if-exists' "$TMP_ROOT/pg-dump.args" >/dev/null
 
 PATH="$TEST_BIN:$PATH" DATABASE_URL="$CANARY_URL" \
   bash "$PROJECT/scripts/restore-db.sh" "$backup_file" --force >"$TMP_ROOT/restore.log"
-grep -Fx -- "$EXPECTED_DB_NAME" "$TMP_ROOT/psql.database" >/dev/null
-if grep -F -- 'postgresql://' "$TMP_ROOT/psql.args" >/dev/null; then
-  echo "database URL leaked into psql process arguments" >&2
-  exit 1
-fi
 grep -Fx -- '--single-transaction' "$TMP_ROOT/psql.args" >/dev/null
-grep -Fx -- "$EXPECTED_DB_NAME" "$TMP_ROOT/pg-isready.database" >/dev/null
+test "$(wc -l < "$TMP_ROOT/target-checks")" -ge 6
+
+# Connection secrets and the raw URL must never appear in command arguments or logs.
+for output in \
+  "$TMP_ROOT/pg-dump.args" \
+  "$TMP_ROOT/pg-isready.args" \
+  "$TMP_ROOT/psql.args" \
+  "$TMP_ROOT/backup.log" \
+  "$TMP_ROOT/restore.log"; do
+  if grep -F -- "$CANARY_URL" "$output" >/dev/null || grep -F -- "$ASDEV_EXPECTED_PGPASSWORD" "$output" >/dev/null; then
+    echo "database credential leaked into $output" >&2
+    exit 1
+  fi
+done
 
 set +e
 PATH="$TEST_BIN:$PATH" DATABASE_URL="$CANARY_URL" ASDEV_TEST_ZERO_TABLES=1 \

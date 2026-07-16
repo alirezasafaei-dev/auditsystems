@@ -75,7 +75,7 @@ const values = [
   host,
   url.port,
   decode(url.username, "username"),
-  decode(url.pg_passphrase, "pg_passphrase"),
+  decode(url.password, "database credential"),
   database,
   sslmode,
   url.searchParams.get("sslcert") || "",

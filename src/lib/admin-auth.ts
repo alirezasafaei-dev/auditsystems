@@ -6,6 +6,7 @@ const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin'
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || ''
 const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || ''
 const COOKIE_NAME = 'admin_session'
+const MIN_SESSION_SECRET_BYTES = 32
 const SESSION_MAX_AGE_SECONDS = 24 * 60 * 60
 const SESSION_MAX_AGE_MS = SESSION_MAX_AGE_SECONDS * 1000
 const MAX_CLOCK_SKEW_MS = 60 * 1000
@@ -20,9 +21,13 @@ export type AdminSessionClaims = {
   tokenHash: string
 }
 
+function hasStrongSessionSecret(secret: string): boolean {
+  return Buffer.byteLength(secret, 'utf8') >= MIN_SESSION_SECRET_BYTES
+}
+
 function requireSessionSecret(): string {
-  if (!SESSION_SECRET) {
-    throw new Error('ADMIN_SESSION_SECRET environment variable is required but not set')
+  if (!hasStrongSessionSecret(SESSION_SECRET)) {
+    throw new Error('ADMIN_SESSION_SECRET must contain at least 32 bytes')
   }
   return SESSION_SECRET
 }
@@ -105,7 +110,7 @@ export function validateAdminCredentials(username: string, password: string): bo
 }
 
 export function isSessionAuthConfigured(): boolean {
-  return SESSION_SECRET.length > 0 && ADMIN_PASSWORD.length > 0
+  return hasStrongSessionSecret(SESSION_SECRET) && ADMIN_PASSWORD.length > 0
 }
 
 export async function createAdminSession(): Promise<string> {

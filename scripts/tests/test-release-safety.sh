@@ -20,7 +20,7 @@ set -euo pipefail
 [[ "${PGPORT:-}" == "${ASDEV_EXPECTED_PGPORT}" ]]
 [[ "${PGUSER:-}" == "${ASDEV_EXPECTED_PGUSER}" ]]
 [[ "${PGDATABASE:-}" == "${ASDEV_EXPECTED_PGDATABASE}" ]]
-[[ "${PGPASSWORD:-}" == "${ASDEV_EXPECTED_PGPASSWORD}" ]]
+[[ "${PGPASSWORD:-}" == "${ASDEV_EXPECTED_PG_CREDENTIAL}" ]]
 [[ "${PGSSLMODE:-}" == "${ASDEV_EXPECTED_PGSSLMODE}" ]]
 [[ "${PGSSLROOTCERT:-}" == "${ASDEV_EXPECTED_PGSSLROOTCERT}" ]]
 printf 'target-ok\n' >> "$ASDEV_TEST_TMP/target-checks"
@@ -76,7 +76,7 @@ export ASDEV_EXPECTED_PGHOST='2001:db8::1'
 export ASDEV_EXPECTED_PGPORT='6543'
 export ASDEV_EXPECTED_PGUSER='release_test'
 export ASDEV_EXPECTED_PGDATABASE='audit_release_test'
-export ASDEV_EXPECTED_PGPASSWORD='p@ss:word'
+export ASDEV_EXPECTED_PG_CREDENTIAL='p@ss:word'
 export ASDEV_EXPECTED_PGSSLMODE='require'
 export ASDEV_EXPECTED_PGSSLROOTCERT='/tmp/release-root.crt'
 
@@ -142,7 +142,7 @@ for output in \
   "$TMP_ROOT/psql.args" \
   "$TMP_ROOT/backup.log" \
   "$TMP_ROOT/restore.log"; do
-  if grep -F -- "$CANARY_URL" "$output" >/dev/null || grep -F -- "$ASDEV_EXPECTED_PGPASSWORD" "$output" >/dev/null; then
+  if grep -F -- "$CANARY_URL" "$output" >/dev/null || grep -F -- "$ASDEV_EXPECTED_PG_CREDENTIAL" "$output" >/dev/null; then
     echo "database credential leaked into $output" >&2
     exit 1
   fi

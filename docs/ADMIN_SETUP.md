@@ -16,7 +16,7 @@ Generate the signing secret with:
 openssl rand -hex 32
 ```
 
-Keep `ADMIN_SESSION_SECRET` stable across normal deploys. Rotating it is an emergency revoke-all mechanism and immediately invalidates every existing admin cookie.
+`ADMIN_SESSION_SECRET` is enforced at a minimum of 32 UTF-8 bytes; shorter or missing values fail authentication closed. Keep it stable across normal deploys. Rotating it is an emergency revoke-all mechanism and immediately invalidates every existing admin cookie.
 
 ## Database Migration
 
@@ -41,7 +41,7 @@ Do not use `prisma db push` in staging or production.
 - Sessions expire after 24 hours.
 - Every authenticated request requires a matching, active, non-revoked database record.
 - Logout revokes the current server-side session before deleting its cookie.
-- Individual revoke and revoke-all operations require an authenticated session and CSRF validation.
+- Admin login, individual revoke, and revoke-all operations require CSRF validation. Login attempts are rate-limited by client IP.
 - A database outage fails authentication and session creation closed.
 - Rotating `ADMIN_SESSION_SECRET` invalidates all cookies, including records not yet marked revoked.
 
@@ -56,7 +56,7 @@ Do not use `prisma db push` in staging or production.
 | `POST` | `/api/admin/auth/sessions/revoke-all` | Revoke every active session |
 | `GET` | `/api/admin/stats` | Get dashboard statistics |
 
-Individual and revoke-all requests must use the existing CSRF header helper.
+Login, individual revoke, and revoke-all requests must use the existing CSRF header helper.
 
 ## Incident Response
 

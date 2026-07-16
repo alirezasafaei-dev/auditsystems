@@ -1,7 +1,13 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { clearAdminSession } from '@/lib/admin-auth'
+import { csrfProtection } from '@/lib/csrf'
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const csrfCheck = await csrfProtection(request)
+  if (!csrfCheck.valid) {
+    return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 })
+  }
+
   try {
     await clearAdminSession()
     return NextResponse.json({ success: true })

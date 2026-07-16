@@ -41,7 +41,7 @@ Do not use `prisma db push` in staging or production.
 - Sessions expire after 24 hours.
 - Every authenticated request requires a matching, active, non-revoked database record.
 - Logout revokes the current server-side session before deleting its cookie.
-- Admin login, individual revoke, and revoke-all operations require CSRF validation. Login attempts are rate-limited by client IP.
+- Admin login, logout, individual revoke, and revoke-all operations require CSRF validation. Login attempts are rate-limited by client IP.
 - A database outage fails authentication and session creation closed.
 - Rotating `ADMIN_SESSION_SECRET` invalidates all cookies, including records not yet marked revoked.
 
@@ -56,7 +56,7 @@ Do not use `prisma db push` in staging or production.
 | `POST` | `/api/admin/auth/sessions/revoke-all` | Revoke every active session |
 | `GET` | `/api/admin/stats` | Get dashboard statistics |
 
-Login, individual revoke, and revoke-all requests must use the existing CSRF header helper.
+Login, logout, individual revoke, and revoke-all requests must use the existing CSRF header helper.
 
 ## Incident Response
 

@@ -193,7 +193,7 @@
         {
           "id": "live-domains-ready",
           "description": "Rollout runtime contracts (health probes + host binding + rollout docs) are present",
-          "command": "test -f src/app/api/live/route.ts && test -f src/app/api/ready/route.ts && grep -nE \"next start -H 127.0.0.1 -p\" ops/deploy/deploy.sh && test -f docs/ROADMAP_SHARED_VPS_PRODUCTION.md && test -f docs/PROJECT_ANALYSIS_REAL_DATA.md"
+          "command": "test -f src/app/api/live/route.ts && test -f src/app/api/ready/route.ts && grep -nF \"export HOSTNAME=127.0.0.1\" ops/deploy/deploy.sh && grep -nF \"args: '.next/standalone/server.js'\" ops/deploy/deploy.sh && grep -nF \"/api/ready\" ops/deploy/deploy.sh && test -f docs/ROADMAP_SHARED_VPS_PRODUCTION.md && test -f docs/PROJECT_ANALYSIS_REAL_DATA.md"
         }
       ]
     }

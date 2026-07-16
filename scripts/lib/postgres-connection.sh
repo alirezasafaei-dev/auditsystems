@@ -3,10 +3,12 @@
 # This file is sourced by callers and intentionally does not change shell options.
 
 POSTGRES_COMMAND_ENV=()
+POSTGRES_DATABASE=""
 POSTGRES_TARGET_DISPLAY=""
 
 resolve_postgres_connection() {
   POSTGRES_COMMAND_ENV=()
+  POSTGRES_DATABASE=""
   POSTGRES_TARGET_DISPLAY=""
 
   local host=""
@@ -127,6 +129,7 @@ NODE
     return 1
   }
 
+  POSTGRES_DATABASE="$database"
   POSTGRES_COMMAND_ENV=("PGDATABASE=$database")
   [[ -n "$host" ]] && POSTGRES_COMMAND_ENV+=("PGHOST=$host")
   [[ -n "$port" ]] && POSTGRES_COMMAND_ENV+=("PGPORT=$port")
@@ -154,7 +157,9 @@ run_postgres_command() (
     PGSSLCERT \
     PGSSLKEY \
     PGSSLROOTCERT \
-    PGSSLCRL
+    PGSSLCRL \
+    PGSERVICE \
+    PGSERVICEFILE
 
   local assignment
   for assignment in "${POSTGRES_COMMAND_ENV[@]}"; do

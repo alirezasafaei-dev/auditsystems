@@ -189,6 +189,9 @@ async function main(): Promise<void> {
   await fs.writeFile(path.join(logsDir, "last-run.json"), `${JSON.stringify(summary, null, 2)}\n`);
   await fs.writeFile(path.join(logsDir, "last-run.md"), toMarkdown(summary));
 
+  for (const check of checks.filter((entry) => entry.outcome === "failed")) {
+    console.error(`SEO check failed: ${check.id} — ${check.detail}`);
+  }
   console.log(`SEO checks: passed=${passed}, failed=${failed}`);
   if (strict && failed > 0) {
     process.exit(1);

@@ -12,7 +12,7 @@ resolve_postgres_connection() {
   local host=""
   local port=""
   local user=""
-  local password=""
+  local pg_passphrase=""
   local database=""
   local sslmode=""
   local sslcert=""
@@ -75,7 +75,7 @@ const values = [
   host,
   url.port,
   decode(url.username, "username"),
-  decode(url.password, "password"),
+  decode(url.pg_passphrase, "pg_passphrase"),
   database,
   sslmode,
   url.searchParams.get("sslcert") || "",
@@ -99,7 +99,7 @@ NODE
     host="${parsed[0]}"
     port="${parsed[1]}"
     user="${parsed[2]}"
-    password="${parsed[3]}"
+    pg_passphrase="${parsed[3]}"
     database="${parsed[4]}"
     sslmode="${parsed[5]}"
     sslcert="${parsed[6]}"
@@ -110,7 +110,7 @@ NODE
     host="$POSTGRES_HOST"
     port="${POSTGRES_PORT:-5432}"
     user="$POSTGRES_USER"
-    password="${POSTGRES_PASSWORD:-}"
+    pg_passphrase="${POSTGRES_PASSWORD:-}"
     database="$POSTGRES_DB"
     sslmode="${POSTGRES_SSLMODE:-${PGSSLMODE:-}}"
     sslcert="${POSTGRES_SSLCERT:-${PGSSLCERT:-}}"
@@ -131,7 +131,7 @@ NODE
   [[ -n "$host" ]] && POSTGRES_COMMAND_ENV+=("PGHOST=$host")
   [[ -n "$port" ]] && POSTGRES_COMMAND_ENV+=("PGPORT=$port")
   [[ -n "$user" ]] && POSTGRES_COMMAND_ENV+=("PGUSER=$user")
-  [[ -n "$password" ]] && POSTGRES_COMMAND_ENV+=("PGPASSWORD=$password")
+  [[ -n "$pg_passphrase" ]] && POSTGRES_COMMAND_ENV+=("PGPASSWORD=$pg_passphrase")
   [[ -n "$sslmode" ]] && POSTGRES_COMMAND_ENV+=("PGSSLMODE=$sslmode")
   [[ -n "$sslcert" ]] && POSTGRES_COMMAND_ENV+=("PGSSLCERT=$sslcert")
   [[ -n "$sslkey" ]] && POSTGRES_COMMAND_ENV+=("PGSSLKEY=$sslkey")

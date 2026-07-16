@@ -93,7 +93,7 @@ if [[ "$BACKUP_FILENAME" == *.gz ]]; then
   fi
 else
   log "  Checking dump file header..."
-  pg_restore -l "$BACKUP_FILE" >/dev/null 2>&1 || die "Backup file is not a valid pg_restore dump."
+  run_pg_restore -l "$BACKUP_FILE" >/dev/null 2>&1 || die "Backup file is not a valid pg_restore dump."
   log "  Dump format: OK"
 fi
 
@@ -139,6 +139,7 @@ if [[ "$BACKUP_FILENAME" == *.gz ]]; then
 else
   log "  Restoring from custom dump format..."
   if ! run_pg_restore \
+    --dbname "$POSTGRES_DATABASE" \
     --clean \
     --if-exists \
     --no-owner \

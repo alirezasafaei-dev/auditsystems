@@ -49,6 +49,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   process.env = originalEnv;
   vi.useRealTimers();
   vi.resetModules();
@@ -173,7 +174,7 @@ describe("signed session token", () => {
 
 describe("server-side session lifecycle", () => {
   it("persists a hash and sets a secure production cookie", async () => {
-    process.env.NODE_ENV = "production";
+    vi.stubEnv("NODE_ENV", "production");
     const mod = await loadModule();
     const sessionId = await mod.createAdminSession();
 

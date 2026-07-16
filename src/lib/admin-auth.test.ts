@@ -35,7 +35,7 @@ beforeEach(() => {
     ...originalEnv,
     ADMIN_USERNAME: "admin",
     ADMIN_PASSWORD: "secret123",
-    ADMIN_SESSION_SECRET: "session-signing-secret",
+    ADMIN_SESSION_SECRET: "ab".repeat(32),
   };
   vi.clearAllMocks();
   mocks.cookies.mockResolvedValue({
@@ -92,10 +92,19 @@ describe("session configuration", () => {
     expect(mod.isSessionAuthConfigured()).toBe(false);
 
     vi.resetModules();
-    process.env.ADMIN_SESSION_SECRET = "session-signing-secret";
+    process.env.ADMIN_SESSION_SECRET = "ab".repeat(32);
     delete process.env.ADMIN_PASSWORD;
     mod = await loadModule();
     expect(mod.isSessionAuthConfigured()).toBe(false);
+  });
+
+  it("rejects a signing secret shorter than 32 bytes", async () => {
+    process.env.ADMIN_SESSION_SECRET = "too-short";
+    const mod = await loadModule();
+    expect(mod.isSessionAuthConfigured()).toBe(false);
+    expect(() => mod.createSignedAdminSessionToken(SESSION_ID, TOKEN_SECRET)).toThrow(
+      "ADMIN_SESSION_SECRET must contain at least 32 bytes",
+    );
   });
 });
 
@@ -117,7 +126,7 @@ describe("signed session token", () => {
     const beforeRotation = await loadModule();
     const token = beforeRotation.createSignedAdminSessionToken(SESSION_ID, TOKEN_SECRET, issuedAt);
 
-    process.env.ADMIN_SESSION_SECRET = "rotated-session-signing-secret";
+    process.env.ADMIN_SESSION_SECRET = "cd".repeat(32);
     vi.resetModules();
     const afterRotation = await loadModule();
 

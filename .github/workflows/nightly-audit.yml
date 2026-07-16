@@ -211,7 +211,7 @@ jobs:
           fi
 
       - name: Close resolved nightly failure issues
-        if: needs.quality-gate.result == 'success' && needs.production-smoke.result == 'success'
+        if: github.event_name == 'schedule' && github.ref == 'refs/heads/main' && needs.quality-gate.result == 'success' && needs.production-smoke.result == 'success'
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |

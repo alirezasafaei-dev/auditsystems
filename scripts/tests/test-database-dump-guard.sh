@@ -26,14 +26,14 @@ track() {
 
 expect_pass() {
   local repo="$1"
-  bash "$repo/scripts/check-no-database-dumps.sh" >/dev/null
+  (cd "$repo" && bash scripts/check-no-database-dumps.sh) >/dev/null
 }
 
 expect_fail_with() {
   local repo="$1"
   local expected="$2"
   local output="$TMP_ROOT/guard-failure.log"
-  if bash "$repo/scripts/check-no-database-dumps.sh" >"$output" 2>&1; then
+  if (cd "$repo" && bash scripts/check-no-database-dumps.sh) >"$output" 2>&1; then
     echo "expected database dump guard to fail for $expected" >&2
     exit 1
   fi

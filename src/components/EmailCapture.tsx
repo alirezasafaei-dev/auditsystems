@@ -30,9 +30,9 @@ export function EmailCapture({ token }: { token: string }) {
 
   if (status === "success") {
     return (
-      <div style={{ textAlign: "center", padding: "1.5rem", background: "#f0fdf4", borderRadius: "0.5rem", border: "1px solid #bbf7d0" }}>
-        <p style={{ fontWeight: 600, color: "#065f46" }}>ایمیل شما ثبت شد!</p>
-        <p style={{ fontSize: "0.875rem", color: "#059669" }}>گزارش کامل به ایمیل شما ارسال خواهد شد.</p>
+      <div style={{ textAlign: "center", padding: "1.5rem", background: "#eff6ff", borderRadius: "0.5rem", border: "1px solid #dbeafe" }}>
+        <p style={{ fontWeight: 600, color: "#1e40af" }}>ایمیل شما ثبت شد!</p>
+        <p style={{ fontSize: "0.875rem", color: "#2563eb" }}>گزارش کامل به ایمیل شما ارسال خواهد شد.</p>
       </div>
     );
   }
@@ -62,7 +62,7 @@ export function EmailCapture({ token }: { token: string }) {
         <button
           type="submit"
           disabled={status === "loading"}
-          style={{ padding: "0.75rem 1.5rem", background: "#0f7a66", color: "#fff", border: "none", borderRadius: "0.375rem", cursor: "pointer", fontWeight: 600, whiteSpace: "nowrap" }}
+          style={{ padding: "0.75rem 1.5rem", background: "#2563eb", color: "#fff", border: "none", borderRadius: "0.375rem", cursor: "pointer", fontWeight: 600, whiteSpace: "nowrap" }}
         >
           {status === "loading" ? "در حال ارسال..." : "ارسال"}
         </button>

@@ -113,7 +113,7 @@ export default function NotificationsPage() {
         )}
 
         {success && (
-          <div style={{ padding: "0.75rem 1rem", background: "var(--brand-bg, #f0fdf4)", border: "1px solid #bbf7d0", borderRadius: "0.5rem", marginBottom: "1rem", color: "var(--brand-strong, #065f46)", fontSize: "0.875rem" }}>
+          <div style={{ padding: "0.75rem 1rem", background: "var(--brand-bg, #eff6ff)", border: "1px solid #dbeafe", borderRadius: "0.5rem", marginBottom: "1rem", color: "var(--brand-strong, #1e40af)", fontSize: "0.875rem" }}>
             {success}
           </div>
         )}
@@ -132,7 +132,7 @@ export default function NotificationsPage() {
               padding: "0.375rem 1rem",
               borderRadius: "9999px",
               border: "none",
-              background: preferences?.emailEnabled ? "var(--brand, #0f7a66)" : "var(--muted, #9ca3af)",
+              background: preferences?.emailEnabled ? "var(--brand, #2563eb)" : "var(--muted, #9ca3af)",
               color: "white",
               fontWeight: 600,
               fontSize: "0.875rem",

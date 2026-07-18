@@ -29,7 +29,7 @@ export default function AuditReadinessPage() {
             "You are ready to act on the findings",
           ].map((item, i) => (
             <li key={i} style={{ padding: "0.75rem 0", borderBottom: "1px solid var(--border, #e5e7eb)", display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <span style={{ color: "var(--brand, #059669)", fontWeight: 700 }}>✓</span>
+              <span style={{ color: "var(--brand, #2563eb)", fontWeight: 700 }}>✓</span>
               {item}
             </li>
           ))}

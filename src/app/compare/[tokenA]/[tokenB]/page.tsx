@@ -12,7 +12,7 @@ function severityClass(severity: string): string {
 }
 
 function directionColor(direction: string): string {
-  if (direction === "improved") return "#059669";
+  if (direction === "improved") return "#2563eb";
   if (direction === "regressed") return "#dc2626";
   return "#6b7280";
 }
@@ -146,7 +146,7 @@ export default async function ComparePage({ params }: { params: Promise<{ tokenA
         <section className="card">
           <h2>مشکلات حل شده ({comparison.resolvedIssues.length})</h2>
           {comparison.resolvedIssues.map((issue: { code: string; title: string; severity: string }) => (
-            <article key={issue.code} className="finding" style={{ borderLeft: "3px solid #059669", paddingLeft: "1rem", marginBottom: "1rem" }}>
+            <article key={issue.code} className="finding" style={{ borderLeft: "3px solid #2563eb", paddingLeft: "1rem", marginBottom: "1rem" }}>
               <div className="finding-header">
                 <strong>{issue.title}</strong>
                 <span className={`badge ${severityClass(issue.severity)}`}>{issue.severity}</span>

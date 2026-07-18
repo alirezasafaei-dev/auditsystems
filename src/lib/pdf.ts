@@ -114,7 +114,7 @@ export async function buildAuditReportPdf(input: {
 
   function getGradeColor(grade: string): [number, number, number] {
     switch (grade) {
-      case "EXCELLENT": return [0.13, 0.55, 0.13];
+      case "EXCELLENT": return [0.15, 0.4, 0.85];
       case "GOOD": return [0.0, 0.45, 0.75];
       case "NEEDS_WORK": return [0.85, 0.55, 0.05];
       case "CRITICAL": return [0.8, 0.1, 0.1];
@@ -139,7 +139,7 @@ export async function buildAuditReportPdf(input: {
   }
 
   const headerColor = input.primaryColor ?? [0.4, 0.4, 0.4];
-  const accentColor = input.secondaryColor ?? [0.02, 0.59, 0.41];
+  const accentColor = input.secondaryColor ?? [0.15, 0.4, 0.85];
 
   // --- Professional Header ---
   if (input.agencyName) {

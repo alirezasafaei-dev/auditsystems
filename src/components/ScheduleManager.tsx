@@ -91,13 +91,13 @@ export function ScheduleManager({
       <button
         onClick={handleSave}
         disabled={loading}
-        style={{ padding: "0.75rem 1.5rem", background: "#0f7a66", color: "#fff", border: "none", borderRadius: "0.375rem", cursor: "pointer", fontWeight: 600 }}
+        style={{ padding: "0.75rem 1.5rem", background: "#2563eb", color: "#fff", border: "none", borderRadius: "0.375rem", cursor: "pointer", fontWeight: 600 }}
       >
         {loading ? "در حال ذخیره..." : "ذخیره"}
       </button>
 
       {message && (
-        <p style={{ fontSize: "0.875rem", color: message.includes("خطا") ? "#dc2626" : "#059669", marginTop: "0.5rem" }}>
+        <p style={{ fontSize: "0.875rem", color: message.includes("خطا") ? "#dc2626" : "#2563eb", marginTop: "0.5rem" }}>
           {message}
         </p>
       )}

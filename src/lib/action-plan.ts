@@ -77,7 +77,7 @@ export const QUADRANT_LABELS: Record<string, { title: string; description: strin
   QUICK_WIN: {
     title: "پیروزی‌های سریع",
     description: "تغییرات کم‌هزینه با تأثیر زیاد — اول اینها را انجام دهید",
-    color: "#059669",
+    color: "#2563eb",
   },
   MAJOR_PROJECT: {
     title: "پروژه‌های بزرگ",

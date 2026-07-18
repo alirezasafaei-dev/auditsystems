@@ -31,7 +31,7 @@ export default async function EnglishBlogSlugPage({ params }: { params: Promise<
       <main className="container page-shell">
         <section className="card" style={{ textAlign: "center", padding: "3rem" }}>
           <h1>Post not found</h1>
-          <Link href="/en/blog" style={{ color: "var(--brand, #0f7a66)" }}>Back to blog</Link>
+          <Link href="/en/blog" style={{ color: "var(--brand, #2563eb)" }}>Back to blog</Link>
         </section>
       </main>
     );
@@ -44,7 +44,7 @@ export default async function EnglishBlogSlugPage({ params }: { params: Promise<
         <h1 style={{ fontSize: "1.75rem", fontWeight: 700, marginTop: "1rem", marginBottom: "0.5rem" }}>{post.title}</h1>
         <p style={{ color: "var(--muted, #6b7280)", fontSize: "0.875rem", marginBottom: "2rem" }}>Updated: {post.updatedAt}</p>
         <div dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, "<br/>") }} />
-        <div style={{ marginTop: "2rem", padding: "1.5rem", background: "var(--brand-bg, #f0fdf4)", borderRadius: "0.5rem" }}>
+        <div style={{ marginTop: "2rem", padding: "1.5rem", background: "var(--brand-bg, #eff6ff)", borderRadius: "0.5rem" }}>
           <p style={{ fontWeight: 600, marginBottom: "0.5rem" }}>{post.cta}</p>
           <Link href="/audit" className="button">Start Free Audit</Link>
         </div>

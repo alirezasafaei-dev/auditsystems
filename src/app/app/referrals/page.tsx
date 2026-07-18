@@ -84,7 +84,7 @@ export default function ReferralsPage() {
           <div style={{ color: "var(--muted, #6b7280)", fontSize: "0.75rem", marginBottom: "0.25rem" }}>
             تبدیل‌ها
           </div>
-          <div style={{ fontSize: "1.25rem", fontWeight: 700, color: stats.conversions > 0 ? "var(--brand, #059669)" : "inherit" }}>
+          <div style={{ fontSize: "1.25rem", fontWeight: 700, color: stats.conversions > 0 ? "var(--brand, #2563eb)" : "inherit" }}>
             {stats.conversions}
           </div>
         </div>

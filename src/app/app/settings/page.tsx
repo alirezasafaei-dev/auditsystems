@@ -170,11 +170,11 @@ export default function SettingsPage() {
               </thead>
               <tbody>
                 {sessions.map((session) => (
-                  <tr key={session.id} style={{ borderBottom: "1px solid var(--border, #f3f4f6)", background: session.isCurrent ? "var(--brand-bg, #f0fdf4)" : undefined }}>
+                  <tr key={session.id} style={{ borderBottom: "1px solid var(--border, #f3f4f6)", background: session.isCurrent ? "var(--brand-bg, #eff6ff)" : undefined }}>
                     <td style={{ padding: "0.75rem", fontFamily: "monospace", fontSize: "0.8125rem" }}>
                       {session.tokenPrefix}
                       {session.isCurrent && (
-                        <span style={{ marginRight: "0.5rem", fontSize: "0.75rem", color: "var(--brand, #059669)", fontWeight: 600 }}>(فعلی)</span>
+                        <span style={{ marginRight: "0.5rem", fontSize: "0.75rem", color: "var(--brand, #2563eb)", fontWeight: 600 }}>(فعلی)</span>
                       )}
                     </td>
                     <td style={{ padding: "0.75rem", color: "var(--muted, #6b7280)" }}>{formatDate(session.createdAt)}</td>

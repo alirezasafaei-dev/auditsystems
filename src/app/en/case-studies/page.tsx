@@ -47,7 +47,7 @@ export default function EnglishCaseStudiesPage() {
               <p style={{ color: "var(--muted, #6b7280)", fontSize: "0.875rem", marginBottom: "0.5rem" }}>
                 <strong>Problem:</strong> {cs.problem}
               </p>
-              <p style={{ color: "var(--brand, #059669)", fontSize: "0.875rem", fontWeight: 600 }}>
+              <p style={{ color: "var(--brand, #2563eb)", fontSize: "0.875rem", fontWeight: 600 }}>
                 Result: {cs.result}
               </p>
             </Link>

@@ -313,7 +313,7 @@ async function generatePdf(data: MonthlyReportData): Promise<Uint8Array> {
 
   function getGradeColor(grade: string): [number, number, number] {
     switch (grade) {
-      case "EXCELLENT": return [0.13, 0.55, 0.13];
+      case "EXCELLENT": return [0.15, 0.4, 0.85];
       case "GOOD": return [0.0, 0.45, 0.75];
       case "NEEDS_WORK": return [0.85, 0.55, 0.05];
       case "CRITICAL": return [0.8, 0.1, 0.1];
@@ -471,7 +471,7 @@ async function generatePdf(data: MonthlyReportData): Promise<Uint8Array> {
         y: y - 4,
         size: 10,
         font,
-        color: rgb(0.13, 0.55, 0.13)
+        color: rgb(0.15, 0.4, 0.85)
       });
       y -= 18;
     }

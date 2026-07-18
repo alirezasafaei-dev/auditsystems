@@ -39,7 +39,7 @@ function ReportPreview({
           gap: "1rem",
           marginBottom: "1rem",
           paddingBottom: "1rem",
-          borderBottom: `2px solid ${primaryColor || "#059669"}`
+          borderBottom: `2px solid ${primaryColor || "#2563eb"}`
         }}
       >
         {logo && (
@@ -55,7 +55,7 @@ function ReportPreview({
             style={{
               fontSize: "1.25rem",
               fontWeight: 700,
-              color: primaryColor || "#059669"
+              color: primaryColor || "#2563eb"
             }}
           >
             {brandName || "نام برند"}
@@ -83,15 +83,15 @@ function ReportPreview({
         style={{
           marginTop: "1rem",
           padding: "0.75rem",
-          background: "#f0fdf4",
+          background: "#eff6ff",
           borderRadius: "0.375rem",
-          borderLeft: `4px solid ${primaryColor || "#059669"}`
+          borderLeft: `4px solid ${primaryColor || "#2563eb"}`
         }}
       >
         <div
           style={{
             fontSize: "0.75rem",
-            color: secondaryColor || "#047857",
+            color: secondaryColor || "#1d4ed8",
             fontWeight: 600
           }}
         >
@@ -109,8 +109,8 @@ export default function BrandSettingsPage() {
     name: "",
     brandName: null,
     brandLogoBase64: null,
-    primaryColor: "#059669",
-    secondaryColor: "#047857"
+    primaryColor: "#2563eb",
+    secondaryColor: "#1d4ed8"
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -130,8 +130,8 @@ export default function BrandSettingsPage() {
           name: data.name,
           brandName: data.brandName,
           brandLogoBase64: data.brandLogoBase64,
-          primaryColor: data.primaryColor || "#059669",
-          secondaryColor: data.secondaryColor || "#047857"
+          primaryColor: data.primaryColor || "#2563eb",
+          secondaryColor: data.secondaryColor || "#1d4ed8"
         });
       } catch {
         setError("خطا در بارگذاری تنظیمات");
@@ -254,11 +254,11 @@ export default function BrandSettingsPage() {
               <div
                 style={{
                   padding: "0.75rem 1rem",
-                  background: "#d1fae5",
-                  border: "1px solid #6ee7b7",
+                  background: "#dbeafe",
+                  border: "1px solid #93c5fd",
                   borderRadius: "0.5rem",
                   marginBottom: "1rem",
-                  color: "#065f46",
+                  color: "#1e40af",
                   fontSize: "0.875rem"
                 }}
               >
@@ -383,7 +383,7 @@ export default function BrandSettingsPage() {
               <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                 <input
                   type="color"
-                  value={settings.primaryColor || "#059669"}
+                  value={settings.primaryColor || "#2563eb"}
                   onChange={(e) => {
                     setSettings((prev) => ({
                       ...prev,
@@ -402,7 +402,7 @@ export default function BrandSettingsPage() {
                 />
                 <input
                   type="text"
-                  value={settings.primaryColor || "#059669"}
+                  value={settings.primaryColor || "#2563eb"}
                   onChange={(e) => {
                     setSettings((prev) => ({
                       ...prev,
@@ -436,7 +436,7 @@ export default function BrandSettingsPage() {
               <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                 <input
                   type="color"
-                  value={settings.secondaryColor || "#047857"}
+                  value={settings.secondaryColor || "#1d4ed8"}
                   onChange={(e) => {
                     setSettings((prev) => ({
                       ...prev,
@@ -455,7 +455,7 @@ export default function BrandSettingsPage() {
                 />
                 <input
                   type="text"
-                  value={settings.secondaryColor || "#047857"}
+                  value={settings.secondaryColor || "#1d4ed8"}
                   onChange={(e) => {
                     setSettings((prev) => ({
                       ...prev,

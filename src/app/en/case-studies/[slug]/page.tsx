@@ -70,10 +70,10 @@ export default async function EnglishCaseStudyPage({ params }: { params: Promise
             <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>Before</div>
             <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#dc2626" }}>{study.scoreBefore}<span style={{ fontSize: "1rem" }}>/100</span></div>
           </div>
-          <div style={{ textAlign: "center", fontSize: "2rem", fontWeight: 800, color: "#059669" }}>→</div>
+          <div style={{ textAlign: "center", fontSize: "2rem", fontWeight: 800, color: "#2563eb" }}>→</div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>After</div>
-            <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#059669" }}>{study.scoreAfter}<span style={{ fontSize: "1rem" }}>/100</span></div>
+            <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#2563eb" }}>{study.scoreAfter}<span style={{ fontSize: "1rem" }}>/100</span></div>
           </div>
         </div>
       </section>
@@ -85,7 +85,7 @@ export default async function EnglishCaseStudyPage({ params }: { params: Promise
         </ul>
       </section>
 
-      <section className="card" style={{ padding: "2rem", background: "var(--brand-bg, #f0fdf4)" }}>
+      <section className="card" style={{ padding: "2rem", background: "var(--brand-bg, #eff6ff)" }}>
         <h2>Result</h2>
         <p style={{ fontWeight: 600 }}>{study.result}</p>
       </section>

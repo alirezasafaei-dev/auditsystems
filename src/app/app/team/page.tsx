@@ -29,7 +29,7 @@ const ROLE_OPTIONS = ["OWNER", "ADMIN", "VIEWER"] as const;
 function RoleBadge({ role }: { role: string }) {
   const colors: Record<string, { bg: string; fg: string }> = {
     OWNER: { bg: "#dbeafe", fg: "#1e40af" },
-    ADMIN: { bg: "#d1fae5", fg: "#065f46" },
+    ADMIN: { bg: "#dbeafe", fg: "#1e40af" },
     VIEWER: { bg: "#f3f4f6", fg: "#374151" },
   };
   const c = colors[role] ?? colors.VIEWER;

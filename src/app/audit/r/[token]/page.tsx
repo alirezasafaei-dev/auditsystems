@@ -19,7 +19,7 @@ function statusClass(status: string): string {
 }
 
 function gradeColor(grade: string): string {
-  if (grade === "EXCELLENT") return "#059669";
+  if (grade === "EXCELLENT") return "#2563eb";
   if (grade === "GOOD") return "#2563eb";
   if (grade === "NEEDS_WORK") return "#d97706";
   return "#dc2626";

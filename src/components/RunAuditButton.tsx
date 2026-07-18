@@ -65,7 +65,7 @@ export function RunAuditButton({ projectId, monthlyAudits, limit }: Props) {
           disabled={loading || success}
           className="button"
           style={{
-            background: success ? "#059669" : undefined,
+            background: success ? "#2563eb" : undefined,
             cursor: loading || success ? "not-allowed" : "pointer",
             opacity: loading ? 0.6 : 1
           }}

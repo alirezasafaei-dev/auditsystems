@@ -62,7 +62,7 @@ export default async function BillingPage({
       <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "1.5rem" }}>اشتراک و صورتحساب</h1>
 
       {params.status === "success" && (
-        <div style={{ padding: "1rem", background: "var(--brand-bg, #d1fae5)", border: "1px solid #6ee7b7", borderRadius: "0.5rem", marginBottom: "1.5rem", color: "var(--brand-strong, #065f46)" }}>
+        <div style={{ padding: "1rem", background: "var(--brand-bg, #dbeafe)", border: "1px solid #93c5fd", borderRadius: "0.5rem", marginBottom: "1.5rem", color: "var(--brand-strong, #1e40af)" }}>
           پرداخت با موفقیت انجام شد! اشتراک شما فعال شد.
         </div>
       )}
@@ -72,7 +72,7 @@ export default async function BillingPage({
         </div>
       )}
 
-      <div style={{ padding: "1.5rem", background: "var(--brand-bg, #f0fdf4)", border: "1px solid #bbf7d0", borderRadius: "0.5rem", marginBottom: "2rem" }}>
+      <div style={{ padding: "1.5rem", background: "var(--brand-bg, #eff6ff)", border: "1px solid #dbeafe", borderRadius: "0.5rem", marginBottom: "2rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
           <div>
             <div style={{ fontSize: "0.75rem", color: "var(--muted, #6b7280)" }}>پلن فعلی</div>
@@ -96,14 +96,14 @@ export default async function BillingPage({
             <div style={{ fontSize: "0.75rem", color: "var(--muted, #6b7280)" }}>پروژه‌ها</div>
             <div style={{ fontWeight: 600 }}>{usage.projectCount} / {usage.projectLimit}</div>
             <div style={{ height: "4px", background: "var(--border, #e5e7eb)", borderRadius: "2px", marginTop: "4px" }}>
-              <div style={{ height: "100%", background: "var(--brand, #0f7a66)", borderRadius: "2px", width: `${Math.min(100, (usage.projectCount / usage.projectLimit) * 100)}%` }} />
+              <div style={{ height: "100%", background: "var(--brand, #2563eb)", borderRadius: "2px", width: `${Math.min(100, (usage.projectCount / usage.projectLimit) * 100)}%` }} />
             </div>
           </div>
           <div>
             <div style={{ fontSize: "0.75rem", color: "var(--muted, #6b7280)" }}>ممیزی این ماه</div>
             <div style={{ fontWeight: 600 }}>{usage.auditCount} / {usage.auditLimit}</div>
             <div style={{ height: "4px", background: "var(--border, #e5e7eb)", borderRadius: "2px", marginTop: "4px" }}>
-              <div style={{ height: "100%", background: "var(--brand, #0f7a66)", borderRadius: "2px", width: `${Math.min(100, (usage.auditCount / usage.auditLimit) * 100)}%` }} />
+              <div style={{ height: "100%", background: "var(--brand, #2563eb)", borderRadius: "2px", width: `${Math.min(100, (usage.auditCount / usage.auditLimit) * 100)}%` }} />
             </div>
           </div>
         </div>
@@ -160,12 +160,12 @@ export default async function BillingPage({
           const isCurrent = plan.code === currentPlanCode;
           return (
             <div key={plan.code} className="card" style={{
-              border: isCurrent ? "2px solid var(--brand, #0f7a66)" : undefined,
+              border: isCurrent ? "2px solid var(--brand, #2563eb)" : undefined,
               padding: "1.5rem",
               position: "relative"
             }}>
               {isCurrent && (
-                <span style={{ position: "absolute", top: "-0.75rem", left: "1rem", background: "var(--brand, #0f7a66)", color: "#fff", padding: "0.125rem 0.5rem", borderRadius: "9999px", fontSize: "0.75rem", fontWeight: 600 }}>
+                <span style={{ position: "absolute", top: "-0.75rem", left: "1rem", background: "var(--brand, #2563eb)", color: "#fff", padding: "0.125rem 0.5rem", borderRadius: "9999px", fontSize: "0.75rem", fontWeight: 600 }}>
                   پلن فعلی
                 </span>
               )}
@@ -183,7 +183,7 @@ export default async function BillingPage({
                 </div>
               )}
               {isCurrent && (
-                <div style={{ marginTop: "1rem", padding: "0.5rem", background: "var(--brand-bg, #f0fdf4)", borderRadius: "0.375rem", textAlign: "center", fontSize: "0.875rem", color: "var(--brand-strong, #065f46)", fontWeight: 600 }}>
+                <div style={{ marginTop: "1rem", padding: "0.5rem", background: "var(--brand-bg, #eff6ff)", borderRadius: "0.375rem", textAlign: "center", fontSize: "0.875rem", color: "var(--brand-strong, #1e40af)", fontWeight: 600 }}>
                   فعال
                 </div>
               )}

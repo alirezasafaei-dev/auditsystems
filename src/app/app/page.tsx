@@ -105,7 +105,7 @@ export default async function AppDashboardPage() {
             </span>
           </div>
           <div style={{ height: "6px", background: "var(--border, #e5e7eb)", borderRadius: "3px", overflow: "hidden" }}>
-            <div style={{ height: "100%", background: projectProgress >= 100 ? "var(--warn, #f59e0b)" : "var(--brand, #0f7a66)", borderRadius: "3px", width: `${projectProgress}%`, transition: "width 0.3s" }} />
+            <div style={{ height: "100%", background: projectProgress >= 100 ? "var(--warn, #f59e0b)" : "var(--brand, #2563eb)", borderRadius: "3px", width: `${projectProgress}%`, transition: "width 0.3s" }} />
           </div>
           {!usage.canCreateProject && (
             <Link href="/app/billing" style={{ color: "var(--warn, #f59e0b)", fontSize: "0.75rem", textDecoration: "none", marginTop: "0.25rem", display: "inline-block" }}>سقف رسید — ارتقا دهید</Link>
@@ -120,7 +120,7 @@ export default async function AppDashboardPage() {
             </span>
           </div>
           <div style={{ height: "6px", background: "var(--border, #e5e7eb)", borderRadius: "3px", overflow: "hidden" }}>
-            <div style={{ height: "100%", background: auditProgress >= 100 ? "var(--danger, #dc2626)" : auditProgress >= 80 ? "var(--warn, #f59e0b)" : "var(--brand, #0f7a66)", borderRadius: "3px", width: `${auditProgress}%`, transition: "width 0.3s" }} />
+            <div style={{ height: "100%", background: auditProgress >= 100 ? "var(--danger, #dc2626)" : auditProgress >= 80 ? "var(--warn, #f59e0b)" : "var(--brand, #2563eb)", borderRadius: "3px", width: `${auditProgress}%`, transition: "width 0.3s" }} />
           </div>
           {!usage.canRunAudit && (
             <Link href="/app/billing" style={{ color: "var(--warn, #f59e0b)", fontSize: "0.75rem", textDecoration: "none", marginTop: "0.25rem", display: "inline-block" }}>سقف رسید — ارتقا دهید</Link>
@@ -159,7 +159,7 @@ export default async function AppDashboardPage() {
               {criticalFindings > 0 ? (
                 <span style={{ color: criticalFindings > 5 ? "var(--danger, #dc2626)" : "var(--warn, #f59e0b)" }}>{criticalFindings}</span>
               ) : (
-                <span style={{ color: "var(--brand, #059669)" }}>۰</span>
+                <span style={{ color: "var(--brand, #2563eb)" }}>۰</span>
               )}
             </span>
           </div>
@@ -187,8 +187,8 @@ export default async function AppDashboardPage() {
       {(nextScheduled || !isPaidPlan(currentPlanCode as PlanCode)) && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "1.5rem" }}>
           {nextScheduled && (
-            <div className="card" style={{ padding: "1rem", border: "1px solid #bbf7d0", background: "var(--brand-bg, #f0fdf4)" }}>
-              <div style={{ color: "var(--brand-strong, #065f46)", fontSize: "0.75rem", marginBottom: "0.25rem", fontWeight: 600 }}>ممیزی زمان‌بندی شده بعدی</div>
+            <div className="card" style={{ padding: "1rem", border: "1px solid #dbeafe", background: "var(--brand-bg, #eff6ff)" }}>
+              <div style={{ color: "var(--brand-strong, #1e40af)", fontSize: "0.75rem", marginBottom: "0.25rem", fontWeight: 600 }}>ممیزی زمان‌بندی شده بعدی</div>
               <div style={{ fontWeight: 600 }}>{nextScheduled.project.name}</div>
               <div style={{ fontSize: "0.75rem", color: "var(--muted, #6b7280)" }}>
                 {new Date(nextScheduled.nextRunAt).toLocaleDateString("fa-IR")} · {nextScheduled.frequency === "WEEKLY" ? "هفتگی" : "ماهانه"}
@@ -199,7 +199,7 @@ export default async function AppDashboardPage() {
             <div className="card" style={{ padding: "1rem", border: "1px solid #fde68a", background: "var(--warn-bg, #fffbeb)" }}>
               <div style={{ color: "var(--warn, #92400e)", fontSize: "0.75rem", marginBottom: "0.25rem", fontWeight: 600 }}>یادآوری ارتقا</div>
               <div style={{ fontWeight: 600, fontSize: "0.875rem" }}>ممیزی بیشتر، اسکن زمان‌بندی شده و گزارش PDF فعال کنید.</div>
-              <Link href="/app/billing" style={{ display: "inline-block", marginTop: "0.5rem", color: "var(--brand, #0f7a66)", fontWeight: 600, fontSize: "0.875rem" }}>
+              <Link href="/app/billing" style={{ display: "inline-block", marginTop: "0.5rem", color: "var(--brand, #2563eb)", fontWeight: 600, fontSize: "0.875rem" }}>
                 مشاهده پلن‌ها ←
               </Link>
             </div>
@@ -208,12 +208,12 @@ export default async function AppDashboardPage() {
             <div style={{ color: "var(--muted, #6b7280)", fontSize: "0.75rem", marginBottom: "0.25rem" }}>صورتحساب</div>
             <div style={{ fontWeight: 600 }}>
               {subscription ? (
-                <span style={{ color: "var(--brand, #059669)" }}>فعال — {subscription.plan.name}</span>
+                <span style={{ color: "var(--brand, #2563eb)" }}>فعال — {subscription.plan.name}</span>
               ) : (
                 <span>پلن رایگان</span>
               )}
             </div>
-            <Link href="/app/billing" style={{ display: "inline-block", marginTop: "0.5rem", color: "var(--brand, #0f7a66)", fontWeight: 600, fontSize: "0.875rem" }}>
+            <Link href="/app/billing" style={{ display: "inline-block", marginTop: "0.5rem", color: "var(--brand, #2563eb)", fontWeight: 600, fontSize: "0.875rem" }}>
               مدیریت ←
             </Link>
           </div>
@@ -237,7 +237,7 @@ export default async function AppDashboardPage() {
                 همه پروژه‌ها
               </Link>
               {usage.canCreateProject && (
-                <Link href="/app/projects/new" style={{ color: "var(--brand, #0f7a66)", textDecoration: "none", fontSize: "0.875rem", fontWeight: 600 }}>
+                <Link href="/app/projects/new" style={{ color: "var(--brand, #2563eb)", textDecoration: "none", fontSize: "0.875rem", fontWeight: 600 }}>
                   + افزودن وب‌سایت
                 </Link>
               )}
@@ -246,7 +246,7 @@ export default async function AppDashboardPage() {
           {recentAudits.length === 0 ? (
             <div style={{ textAlign: "center", padding: "2rem", border: "1px solid var(--border, #e5e7eb)", borderRadius: "0.5rem" }}>
               <p style={{ color: "var(--muted, #6b7280)", marginBottom: "1rem" }}>هنوز ممیزی‌ای انجام نشده.</p>
-              <Link href="/app/projects" style={{ color: "var(--brand, #0f7a66)", textDecoration: "none", fontWeight: 600 }}>اولین ممیزی خود را اجرا کنید ←</Link>
+              <Link href="/app/projects" style={{ color: "var(--brand, #2563eb)", textDecoration: "none", fontWeight: 600 }}>اولین ممیزی خود را اجرا کنید ←</Link>
             </div>
           ) : (
             <div style={{ border: "1px solid var(--border, #e5e7eb)", borderRadius: "0.5rem", overflow: "hidden" }}>
@@ -274,7 +274,7 @@ export default async function AppDashboardPage() {
                             {statusLabels[audit.status] ?? audit.status}
                           </span>
                         </td>
-                        <td style={{ padding: "0.75rem", fontWeight: 600, color: score != null ? (score >= 80 ? "var(--brand, #059669)" : score >= 50 ? "var(--warn, #f59e0b)" : "var(--danger, #dc2626)") : "var(--muted, #d1d5db)" }}>
+                        <td style={{ padding: "0.75rem", fontWeight: 600, color: score != null ? (score >= 80 ? "var(--brand, #2563eb)" : score >= 50 ? "var(--warn, #f59e0b)" : "var(--danger, #dc2626)") : "var(--muted, #d1d5db)" }}>
                           {score != null ? `${score}/۱۰۰` : "—"}
                         </td>
                         <td style={{ padding: "0.75rem", color: "var(--muted, #6b7280)" }}>
@@ -282,7 +282,7 @@ export default async function AppDashboardPage() {
                         </td>
                         <td style={{ padding: "0.75rem" }}>
                           {audit.shares[0]?.token ? (
-                            <a href={`/audit/r/${audit.shares[0].token}`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand, #0f7a66)", textDecoration: "none" }}>
+                            <a href={`/audit/r/${audit.shares[0].token}`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand, #2563eb)", textDecoration: "none" }}>
                               مشاهده
                             </a>
                           ) : (

@@ -33,11 +33,9 @@ async function loadDotEnvFileIfNeeded(): Promise<void> {
   }
 }
 
-function provider(): "MOCK" | "ZARINPAL" | "IDPAY" | "PAYPING" {
+function provider(): "MOCK" | "ZARINPAL" {
   const value = env("PAYMENT_PROVIDER_DEFAULT").toUpperCase();
   if (value === "ZARINPAL") return "ZARINPAL";
-  if (value === "IDPAY") return "IDPAY";
-  if (value === "PAYPING") return "PAYPING";
   return "MOCK";
 }
 

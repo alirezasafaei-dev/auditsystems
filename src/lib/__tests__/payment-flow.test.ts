@@ -192,10 +192,6 @@ describe("Payment flow — checkout → callback → subscription", () => {
     expect(invoice).not.toBeNull();
     expect(invoice!.status).toBe("PAID");
 
-    if (invoice!.status === "PAID") {
-      expect(true).toBe(true);
-    }
-
     expect(prisma.subscription.create).not.toHaveBeenCalled();
   });
 

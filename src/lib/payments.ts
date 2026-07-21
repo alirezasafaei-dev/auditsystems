@@ -21,8 +21,6 @@ function getBaseUrl(): string {
 function getDefaultProvider(): PaymentProvider {
   const value = (process.env.PAYMENT_PROVIDER_DEFAULT ?? "MOCK").toUpperCase();
   if (value === "ZARINPAL") return "ZARINPAL";
-  if (value === "IDPAY") return "IDPAY";
-  if (value === "PAYPING") return "PAYPING";
   return "MOCK";
 }
 
@@ -30,8 +28,6 @@ export function resolvePaymentProvider(value?: string | null): PaymentProvider {
   if (!value) return getDefaultProvider();
   const upper = value.toUpperCase();
   if (upper === "ZARINPAL") return "ZARINPAL";
-  if (upper === "IDPAY") return "IDPAY";
-  if (upper === "PAYPING") return "PAYPING";
   return "MOCK";
 }
 
@@ -106,120 +102,6 @@ export async function createCheckout(input: {
     }
   }
 
-  if (input.provider === "PAYPING") {
-    // TODO: Verify PayPing API contract. This implementation is based on public documentation
-    // and may need adjustment for production use.
-    const apiKey = process.env.PAYPING_API_KEY;
-    if (!apiKey) {
-      throw new Error("PAYMENT_PROVIDER_NOT_CONFIGURED");
-    }
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), timeoutMs);
-
-    try {
-      const response = await fetch("https://api.payping.ir/v1/pay", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        signal: controller.signal,
-        body: JSON.stringify({
-          amount: input.amountToman,
-          payerIdentity: input.email,
-          returnUrl: callbackUrl,
-          clientRefId: input.orderId
-        })
-      });
-
-      clearTimeout(timeout);
-
-      if (!response.ok) {
-        throw new Error(`PAYMENT_PROVIDER_HTTP_${response.status}`);
-      }
-
-      const body = (await response.json()) as { code?: number; boardId?: string };
-      const code = body.code;
-      const boardId = body.boardId;
-
-      if (code !== 200 || !boardId) {
-        throw new Error("PAYMENT_PROVIDER_REQUEST_FAILED");
-      }
-
-      return {
-        redirectUrl: `https://pay.ping.ir/v1/${boardId}`,
-        providerRef: boardId,
-        callbackRef: input.callbackRef,
-        raw: body
-      };
-    } catch (error) {
-      clearTimeout(timeout);
-      if (error instanceof Error && error.name === "AbortError") {
-        throw new Error("PAYMENT_PROVIDER_TIMEOUT");
-      }
-      throw error;
-    }
-  }
-
-  if (input.provider === "IDPAY") {
-    // TODO: Verify IdPay API contract. This implementation is based on public documentation
-    // and may need adjustment for production use.
-    const apiKey = process.env.IDPAY_API_KEY;
-    if (!apiKey) {
-      throw new Error("PAYMENT_PROVIDER_NOT_CONFIGURED");
-    }
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), timeoutMs);
-
-    try {
-      const response = await fetch("https://api.idpay.ir/v1.1/payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-API-KEY": apiKey,
-          "X-SANDBOX": process.env.IDPAY_SANDBOX === "true" ? "1" : "0"
-        },
-        signal: controller.signal,
-        body: JSON.stringify({
-          order_id: input.orderId,
-          amount: input.amountToman * 10,
-          callback: callbackUrl,
-          name: input.email.split("@")[0],
-          mail: input.email
-        })
-      });
-
-      clearTimeout(timeout);
-
-      if (!response.ok) {
-        throw new Error(`PAYMENT_PROVIDER_HTTP_${response.status}`);
-      }
-
-      const body = (await response.json()) as { id?: string; link?: string };
-      const id = body.id;
-      const link = body.link;
-
-      if (!id || !link) {
-        throw new Error("PAYMENT_PROVIDER_REQUEST_FAILED");
-      }
-
-      return {
-        redirectUrl: link,
-        providerRef: id,
-        callbackRef: input.callbackRef,
-        raw: body
-      };
-    } catch (error) {
-      clearTimeout(timeout);
-      if (error instanceof Error && error.name === "AbortError") {
-        throw new Error("PAYMENT_PROVIDER_TIMEOUT");
-      }
-      throw error;
-    }
-  }
-
   throw new Error("PAYMENT_PROVIDER_NOT_IMPLEMENTED");
 }
 
@@ -271,103 +153,6 @@ export async function verifyCheckout(input: {
       return {
         paid: code === 100 || code === 101,
         providerRef: body.data?.ref_id ? String(body.data.ref_id) : input.providerRef,
-        raw: body
-      };
-    } catch (error) {
-      clearTimeout(timeout);
-      if (error instanceof Error && error.name === "AbortError") {
-        throw new Error("PAYMENT_PROVIDER_TIMEOUT");
-      }
-      throw error;
-    }
-  }
-
-  if (input.provider === "PAYPING") {
-    // TODO: Verify PayPing verify API contract. This implementation is based on public documentation
-    // and may need adjustment for production use.
-    const apiKey = process.env.PAYPING_API_KEY;
-    if (!apiKey) {
-      throw new Error("PAYMENT_PROVIDER_NOT_CONFIGURED");
-    }
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), timeoutMs);
-
-    try {
-      const response = await fetch("https://api.payping.ir/v1/pay/verify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        signal: controller.signal,
-        body: JSON.stringify({
-          refId: input.providerRef,
-          amount: input.amountToman
-        })
-      });
-
-      clearTimeout(timeout);
-
-      if (!response.ok) {
-        throw new Error(`PAYMENT_PROVIDER_HTTP_${response.status}`);
-      }
-
-      const body = (await response.json()) as { cardNumberPan?: string; cardHashPan?: string };
-      const paid = !!(body.cardNumberPan || body.cardHashPan);
-
-      return {
-        paid,
-        providerRef: input.providerRef,
-        raw: body
-      };
-    } catch (error) {
-      clearTimeout(timeout);
-      if (error instanceof Error && error.name === "AbortError") {
-        throw new Error("PAYMENT_PROVIDER_TIMEOUT");
-      }
-      throw error;
-    }
-  }
-
-  if (input.provider === "IDPAY") {
-    // TODO: Verify IdPay verify API contract. This implementation is based on public documentation
-    // and may need adjustment for production use.
-    const apiKey = process.env.IDPAY_API_KEY;
-    if (!apiKey) {
-      throw new Error("PAYMENT_PROVIDER_NOT_CONFIGURED");
-    }
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), timeoutMs);
-
-    try {
-      const response = await fetch(`https://api.idpay.ir/v1.1/payment/verify`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-API-KEY": apiKey,
-          "X-SANDBOX": process.env.IDPAY_SANDBOX === "true" ? "1" : "0"
-        },
-        signal: controller.signal,
-        body: JSON.stringify({
-          id: input.providerRef,
-          order_id: input.providerRef // Using providerRef as order_id
-        })
-      });
-
-      clearTimeout(timeout);
-
-      if (!response.ok) {
-        throw new Error(`PAYMENT_PROVIDER_HTTP_${response.status}`);
-      }
-
-      const body = (await response.json()) as { status?: number; payment?: { track_id?: string } };
-      const paid = body.status === 100;
-
-      return {
-        paid,
-        providerRef: body.payment?.track_id || input.providerRef,
         raw: body
       };
     } catch (error) {

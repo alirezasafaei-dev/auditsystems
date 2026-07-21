@@ -4,11 +4,8 @@ import { PaymentProvider } from "@prisma/client";
 
 describe("payments", () => {
   beforeEach(() => {
-    // Clear environment variables
     delete process.env.ZARINPAL_MERCHANT_ID;
-    delete process.env.PAYPING_API_KEY;
-    delete process.env.IDPAY_API_KEY;
-    delete process.env.IDPAY_SANDBOX;
+    delete process.env.PAYMENT_PROVIDER_DEFAULT;
   });
 
   describe("resolvePaymentProvider", () => {
@@ -17,19 +14,27 @@ describe("payments", () => {
       expect(resolvePaymentProvider("ZARINPAL")).toBe("ZARINPAL");
     });
 
-    it("resolves IDPAY provider", () => {
-      expect(resolvePaymentProvider("idpay")).toBe("IDPAY");
-      expect(resolvePaymentProvider("IDPAY")).toBe("IDPAY");
+    it("fails closed to MOCK for unsupported IDPAY requests", () => {
+      expect(resolvePaymentProvider("idpay")).toBe("MOCK");
+      expect(resolvePaymentProvider("IDPAY")).toBe("MOCK");
     });
 
-    it("resolves PAYPING provider", () => {
-      expect(resolvePaymentProvider("payping")).toBe("PAYPING");
-      expect(resolvePaymentProvider("PAYPING")).toBe("PAYPING");
+    it("fails closed to MOCK for unsupported PAYPING requests", () => {
+      expect(resolvePaymentProvider("payping")).toBe("MOCK");
+      expect(resolvePaymentProvider("PAYPING")).toBe("MOCK");
     });
 
     it("resolves MOCK provider as default", () => {
       expect(resolvePaymentProvider("unknown")).toBe("MOCK");
       expect(resolvePaymentProvider(null)).toBe("MOCK");
+    });
+
+    it("fails closed when the default provider is unsupported", () => {
+      process.env.PAYMENT_PROVIDER_DEFAULT = "IDPAY";
+      expect(resolvePaymentProvider()).toBe("MOCK");
+
+      process.env.PAYMENT_PROVIDER_DEFAULT = "PAYPING";
+      expect(resolvePaymentProvider()).toBe("MOCK");
     });
   });
 
@@ -60,7 +65,7 @@ describe("payments", () => {
       ).rejects.toThrow("PAYMENT_PROVIDER_NOT_CONFIGURED");
     });
 
-    it("throws error for PAYPING without API key", async () => {
+    it("rejects direct PAYPING checkout as unimplemented", async () => {
       await expect(
         createCheckout({
           provider: "PAYPING",
@@ -69,10 +74,10 @@ describe("payments", () => {
           amountToman: 100000,
           email: "test@example.com"
         })
-      ).rejects.toThrow("PAYMENT_PROVIDER_NOT_CONFIGURED");
+      ).rejects.toThrow("PAYMENT_PROVIDER_NOT_IMPLEMENTED");
     });
 
-    it("throws error for IDPAY without API key", async () => {
+    it("rejects direct IDPAY checkout as unimplemented", async () => {
       await expect(
         createCheckout({
           provider: "IDPAY",
@@ -81,7 +86,7 @@ describe("payments", () => {
           amountToman: 100000,
           email: "test@example.com"
         })
-      ).rejects.toThrow("PAYMENT_PROVIDER_NOT_CONFIGURED");
+      ).rejects.toThrow("PAYMENT_PROVIDER_NOT_IMPLEMENTED");
     });
 
     it("throws error for unimplemented provider", async () => {
@@ -131,24 +136,24 @@ describe("payments", () => {
       ).rejects.toThrow("PAYMENT_PROVIDER_NOT_CONFIGURED");
     });
 
-    it("throws error for PAYPING without API key", async () => {
+    it("rejects direct PAYPING verification as unimplemented", async () => {
       await expect(
         verifyCheckout({
           provider: "PAYPING",
           providerRef: "ref-123",
           amountToman: 100000
         })
-      ).rejects.toThrow("PAYMENT_PROVIDER_NOT_CONFIGURED");
+      ).rejects.toThrow("PAYMENT_PROVIDER_NOT_IMPLEMENTED");
     });
 
-    it("throws error for IDPAY without API key", async () => {
+    it("rejects direct IDPAY verification as unimplemented", async () => {
       await expect(
         verifyCheckout({
           provider: "IDPAY",
           providerRef: "id-123",
           amountToman: 100000
         })
-      ).rejects.toThrow("PAYMENT_PROVIDER_NOT_CONFIGURED");
+      ).rejects.toThrow("PAYMENT_PROVIDER_NOT_IMPLEMENTED");
     });
 
     it("throws error for unimplemented provider", async () => {

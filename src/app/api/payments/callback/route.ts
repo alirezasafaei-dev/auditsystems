@@ -9,8 +9,6 @@ import { NextRequest, NextResponse } from "next/server";
 function asProvider(value: string | null): PaymentProvider {
   const upper = (value ?? "").toUpperCase();
   if (upper === "ZARINPAL") return "ZARINPAL";
-  if (upper === "IDPAY") return "IDPAY";
-  if (upper === "PAYPING") return "PAYPING";
   return "MOCK";
 }
 

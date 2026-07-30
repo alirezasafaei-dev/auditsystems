@@ -4,6 +4,7 @@ import { prisma } from "../../../../../../lib/db";
 import { validateAdminSession } from "../../../../../../lib/admin-auth";
 import { csrfProtection } from "../../../../../../lib/csrf";
 import { recordFunnelEvent } from "../../../../../../lib/funnel-events";
+import { logEvent } from "../../../../../../lib/observability";
 import {
   AuditEnqueueError,
   buildAuditIdempotencyKey,
@@ -68,14 +69,22 @@ export async function POST(request: Request, context: RouteContext) {
     });
 
     if (!queued.reused) {
-      await recordFunnelEvent({
-        eventType: "audit_started",
-        leadId: id,
-        runId: queued.run.id,
-        source: lead.leadSource,
-        placement: lead.sourcePlacement,
-        offer: lead.sourceOffer,
-      });
+      try {
+        await recordFunnelEvent({
+          eventType: "audit_started",
+          leadId: id,
+          runId: queued.run.id,
+          source: lead.leadSource,
+          placement: lead.sourcePlacement,
+          offer: lead.sourceOffer,
+        });
+      } catch (error) {
+        logEvent("warn", "admin_lead_audit_funnel_event_failed", {
+          leadId: id,
+          runId: queued.run.id,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
     }
 
     return NextResponse.json({

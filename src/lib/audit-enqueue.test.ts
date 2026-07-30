@@ -173,7 +173,7 @@ describe("audit-enqueue", () => {
   it("reuses a fully committed enqueue and performs no writes", async () => {
     const creationTx = createTx();
     mocks.transaction.mockImplementationOnce(async (callback: TransactionCallback) => callback(creationTx));
-    const module = await import("./audit-enqueue");
+    const auditEnqueueModule = await import("./audit-enqueue");
     const input = {
       url: "https://example.com",
       normalizedUrl: "https://example.com/",
@@ -184,7 +184,7 @@ describe("audit-enqueue", () => {
       idempotencyKey: "v1:PUBLIC_API:key",
     };
 
-    const first = await module.enqueueAuditAtomically(input);
+    const first = await auditEnqueueModule.enqueueAuditAtomically(input);
     const createdPayload = creationTx.job.create.mock.calls[0][0].data.payload as Record<string, unknown>;
 
     const replayTx = createTx();
@@ -194,7 +194,7 @@ describe("audit-enqueue", () => {
     mocks.transaction.mockReset();
     mocks.transaction.mockImplementationOnce(async (callback: TransactionCallback) => callback(replayTx));
 
-    const replay = await module.enqueueAuditAtomically(input);
+    const replay = await auditEnqueueModule.enqueueAuditAtomically(input);
 
     expect(replay.reused).toBe(true);
     expect(replay.run.id).toBe(first.run.id);

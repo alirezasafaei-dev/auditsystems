@@ -1,6 +1,7 @@
 import dns from "node:dns/promises";
 import http, { type IncomingMessage, type RequestOptions } from "node:http";
 import https from "node:https";
+import type { Readable } from "node:stream";
 import { createBrotliDecompress, createGunzip, createInflate } from "node:zlib";
 import { normalizeAuditTargetUrl, resolvePublicAuditHost, type AuditDnsRecord } from "./normalizeAuditTargetUrl";
 
@@ -9,6 +10,12 @@ const DEFAULT_MAX_REDIRECTS = 3;
 const DEFAULT_REQUEST_TIMEOUT_MS = 15_000;
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
 const ALLOWED_CONTENT_TYPES = ["text/html", "application/xhtml+xml"];
+const PRESERVED_RESPONSE_ERRORS = new Set([
+  "AUDIT_RESPONSE_TOO_LARGE",
+  "AUDIT_UNSUPPORTED_CONTENT_ENCODING",
+  "AUDIT_REQUEST_ABORTED",
+  "AUDIT_REQUEST_TIMEOUT"
+]);
 
 type AuditFetchOptions = {
   maxResponseBytes?: number;
@@ -26,7 +33,12 @@ export type AuditHtmlResponse = {
 };
 
 function positiveInteger(value: number | undefined, fallback: number): number {
-  if (!Number.isFinite(value) || !value || value <= 0) return fallback;
+  if (!Number.isFinite(value) || value === undefined || value <= 0) return fallback;
+  return Math.floor(value);
+}
+
+function nonNegativeInteger(value: number | undefined, fallback: number): number {
+  if (!Number.isFinite(value) || value === undefined || value < 0) return fallback;
   return Math.floor(value);
 }
 
@@ -47,7 +59,7 @@ function assertHtmlContentType(response: IncomingMessage): void {
   }
 }
 
-function decodedStream(response: IncomingMessage): NodeJS.ReadableStream {
+function decodedStream(response: IncomingMessage): Readable {
   const encoding = String(response.headers["content-encoding"] ?? "identity").trim().toLowerCase();
   if (!encoding || encoding === "identity") return response;
   if (encoding === "gzip" || encoding === "x-gzip") return response.pipe(createGunzip());
@@ -56,7 +68,11 @@ function decodedStream(response: IncomingMessage): NodeJS.ReadableStream {
   throw new Error("AUDIT_UNSUPPORTED_CONTENT_ENCODING");
 }
 
-async function readBoundedBody(response: IncomingMessage, maxBytes: number): Promise<string> {
+function abortError(signal: AbortSignal): Error {
+  return signal.reason instanceof Error ? signal.reason : new Error("AUDIT_REQUEST_ABORTED");
+}
+
+async function readBoundedBody(response: IncomingMessage, maxBytes: number, signal: AbortSignal): Promise<string> {
   const advertisedLength = Number(response.headers["content-length"] ?? "0");
   const contentEncoding = String(response.headers["content-encoding"] ?? "identity").trim().toLowerCase();
   if ((!contentEncoding || contentEncoding === "identity") && Number.isFinite(advertisedLength) && advertisedLength > maxBytes) {
@@ -64,22 +80,22 @@ async function readBoundedBody(response: IncomingMessage, maxBytes: number): Pro
     throw new Error("AUDIT_RESPONSE_TOO_LARGE");
   }
 
-  const stream = decodedStream(response);
   const chunks: Buffer[] = [];
   let total = 0;
 
   try {
-    for await (const chunk of stream as AsyncIterable<Buffer | string>) {
+    const stream = decodedStream(response);
+    for await (const chunk of stream) {
+      if (signal.aborted) throw abortError(signal);
       const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
       total += buffer.byteLength;
-      if (total > maxBytes) {
-        response.destroy(new Error("AUDIT_RESPONSE_TOO_LARGE"));
-        throw new Error("AUDIT_RESPONSE_TOO_LARGE");
-      }
+      if (total > maxBytes) throw new Error("AUDIT_RESPONSE_TOO_LARGE");
       chunks.push(buffer);
     }
   } catch (error) {
-    if (error instanceof Error && error.message === "AUDIT_RESPONSE_TOO_LARGE") throw error;
+    response.destroy(error instanceof Error ? error : undefined);
+    if (signal.aborted) throw abortError(signal);
+    if (error instanceof Error && PRESERVED_RESPONSE_ERRORS.has(error.message)) throw error;
     throw new Error("AUDIT_RESPONSE_READ_FAILED", { cause: error });
   }
 
@@ -118,12 +134,6 @@ function performPinnedRequest(
     };
 
     let settled = false;
-    const finishReject = (error: unknown) => {
-      if (settled) return;
-      settled = true;
-      reject(error);
-    };
-
     const request = requestImpl(options, (response) => {
       if (settled) {
         response.destroy();
@@ -135,7 +145,14 @@ function performPinnedRequest(
     });
 
     const onAbort = () => {
-      request.destroy(signal.reason instanceof Error ? signal.reason : new Error("AUDIT_REQUEST_ABORTED"));
+      request.destroy(abortError(signal));
+    };
+
+    const finishReject = (error: unknown) => {
+      if (settled) return;
+      settled = true;
+      signal.removeEventListener("abort", onAbort);
+      reject(error);
     };
 
     request.setTimeout(timeoutMs, () => request.destroy(new Error("AUDIT_REQUEST_TIMEOUT")));
@@ -158,37 +175,50 @@ export async function fetchAuditHtml(
 ): Promise<AuditHtmlResponse> {
   const startedAt = Date.now();
   const maxBytes = positiveInteger(options.maxResponseBytes, DEFAULT_MAX_RESPONSE_BYTES);
-  const maxRedirects = positiveInteger(options.maxRedirects, DEFAULT_MAX_REDIRECTS);
+  const maxRedirects = nonNegativeInteger(options.maxRedirects, DEFAULT_MAX_REDIRECTS);
   const timeoutMs = positiveInteger(options.requestTimeoutMs, DEFAULT_REQUEST_TIMEOUT_MS);
   const lookup = options.dnsLookup ?? ((host: string) => dns.lookup(host, { all: true }));
 
   let currentUrl = inputUrl;
 
   for (let redirectCount = 0; redirectCount <= maxRedirects; redirectCount += 1) {
+    if (signal.aborted) throw abortError(signal);
+
     const normalized = await normalizeAuditTargetUrl(currentUrl, { verifyDnsPublicIp: false });
     const records = await resolvePublicAuditHost(normalized.host, lookup);
     const address = selectAddress(records);
     const target = new URL(normalized.normalizedUrl);
     const response = await performPinnedRequest(target, address, signal, timeoutMs);
-    const status = response.statusCode ?? 0;
+    const abortResponse = () => response.destroy(abortError(signal));
+    signal.addEventListener("abort", abortResponse, { once: true });
 
-    if (REDIRECT_STATUSES.has(status) && response.headers.location) {
-      response.resume();
-      if (redirectCount >= maxRedirects) throw new Error("AUDIT_TOO_MANY_REDIRECTS");
-      currentUrl = new URL(response.headers.location, target).toString();
-      continue;
+    try {
+      if (signal.aborted) throw abortError(signal);
+      const status = response.statusCode ?? 0;
+
+      if (REDIRECT_STATUSES.has(status) && response.headers.location) {
+        response.destroy();
+        if (redirectCount >= maxRedirects) throw new Error("AUDIT_TOO_MANY_REDIRECTS");
+        currentUrl = new URL(response.headers.location, target).toString();
+        continue;
+      }
+
+      assertHtmlContentType(response);
+      const html = await readBoundedBody(response, maxBytes, signal);
+
+      return {
+        finalUrl: target.toString(),
+        status,
+        headers: responseHeaders(response),
+        html,
+        responseMs: Date.now() - startedAt
+      };
+    } catch (error) {
+      response.destroy(error instanceof Error ? error : undefined);
+      throw error;
+    } finally {
+      signal.removeEventListener("abort", abortResponse);
     }
-
-    assertHtmlContentType(response);
-    const html = await readBoundedBody(response, maxBytes);
-
-    return {
-      finalUrl: target.toString(),
-      status,
-      headers: responseHeaders(response),
-      html,
-      responseMs: Date.now() - startedAt
-    };
   }
 
   throw new Error("AUDIT_TOO_MANY_REDIRECTS");

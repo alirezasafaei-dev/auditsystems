@@ -1,6 +1,7 @@
 import dns from "node:dns/promises";
 import http, { type IncomingMessage, type RequestOptions } from "node:http";
 import https from "node:https";
+import net from "node:net";
 import type { Readable } from "node:stream";
 import { createBrotliDecompress, createGunzip, createInflate } from "node:zlib";
 import { normalizeAuditTargetUrl, resolvePublicAuditHost, type AuditDnsRecord } from "./normalizeAuditTargetUrl";
@@ -72,11 +73,16 @@ function abortError(signal: AbortSignal): Error {
   return signal.reason instanceof Error ? signal.reason : new Error("AUDIT_REQUEST_ABORTED");
 }
 
+function withoutIpv6Brackets(hostname: string): string {
+  if (hostname.startsWith("[") && hostname.endsWith("]")) return hostname.slice(1, -1);
+  return hostname;
+}
+
 async function readBoundedBody(response: IncomingMessage, maxBytes: number, signal: AbortSignal): Promise<string> {
   const advertisedLength = Number(response.headers["content-length"] ?? "0");
   const contentEncoding = String(response.headers["content-encoding"] ?? "identity").trim().toLowerCase();
   if ((!contentEncoding || contentEncoding === "identity") && Number.isFinite(advertisedLength) && advertisedLength > maxBytes) {
-    response.destroy(new Error("AUDIT_RESPONSE_TOO_LARGE"));
+    response.destroy();
     throw new Error("AUDIT_RESPONSE_TOO_LARGE");
   }
 
@@ -92,8 +98,9 @@ async function readBoundedBody(response: IncomingMessage, maxBytes: number, sign
       if (total > maxBytes) throw new Error("AUDIT_RESPONSE_TOO_LARGE");
       chunks.push(buffer);
     }
+    if (signal.aborted) throw abortError(signal);
   } catch (error) {
-    response.destroy(error instanceof Error ? error : undefined);
+    response.destroy();
     if (signal.aborted) throw abortError(signal);
     if (error instanceof Error && PRESERVED_RESPONSE_ERRORS.has(error.message)) throw error;
     throw new Error("AUDIT_RESPONSE_READ_FAILED", { cause: error });
@@ -116,6 +123,7 @@ function performPinnedRequest(
   return new Promise((resolve, reject) => {
     const isHttps = target.protocol === "https:";
     const requestImpl = isHttps ? https.request : http.request;
+    const tlsHostname = withoutIpv6Brackets(target.hostname);
     const options: RequestOptions = {
       protocol: target.protocol,
       hostname: address.address,
@@ -130,7 +138,7 @@ function performPinnedRequest(
         Host: target.host,
         "User-Agent": "ASDEV-AuditBot/1.0"
       },
-      ...(isHttps ? { servername: target.hostname } : {})
+      ...(isHttps && !net.isIP(tlsHostname) ? { servername: tlsHostname } : {})
     };
 
     let settled = false;
@@ -189,7 +197,7 @@ export async function fetchAuditHtml(
     const address = selectAddress(records);
     const target = new URL(normalized.normalizedUrl);
     const response = await performPinnedRequest(target, address, signal, timeoutMs);
-    const abortResponse = () => response.destroy(abortError(signal));
+    const abortResponse = () => response.destroy();
     signal.addEventListener("abort", abortResponse, { once: true });
 
     try {
@@ -214,7 +222,7 @@ export async function fetchAuditHtml(
         responseMs: Date.now() - startedAt
       };
     } catch (error) {
-      response.destroy(error instanceof Error ? error : undefined);
+      response.destroy();
       throw error;
     } finally {
       signal.removeEventListener("abort", abortResponse);

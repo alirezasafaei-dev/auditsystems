@@ -22,8 +22,7 @@ const IPV4_CIDR_RANGES: Array<[number, number]> = [
 ];
 
 const IPV6_SPECIAL_RANGES: Array<[string, number]> = [
-  ["::", 128],
-  ["::1", 128],
+  ["::", 96],
   ["::ffff:0:0", 96],
   ["64:ff9b::", 96],
   ["64:ff9b:1::", 48],
@@ -90,6 +89,27 @@ function isPrivateOrReservedIPv4(ip: string): boolean {
   return IPV4_CIDR_RANGES.some(([start, end]) => int >= start && int <= end);
 }
 
+function parseIpv6Section(section: string): number[] {
+  if (!section) return [];
+  const parts = section.split(":");
+  const output: number[] = [];
+
+  for (let index = 0; index < parts.length; index += 1) {
+    const part = parts[index];
+    if (part.includes(".")) {
+      if (index !== parts.length - 1 || !net.isIPv4(part)) return [Number.NaN];
+      const ipv4 = ip4ToInt(part);
+      output.push((ipv4 >>> 16) & 0xffff, ipv4 & 0xffff);
+      continue;
+    }
+
+    if (!/^[0-9a-f]{1,4}$/i.test(part)) return [Number.NaN];
+    output.push(Number.parseInt(part, 16));
+  }
+
+  return output;
+}
+
 function parseIpv6Parts(ip: string): number[] | null {
   const value = normalizeIpHost(ip).toLowerCase().split("%")[0];
   if (!net.isIPv6(value)) return null;
@@ -97,13 +117,8 @@ function parseIpv6Parts(ip: string): number[] | null {
   const sections = value.split("::");
   if (sections.length > 2) return null;
 
-  const parseSection = (section: string): number[] => {
-    if (!section) return [];
-    return section.split(":").map((part) => Number.parseInt(part, 16));
-  };
-
-  const left = parseSection(sections[0]);
-  const right = parseSection(sections[1] ?? "");
+  const left = parseIpv6Section(sections[0]);
+  const right = parseIpv6Section(sections[1] ?? "");
   if (left.some((part) => !Number.isInteger(part) || part < 0 || part > 0xffff)) return null;
   if (right.some((part) => !Number.isInteger(part) || part < 0 || part > 0xffff)) return null;
 

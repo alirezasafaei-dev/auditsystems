@@ -4,12 +4,14 @@ on:
   pull_request:
     paths:
       - "src/lib/audit-enqueue.ts"
+      - "src/lib/audit-enqueue.test.ts"
       - "src/lib/audit-enqueue.postgres.test.ts"
       - "src/app/api/audit/runs/route.ts"
       - "src/app/api/projects/**/audit/route.ts"
       - "src/app/api/admin/leads/**/start-audit/route.ts"
       - "src/scripts/run-scheduled-audits.ts"
       - "prisma/migrations/20260730_atomic_audit_enqueue/**"
+      - "prisma/migrations/20260730_reconcile_organization_brand_columns/**"
       - ".github/workflows/atomic-enqueue-postgres.yml"
   workflow_dispatch:
 

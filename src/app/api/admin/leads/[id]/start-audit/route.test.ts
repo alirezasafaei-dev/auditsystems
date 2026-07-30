@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   enqueueAuditAtomically: vi.fn(),
   buildAuditIdempotencyKey: vi.fn(() => "v1:ADMIN_LEAD:key"),
   recordFunnelEvent: vi.fn(),
+  logEvent: vi.fn(),
   findUnique: vi.fn(),
   jobFindFirst: vi.fn(),
 }));
@@ -36,6 +37,10 @@ vi.mock("../../../../../../lib/audit-enqueue", () => {
 
 vi.mock("../../../../../../lib/funnel-events", () => ({
   recordFunnelEvent: mocks.recordFunnelEvent,
+}));
+
+vi.mock("../../../../../../lib/observability", () => ({
+  logEvent: mocks.logEvent,
 }));
 
 vi.mock("../../../../../../lib/db", () => ({
@@ -123,6 +128,22 @@ describe("POST /api/admin/leads/[id]/start-audit", () => {
       leadId: "lead-1",
       runId: "run-1",
     }));
+  });
+
+  it("returns success when non-critical funnel telemetry fails", async () => {
+    mocks.recordFunnelEvent.mockRejectedValue(new Error("analytics unavailable"));
+    const { POST } = await import("./route");
+
+    const response = await POST(request("valid-token"), context());
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({ runId: "run-1", token: "share-token", reused: false });
+    expect(mocks.logEvent).toHaveBeenCalledWith(
+      "warn",
+      "admin_lead_audit_funnel_event_failed",
+      expect.objectContaining({ leadId: "lead-1", runId: "run-1" }),
+    );
   });
 
   it("returns an already-linked lead without a second enqueue", async () => {

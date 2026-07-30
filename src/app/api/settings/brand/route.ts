@@ -8,7 +8,7 @@ import { hasMinimumRole } from "../../../../lib/team-auth";
 const MAX_BRAND_NAME_LENGTH = 200;
 const MAX_LOGO_BYTES = 512 * 1024;
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
-const LOGO_DATA_URL = /^data:image\/(png|jpeg|webp|svg\+xml);base64,([a-z0-9+/]+={0,2})$/i;
+const LOGO_DATA_URL = /^data:image\/(png|jpeg);base64,([a-z0-9+/]+={0,2})$/i;
 
 function parseNullableText(value: unknown, maxLength: number): string | null {
   if (value === null || value === undefined || value === "") return null;

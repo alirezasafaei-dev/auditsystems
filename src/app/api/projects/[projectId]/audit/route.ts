@@ -3,7 +3,7 @@ import { prisma } from "../../../../../lib/db";
 import { validateSession, getOrganizationForUser } from "../../../../../lib/auth";
 import { createRequestId, logEvent, respondJson } from "../../../../../lib/observability";
 import { csrfProtection } from "../../../../../lib/csrf";
-import { canRunAudit } from "../../../../../lib/usage";
+import { getCurrentPlan } from "../../../../../lib/usage";
 import {
   AuditEnqueueError,
   buildAuditIdempotencyKey,
@@ -17,6 +17,7 @@ export async function POST(
   { params }: { params: Promise<RouteParams> }
 ) {
   const requestId = createRequestId();
+  let auditLimit: number | undefined;
 
   try {
     const user = await validateSession();
@@ -44,14 +45,8 @@ export async function POST(
       return respondJson({ error: "PROJECT_NOT_FOUND", requestId }, requestId, { status: 404, headers: { "Cache-Control": "no-store" } });
     }
 
-    const auditCheck = await canRunAudit(orgId);
-    if (!auditCheck.allowed) {
-      return respondJson(
-        { error: "AUDIT_LIMIT_REACHED", message: `Current plan allows ${auditCheck.limit} audits per month. Upgrade to run more.`, requestId },
-        requestId,
-        { status: 403, headers: { "Cache-Control": "no-store" } }
-      );
-    }
+    const plan = await getCurrentPlan(orgId);
+    auditLimit = plan.monthlyAuditLimit;
 
     const rawIdempotencyKey = request.headers.get("idempotency-key")?.trim();
     const idempotencyKey = rawIdempotencyKey
@@ -72,7 +67,7 @@ export async function POST(
       locale: "fa",
       source: "PROJECT_API",
       idempotencyKey,
-      auditLimit: auditCheck.limit,
+      auditLimit,
       usage: {
         type: "AUDIT_RUN",
         metadata: { projectId: project.id },
@@ -103,7 +98,14 @@ export async function POST(
           : error.code === "IDEMPOTENCY_KEY_CONFLICT"
             ? 409
             : 400;
-      return respondJson({ error: error.code, requestId }, requestId, {
+      const body = error.code === "AUDIT_LIMIT_REACHED"
+        ? {
+            error: error.code,
+            message: `Current plan allows ${auditLimit ?? 0} audits per month. Upgrade to run more.`,
+            requestId,
+          }
+        : { error: error.code, requestId };
+      return respondJson(body, requestId, {
         status,
         headers: { "Cache-Control": "no-store" },
       });

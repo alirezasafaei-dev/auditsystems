@@ -1,5 +1,6 @@
 import { createServer, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
+import { gzipSync } from "node:zlib";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { fetchAuditHtml } from "./safeAuditFetch";
 
@@ -29,9 +30,37 @@ describe("fetchAuditHtml", () => {
         return;
       }
 
+      if (request.url === "/gzip-large") {
+        const body = gzipSync("x".repeat(4096));
+        response.writeHead(200, {
+          "Content-Type": "text/html; charset=utf-8",
+          "Content-Encoding": "gzip",
+          "Content-Length": String(body.byteLength)
+        });
+        response.end(body);
+        return;
+      }
+
       if (request.url === "/binary") {
         response.writeHead(200, { "Content-Type": "application/octet-stream" });
         response.end("not html");
+        return;
+      }
+
+      if (request.url === "/unsupported-encoding") {
+        response.writeHead(200, {
+          "Content-Type": "text/html; charset=utf-8",
+          "Content-Encoding": "compress"
+        });
+        response.end("encoded body");
+        return;
+      }
+
+      if (request.url === "/slow") {
+        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        response.write("<html><body>");
+        const timer = setTimeout(() => response.end("done</body></html>"), 1000);
+        response.once("close", () => clearTimeout(timer));
         return;
       }
 
@@ -76,9 +105,15 @@ describe("fetchAuditHtml", () => {
     ).rejects.toThrow("AUDIT_TOO_MANY_REDIRECTS");
   });
 
-  it("rejects decompressed bodies over the byte budget", async () => {
+  it("rejects uncompressed bodies over the byte budget", async () => {
     await expect(
       fetchAuditHtml(`${baseUrl}/large`, new AbortController().signal, { maxResponseBytes: 64 })
+    ).rejects.toThrow("AUDIT_RESPONSE_TOO_LARGE");
+  });
+
+  it("rejects decompressed bodies over the byte budget", async () => {
+    await expect(
+      fetchAuditHtml(`${baseUrl}/gzip-large`, new AbortController().signal, { maxResponseBytes: 128 })
     ).rejects.toThrow("AUDIT_RESPONSE_TOO_LARGE");
   });
 
@@ -86,5 +121,19 @@ describe("fetchAuditHtml", () => {
     await expect(fetchAuditHtml(`${baseUrl}/binary`, new AbortController().signal)).rejects.toThrow(
       "AUDIT_UNSUPPORTED_CONTENT_TYPE"
     );
+  });
+
+  it("rejects unsupported response encodings", async () => {
+    await expect(
+      fetchAuditHtml(`${baseUrl}/unsupported-encoding`, new AbortController().signal)
+    ).rejects.toThrow("AUDIT_UNSUPPORTED_CONTENT_ENCODING");
+  });
+
+  it("aborts an in-progress response body after headers arrive", async () => {
+    const controller = new AbortController();
+    const pending = fetchAuditHtml(`${baseUrl}/slow`, controller.signal);
+    setTimeout(() => controller.abort(new Error("TEST_STREAM_ABORT")), 25);
+
+    await expect(pending).rejects.toThrow("TEST_STREAM_ABORT");
   });
 });

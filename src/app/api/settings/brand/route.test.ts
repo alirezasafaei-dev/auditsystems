@@ -84,12 +84,33 @@ describe("POST /api/settings/brand", () => {
     });
   });
 
+  it("accepts a bounded PNG data URL", async () => {
+    const { POST } = await import("./route");
+    const logo = `data:image/png;base64,${Buffer.from("png-fixture").toString("base64")}`;
+    const response = await POST(request({ brandLogoBase64: logo }));
+
+    expect(response.status).toBe(200);
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ brandLogoBase64: logo })
+    }));
+  });
+
   it("rejects invalid colors", async () => {
     const { POST } = await import("./route");
     const response = await POST(request({ primaryColor: "red" }));
 
     expect(response.status).toBe(400);
     expect((await response.json()).error).toBe("INVALID_COLOR");
+    expect(mocks.update).not.toHaveBeenCalled();
+  });
+
+  it.each(["webp", "svg+xml"])("rejects PDF-incompatible %s logos", async (format) => {
+    const { POST } = await import("./route");
+    const logo = `data:image/${format};base64,${Buffer.from("fixture").toString("base64")}`;
+    const response = await POST(request({ brandLogoBase64: logo }));
+
+    expect(response.status).toBe(400);
+    expect((await response.json()).error).toBe("INVALID_LOGO_FORMAT");
     expect(mocks.update).not.toHaveBeenCalled();
   });
 

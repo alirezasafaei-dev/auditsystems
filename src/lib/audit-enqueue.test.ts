@@ -94,11 +94,16 @@ function createTx() {
     auditLead: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
     job: {
       findFirst: vi.fn().mockResolvedValue(null),
-      create: vi.fn().mockImplementation(({ data }) => Promise.resolve(job(data.payload))),
+      create: vi.fn().mockImplementation(
+        ({ data }: { data: { payload: Record<string, unknown> } }) => Promise.resolve(job(data.payload)),
+      ),
     },
     usageLedger: { create: vi.fn().mockResolvedValue({ id: "usage-1" }) },
   };
 }
+
+type Tx = ReturnType<typeof createTx>;
+type TransactionCallback = (client: Tx) => unknown;
 
 describe("audit-enqueue", () => {
   beforeEach(() => {
@@ -108,7 +113,7 @@ describe("audit-enqueue", () => {
 
   it("creates run, share, lead link, durable job, and usage in one Serializable transaction", async () => {
     const tx = createTx();
-    mocks.transaction.mockImplementation(async (callback: (client: typeof tx) => unknown, options?: unknown) => {
+    mocks.transaction.mockImplementation(async (callback: TransactionCallback, options?: unknown) => {
       expect(options).toEqual({ isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
       return callback(tx);
     });
@@ -130,6 +135,7 @@ describe("audit-enqueue", () => {
     });
 
     expect(result.reused).toBe(false);
+    expect(mocks.transaction).toHaveBeenCalledTimes(1);
     expect(tx.project.findFirst).toHaveBeenCalledWith({
       where: { id: "project-1", organizationId: "org-1" },
       select: { id: true },
@@ -165,16 +171,9 @@ describe("audit-enqueue", () => {
   });
 
   it("reuses a fully committed enqueue and performs no writes", async () => {
-    const tx = createTx();
-    const existingPayload = {
-      runId: "run-1",
-      source: "PUBLIC_API",
-      idempotencyKey: "v1:PUBLIC_API:key",
-      fingerprint: "",
-    };
-    mocks.transaction.mockImplementation(async (callback: (client: typeof tx) => unknown) => callback(tx));
+    const creationTx = createTx();
+    mocks.transaction.mockImplementationOnce(async (callback: TransactionCallback) => callback(creationTx));
     const module = await import("./audit-enqueue");
-
     const input = {
       url: "https://example.com",
       normalizedUrl: "https://example.com/",
@@ -185,22 +184,6 @@ describe("audit-enqueue", () => {
       idempotencyKey: "v1:PUBLIC_API:key",
     };
 
-    const probeTx = createTx();
-    mocks.transaction.mockReset();
-    mocks.transaction.mockImplementationOnce(async (callback: (client: typeof probeTx) => unknown) => {
-      probeTx.job.findFirst.mockResolvedValue(job(existingPayload));
-      probeTx.auditRun.findUnique.mockResolvedValue(auditRun());
-      probeTx.reportShare.findFirst.mockResolvedValue(reportShare());
-      const createHash = vi.spyOn(await import("node:crypto"), "createHash");
-      const resultPromise = callback(probeTx);
-      createHash.mockRestore();
-      return resultPromise;
-    });
-
-    // Obtain the service fingerprint from an initial dry creation payload, then replay it.
-    const creationTx = createTx();
-    mocks.transaction.mockReset();
-    mocks.transaction.mockImplementationOnce(async (callback: (client: typeof creationTx) => unknown) => callback(creationTx));
     const first = await module.enqueueAuditAtomically(input);
     const createdPayload = creationTx.job.create.mock.calls[0][0].data.payload as Record<string, unknown>;
 
@@ -209,11 +192,13 @@ describe("audit-enqueue", () => {
     replayTx.auditRun.findUnique.mockResolvedValue(first.run);
     replayTx.reportShare.findFirst.mockResolvedValue(first.share);
     mocks.transaction.mockReset();
-    mocks.transaction.mockImplementationOnce(async (callback: (client: typeof replayTx) => unknown) => callback(replayTx));
+    mocks.transaction.mockImplementationOnce(async (callback: TransactionCallback) => callback(replayTx));
 
     const replay = await module.enqueueAuditAtomically(input);
 
     expect(replay.reused).toBe(true);
+    expect(replay.run.id).toBe(first.run.id);
+    expect(replay.share.token).toBe(first.share.token);
     expect(replayTx.auditRun.create).not.toHaveBeenCalled();
     expect(replayTx.reportShare.create).not.toHaveBeenCalled();
     expect(replayTx.job.create).not.toHaveBeenCalled();
@@ -228,7 +213,7 @@ describe("audit-enqueue", () => {
       idempotencyKey: "v1:PUBLIC_API:key",
       fingerprint: "different-fingerprint",
     }));
-    mocks.transaction.mockImplementation(async (callback: (client: typeof tx) => unknown) => callback(tx));
+    mocks.transaction.mockImplementation(async (callback: TransactionCallback) => callback(tx));
     const { enqueueAuditAtomically } = await import("./audit-enqueue");
 
     await expect(enqueueAuditAtomically({
@@ -243,7 +228,7 @@ describe("audit-enqueue", () => {
   it("rejects quota exhaustion before creating any row", async () => {
     const tx = createTx();
     tx.auditRun.count.mockResolvedValue(3);
-    mocks.transaction.mockImplementation(async (callback: (client: typeof tx) => unknown) => callback(tx));
+    mocks.transaction.mockImplementation(async (callback: TransactionCallback) => callback(tx));
     const { enqueueAuditAtomically } = await import("./audit-enqueue");
 
     await expect(enqueueAuditAtomically({
@@ -262,7 +247,7 @@ describe("audit-enqueue", () => {
   it("aborts the transaction when a lead was linked concurrently", async () => {
     const tx = createTx();
     tx.auditLead.updateMany.mockResolvedValue({ count: 0 });
-    mocks.transaction.mockImplementation(async (callback: (client: typeof tx) => unknown) => callback(tx));
+    mocks.transaction.mockImplementation(async (callback: TransactionCallback) => callback(tx));
     const { enqueueAuditAtomically } = await import("./audit-enqueue");
 
     await expect(enqueueAuditAtomically({
@@ -277,6 +262,22 @@ describe("audit-enqueue", () => {
     expect(tx.usageLedger.create).not.toHaveBeenCalled();
   });
 
+  it("stops immediately when an earlier transactional write fails", async () => {
+    const tx = createTx();
+    tx.reportShare.create.mockRejectedValue(new Error("share insert failed"));
+    mocks.transaction.mockImplementation(async (callback: TransactionCallback) => callback(tx));
+    const { enqueueAuditAtomically } = await import("./audit-enqueue");
+
+    await expect(enqueueAuditAtomically({
+      url: "https://example.com",
+      source: "PUBLIC_API",
+    })).rejects.toThrow("share insert failed");
+
+    expect(tx.auditRun.create).toHaveBeenCalledTimes(1);
+    expect(tx.job.create).not.toHaveBeenCalled();
+    expect(tx.usageLedger.create).not.toHaveBeenCalled();
+  });
+
   it("retries a Serializable conflict and creates usage exactly once", async () => {
     const tx = createTx();
     const serializationError = new Prisma.PrismaClientKnownRequestError("serialization", {
@@ -285,7 +286,7 @@ describe("audit-enqueue", () => {
     });
     mocks.transaction
       .mockRejectedValueOnce(serializationError)
-      .mockImplementationOnce(async (callback: (client: typeof tx) => unknown) => callback(tx));
+      .mockImplementationOnce(async (callback: TransactionCallback) => callback(tx));
     const { enqueueAuditAtomically } = await import("./audit-enqueue");
 
     const result = await enqueueAuditAtomically({

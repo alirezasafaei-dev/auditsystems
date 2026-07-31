@@ -4,12 +4,13 @@ import { DEFAULT_PLAN } from "./plans";
 import {
   AuditEnqueueError,
   buildAuditIdempotencyKey,
-  enqueueAuditAtomically,
+  enqueueAuditInTransaction,
 } from "./audit-enqueue";
 import { nextScheduledRun } from "./schedule-time";
 
 const DEFAULT_MAX_SCHEDULES = 100;
 const MAX_ERROR_LENGTH = 2_000;
+const MAX_TRANSACTION_RETRIES = 3;
 
 type ClaimedSchedule = {
   id: string;
@@ -27,6 +28,7 @@ export type ScheduledAuditResult =
   | { kind: "enqueued"; scheduleId: string; runId: string; reused: boolean }
   | { kind: "disabled"; scheduleId: string; planCode: string }
   | { kind: "overlap"; scheduleId: string; activeRunId: string }
+  | { kind: "quota"; scheduleId: string; planCode: string }
   | { kind: "failed"; scheduleId: string; code: string; consecutiveFailures: number };
 
 export type ScheduledAuditSummary = {
@@ -36,6 +38,7 @@ export type ScheduledAuditSummary = {
   reused: number;
   disabled: number;
   overlaps: number;
+  quotaSkipped: number;
   failed: number;
   results: Exclude<ScheduledAuditResult, { kind: "none" }>[];
 };
@@ -57,6 +60,10 @@ function positiveLimit(value: number | undefined): number {
 
 function jsonDetails(value: Record<string, unknown>): Prisma.InputJsonValue {
   return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
+}
+
+function isRetryableTransactionError(error: unknown): boolean {
+  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2034";
 }
 
 async function claimOne(
@@ -117,154 +124,201 @@ async function consecutiveFailureCount(
   });
 }
 
+async function recordProcessingFailure(
+  schedule: ClaimedSchedule,
+  now: Date,
+  error: unknown,
+): Promise<ScheduledAuditResult> {
+  return prisma.$transaction(async (tx) => {
+    const priorFailures = await consecutiveFailureCount(tx, schedule);
+    const consecutiveFailures = priorFailures + 1;
+    const code = error instanceof AuditEnqueueError
+      ? error.code
+      : "SCHEDULE_PROCESSING_FAILED";
+
+    await tx.billingEvent.create({
+      data: {
+        organizationId: schedule.organizationId,
+        entityType: "SCHEDULED_AUDIT",
+        entityId: schedule.id,
+        eventType: "SCHEDULE_PROCESSING_FAILED",
+        actor: "scheduler",
+        details: jsonDetails({
+          code,
+          error: boundedError(error),
+          consecutiveFailures,
+          occurrence: schedule.nextRunAt.toISOString(),
+          attemptedAt: now.toISOString(),
+        }),
+      },
+    });
+
+    return { kind: "failed", scheduleId: schedule.id, code, consecutiveFailures } as const;
+  });
+}
+
 async function processOne(
   now: Date,
   excludedIds: string[],
 ): Promise<ScheduledAuditResult> {
-  return prisma.$transaction(async (tx) => {
-    const schedule = await claimOne(tx, now, excludedIds);
-    if (!schedule) return { kind: "none" } as const;
+  let lastClaimed: ClaimedSchedule | null = null;
 
-    const subscription = await tx.subscription.findFirst({
-      where: {
-        organizationId: schedule.organizationId,
-        status: "ACTIVE",
-        currentPeriodEnd: { gt: now },
-      },
-      include: { plan: true },
-      orderBy: { createdAt: "desc" },
-    });
-    const plan = subscription?.plan ?? DEFAULT_PLAN;
-
-    if (!plan.scheduledAudits) {
-      await tx.scheduledAudit.update({
-        where: { id: schedule.id },
-        data: { enabled: false },
-      });
-      await tx.billingEvent.create({
-        data: {
-          organizationId: schedule.organizationId,
-          entityType: "SCHEDULED_AUDIT",
-          entityId: schedule.id,
-          eventType: "SCHEDULE_DISABLED_ENTITLEMENT",
-          actor: "scheduler",
-          details: jsonDetails({ planCode: plan.code, checkedAt: now.toISOString() }),
-        },
-      });
-      return { kind: "disabled", scheduleId: schedule.id, planCode: plan.code } as const;
-    }
-
-    const activeRun = await tx.auditRun.findFirst({
-      where: {
-        projectId: schedule.projectId,
-        organizationId: schedule.organizationId,
-        status: { in: ["QUEUED", "RUNNING"] },
-      },
-      orderBy: { createdAt: "desc" },
-      select: { id: true },
-    });
-    if (activeRun) {
-      await tx.billingEvent.create({
-        data: {
-          organizationId: schedule.organizationId,
-          entityType: "SCHEDULED_AUDIT",
-          entityId: schedule.id,
-          eventType: "SCHEDULE_OVERLAP_SKIPPED",
-          actor: "scheduler",
-          details: jsonDetails({ activeRunId: activeRun.id, checkedAt: now.toISOString() }),
-        },
-      });
-      return { kind: "overlap", scheduleId: schedule.id, activeRunId: activeRun.id } as const;
-    }
-
-    const occurrence = schedule.nextRunAt.toISOString();
-    const idempotencyKey = buildAuditIdempotencyKey({
-      source: "SCHEDULED_AUDIT",
-      scope: schedule.id,
-      rawKey: occurrence,
-    });
-
+  for (let attempt = 1; attempt <= MAX_TRANSACTION_RETRIES; attempt += 1) {
+    lastClaimed = null;
     try {
-      const queued = await enqueueAuditAtomically({
-        url: schedule.normalizedUrl || `https://${schedule.domain}`,
-        normalizedUrl: schedule.normalizedUrl,
-        depth: "QUICK",
-        projectId: schedule.projectId,
-        organizationId: schedule.organizationId,
-        locale: "fa",
-        source: "SCHEDULED_AUDIT",
-        idempotencyKey,
-        auditLimit: plan.monthlyAuditLimit,
-        usage: {
-          type: "SCHEDULED_AUDIT",
-          metadata: {
-            projectId: schedule.projectId,
-            scheduleId: schedule.id,
-            occurrence,
+      return await prisma.$transaction(async (tx) => {
+        const schedule = await claimOne(tx, now, excludedIds);
+        if (!schedule) return { kind: "none" } as const;
+        lastClaimed = schedule;
+
+        const subscription = await tx.subscription.findFirst({
+          where: {
+            organizationId: schedule.organizationId,
+            status: "ACTIVE",
+            currentPeriodEnd: { gt: now },
           },
-        },
-        now,
-      });
+          include: { plan: true },
+          orderBy: { createdAt: "desc" },
+        });
+        const plan = subscription?.plan ?? DEFAULT_PLAN;
 
-      const nextRunAt = nextScheduledRun({
-        frequency: schedule.frequency,
-        currentDueAt: schedule.nextRunAt,
-        anchorAt: schedule.createdAt,
-      });
-      await tx.scheduledAudit.update({
-        where: { id: schedule.id },
-        data: { lastRunAt: now, nextRunAt },
-      });
-      await tx.billingEvent.create({
-        data: {
-          organizationId: schedule.organizationId,
-          entityType: "SCHEDULED_AUDIT",
-          entityId: schedule.id,
-          eventType: "SCHEDULE_ENQUEUED",
-          actor: "scheduler",
-          details: jsonDetails({
-            runId: queued.run.id,
-            reused: queued.reused,
-            occurrence,
-            nextRunAt: nextRunAt.toISOString(),
-          }),
-        },
-      });
+        if (!plan.scheduledAudits) {
+          await tx.scheduledAudit.update({
+            where: { id: schedule.id },
+            data: { enabled: false },
+          });
+          await tx.billingEvent.create({
+            data: {
+              organizationId: schedule.organizationId,
+              entityType: "SCHEDULED_AUDIT",
+              entityId: schedule.id,
+              eventType: "SCHEDULE_DISABLED_ENTITLEMENT",
+              actor: "scheduler",
+              details: jsonDetails({ planCode: plan.code, checkedAt: now.toISOString() }),
+            },
+          });
+          return { kind: "disabled", scheduleId: schedule.id, planCode: plan.code } as const;
+        }
 
-      return {
-        kind: "enqueued",
-        scheduleId: schedule.id,
-        runId: queued.run.id,
-        reused: queued.reused,
-      } as const;
+        const activeRun = await tx.auditRun.findFirst({
+          where: {
+            projectId: schedule.projectId,
+            organizationId: schedule.organizationId,
+            status: { in: ["QUEUED", "RUNNING"] },
+          },
+          orderBy: { createdAt: "desc" },
+          select: { id: true },
+        });
+        if (activeRun) {
+          await tx.billingEvent.create({
+            data: {
+              organizationId: schedule.organizationId,
+              entityType: "SCHEDULED_AUDIT",
+              entityId: schedule.id,
+              eventType: "SCHEDULE_OVERLAP_SKIPPED",
+              actor: "scheduler",
+              details: jsonDetails({ activeRunId: activeRun.id, checkedAt: now.toISOString() }),
+            },
+          });
+          return { kind: "overlap", scheduleId: schedule.id, activeRunId: activeRun.id } as const;
+        }
+
+        const occurrence = schedule.nextRunAt.toISOString();
+        const nextRunAt = nextScheduledRun({
+          frequency: schedule.frequency,
+          currentDueAt: schedule.nextRunAt,
+          anchorAt: schedule.createdAt,
+        });
+        const idempotencyKey = buildAuditIdempotencyKey({
+          source: "SCHEDULED_AUDIT",
+          scope: schedule.id,
+          rawKey: occurrence,
+        });
+
+        let queued;
+        try {
+          queued = await enqueueAuditInTransaction(tx, {
+            url: schedule.normalizedUrl || `https://${schedule.domain}`,
+            normalizedUrl: schedule.normalizedUrl,
+            depth: "QUICK",
+            projectId: schedule.projectId,
+            organizationId: schedule.organizationId,
+            locale: "fa",
+            source: "SCHEDULED_AUDIT",
+            idempotencyKey,
+            auditLimit: plan.monthlyAuditLimit,
+            usage: {
+              type: "SCHEDULED_AUDIT",
+              metadata: {
+                projectId: schedule.projectId,
+                scheduleId: schedule.id,
+                occurrence,
+              },
+            },
+            now,
+          });
+        } catch (error) {
+          if (!(error instanceof AuditEnqueueError) || error.code !== "AUDIT_LIMIT_REACHED") {
+            throw error;
+          }
+          await tx.billingEvent.create({
+            data: {
+              organizationId: schedule.organizationId,
+              entityType: "SCHEDULED_AUDIT",
+              entityId: schedule.id,
+              eventType: "SCHEDULE_QUOTA_SKIPPED",
+              actor: "scheduler",
+              details: jsonDetails({
+                planCode: plan.code,
+                occurrence,
+                checkedAt: now.toISOString(),
+              }),
+            },
+          });
+          return { kind: "quota", scheduleId: schedule.id, planCode: plan.code } as const;
+        }
+
+        await tx.scheduledAudit.update({
+          where: { id: schedule.id },
+          data: { lastRunAt: now, nextRunAt },
+        });
+        await tx.billingEvent.create({
+          data: {
+            organizationId: schedule.organizationId,
+            entityType: "SCHEDULED_AUDIT",
+            entityId: schedule.id,
+            eventType: "SCHEDULE_ENQUEUED",
+            actor: "scheduler",
+            details: jsonDetails({
+              runId: queued.run.id,
+              reused: queued.reused,
+              occurrence,
+              nextRunAt: nextRunAt.toISOString(),
+            }),
+          },
+        });
+
+        return {
+          kind: "enqueued",
+          scheduleId: schedule.id,
+          runId: queued.run.id,
+          reused: queued.reused,
+        } as const;
+      }, {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        maxWait: 5_000,
+        timeout: 30_000,
+      });
     } catch (error) {
-      const code = error instanceof AuditEnqueueError
-        ? error.code
-        : "SCHEDULE_ENQUEUE_FAILED";
-      const priorFailures = await consecutiveFailureCount(tx, schedule);
-      const consecutiveFailures = priorFailures + 1;
-      await tx.billingEvent.create({
-        data: {
-          organizationId: schedule.organizationId,
-          entityType: "SCHEDULED_AUDIT",
-          entityId: schedule.id,
-          eventType: "SCHEDULE_PROCESSING_FAILED",
-          actor: "scheduler",
-          details: jsonDetails({
-            code,
-            error: boundedError(error),
-            consecutiveFailures,
-            occurrence,
-            attemptedAt: now.toISOString(),
-          }),
-        },
-      });
-      return { kind: "failed", scheduleId: schedule.id, code, consecutiveFailures } as const;
+      if (isRetryableTransactionError(error) && attempt < MAX_TRANSACTION_RETRIES) {
+        continue;
+      }
+      if (!lastClaimed) throw error;
+      return recordProcessingFailure(lastClaimed, now, error);
     }
-  }, {
-    maxWait: 5_000,
-    timeout: 30_000,
-  });
+  }
+
+  throw new Error("SCHEDULE_TRANSACTION_RETRY_EXHAUSTED");
 }
 
 export async function runDueScheduledAudits(input: {
@@ -290,6 +344,7 @@ export async function runDueScheduledAudits(input: {
     reused: results.filter((result) => result.kind === "enqueued" && result.reused).length,
     disabled: results.filter((result) => result.kind === "disabled").length,
     overlaps: results.filter((result) => result.kind === "overlap").length,
+    quotaSkipped: results.filter((result) => result.kind === "quota").length,
     failed: results.filter((result) => result.kind === "failed").length,
     results,
   };

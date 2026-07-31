@@ -1,4 +1,4 @@
-import { Job, JobStatus, JobType, Prisma } from "@prisma/client";
+import { Job, JobType, Prisma } from "@prisma/client";
 import { prisma } from "../lib/db";
 
 export type LeasedJob = Job & {

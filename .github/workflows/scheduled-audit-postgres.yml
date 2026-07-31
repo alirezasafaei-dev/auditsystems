@@ -3,6 +3,7 @@ name: scheduled-audit-postgres
 on:
   pull_request:
     paths:
+      - "prisma/migrations/**"
       - "src/lib/audit-enqueue.ts"
       - "src/lib/schedule-time.ts"
       - "src/lib/schedule-time.test.ts"

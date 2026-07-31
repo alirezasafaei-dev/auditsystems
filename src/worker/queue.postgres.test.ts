@@ -98,7 +98,9 @@ describePostgres("queue lease fencing — PostgreSQL", () => {
 
     const finalJob = await prisma.job.findUniqueOrThrow({ where: { id: created.id } });
     expect(finalJob.status).toBe("SUCCEEDED");
-    expect(finalJob.lastError).toBe("Job lease expired and was re-queued");
+    expect(finalJob.workerId).toBe("worker-b");
+    expect(finalJob.attempt).toBe(2);
+    expect(finalJob.lastError).toBeNull();
   });
 
   it("extends a live lease and prevents recycle", async () => {

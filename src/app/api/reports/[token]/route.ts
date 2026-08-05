@@ -3,11 +3,15 @@ import { prisma } from "../../../../lib/db";
 import { observeApiRequest } from "../../../../lib/metrics";
 import { createRequestId, logEvent, respondJson } from "../../../../lib/observability";
 import { consumeDistributedRateLimit } from "../../../../lib/rateLimit";
-import { isReportShareAccessible, hasPassword, verifyPassword } from "../../../../lib/reportShare";
+import {
+  REPORT_SHARE_PASSWORD_MAX_LENGTH,
+  hasPassword,
+  isReportShareAccessible,
+  verifyPassword,
+} from "../../../../lib/reportShare";
 
 const PASSWORD_ATTEMPT_LIMIT = 10;
 const PASSWORD_ATTEMPT_WINDOW_SEC = 15 * 60;
-const MAX_PASSWORD_LENGTH = 256;
 
 function tokenDigest(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
@@ -49,7 +53,7 @@ function buildReportResponse(share: Awaited<ReturnType<typeof fetchShareWithFind
   };
 }
 
-export async function GET(request: Request, context: { params: Promise<{ token: string }> }) {
+export async function GET(_request: Request, context: { params: Promise<{ token: string }> }) {
   const requestId = createRequestId();
   const startedAt = Date.now();
   let statusCode = 200;
@@ -142,8 +146,9 @@ export async function POST(request: Request, context: { params: Promise<{ token:
         if (
           body
           && typeof body === "object"
+          && "password" in body
           && typeof body.password === "string"
-          && body.password.length <= MAX_PASSWORD_LENGTH
+          && body.password.length <= REPORT_SHARE_PASSWORD_MAX_LENGTH
         ) {
           providedPassword = body.password;
         }

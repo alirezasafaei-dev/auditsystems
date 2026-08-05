@@ -4,16 +4,17 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchCSRFHeaders } from "../../../../lib/csrf-client";
 
-const ERROR_MESSAGES: Record<string, string> = {
-  INVALID_TOKEN: "لینک دعوت معتبر نیست.",
-  INVITE_NOT_FOUND: "دعوت‌نامه پیدا نشد یا قبلاً جایگزین شده است.",
-  INVITE_NOT_ACTIVE: "دعوت‌نامه دیگر فعال نیست.",
-  INVITE_EXPIRED: "مهلت این دعوت‌نامه به پایان رسیده است.",
-  INVITE_ALREADY_ACCEPTED: "این دعوت‌نامه قبلاً استفاده شده است.",
-  INVITE_EMAIL_MISMATCH: "این دعوت‌نامه برای ایمیل حساب فعلی صادر نشده است.",
-  RATE_LIMITED: "تعداد تلاش‌ها بیش از حد مجاز است. کمی بعد دوباره تلاش کنید.",
-  FORBIDDEN: "درخواست امنیتی معتبر نیست. صفحه را تازه‌سازی کنید.",
-};
+function inviteErrorMessage(code: string): string {
+  if (code === "INVALID_TOKEN") return "لینک دعوت معتبر نیست.";
+  if (code === "INVITE_NOT_FOUND") return "دعوت‌نامه پیدا نشد یا قبلاً جایگزین شده است.";
+  if (code === "INVITE_NOT_ACTIVE") return "دعوت‌نامه دیگر فعال نیست.";
+  if (code === "INVITE_EXPIRED") return "مهلت این دعوت‌نامه به پایان رسیده است.";
+  if (code === "INVITE_ALREADY_ACCEPTED") return "این دعوت‌نامه قبلاً استفاده شده است.";
+  if (code === "INVITE_EMAIL_MISMATCH") return "این دعوت‌نامه برای ایمیل حساب فعلی صادر نشده است.";
+  if (code === "RATE_LIMITED") return "تعداد تلاش‌ها بیش از حد مجاز است. کمی بعد دوباره تلاش کنید.";
+  if (code === "FORBIDDEN") return "درخواست امنیتی معتبر نیست. صفحه را تازه‌سازی کنید.";
+  return "پذیرش دعوت‌نامه ناموفق بود.";
+}
 
 export default function AcceptTeamInvitePage() {
   const router = useRouter();
@@ -44,7 +45,7 @@ export default function AcceptTeamInvitePage() {
 
       const body = await response.json() as { error?: string };
       if (!response.ok || body.error) {
-        setError(ERROR_MESSAGES[body.error ?? ""] ?? "پذیرش دعوت‌نامه ناموفق بود.");
+        setError(inviteErrorMessage(body.error ?? ""));
         return;
       }
 

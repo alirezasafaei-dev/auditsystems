@@ -9,8 +9,11 @@ on:
       - "src/lib/team-invites.postgres.test.ts"
       - "src/lib/team-invite-delivery.ts"
       - "src/lib/team-invite-delivery.test.ts"
+      - "src/lib/safe-next-path.ts"
+      - "src/lib/safe-next-path.test.ts"
       - "src/app/api/team/**"
       - "src/app/app/team/**"
+      - "src/app/login/page.tsx"
       - ".github/workflows/team-invites-postgres.yml"
   workflow_dispatch:
 
@@ -69,9 +72,11 @@ jobs:
       - name: Apply migrations to ephemeral PostgreSQL
         run: pnpm exec prisma migrate deploy
 
-      - name: Run team invite unit and PostgreSQL suites
+      - name: Run team invite policy and PostgreSQL suites
         run: >-
           pnpm exec vitest run
           src/lib/team-invite-delivery.test.ts
+          src/lib/safe-next-path.test.ts
+          src/app/api/team/route.test.ts
           src/lib/team-invites.postgres.test.ts
           --no-file-parallelism

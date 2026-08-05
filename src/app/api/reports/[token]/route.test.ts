@@ -31,6 +31,7 @@ vi.mock("../../../../lib/metrics", () => ({
 }));
 
 vi.mock("../../../../lib/reportShare", () => ({
+  REPORT_SHARE_PASSWORD_MAX_LENGTH: 256,
   isReportShareAccessible: mocks.isReportShareAccessible,
   hasPassword: mocks.hasPassword,
   verifyPassword: mocks.verifyPassword,

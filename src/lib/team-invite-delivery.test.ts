@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { deliverTeamInvite, TeamInviteDeliveryError } from "./team-invite-delivery";
+import { deliverTeamInvite } from "./team-invite-delivery";
 
 const originalEnv = { ...process.env };
 
@@ -24,11 +24,11 @@ describe("team invite delivery", () => {
       organizationName: "Example Org",
       token: "a".repeat(64),
       expiresAt: new Date("2026-08-12T00:00:00.000Z"),
-    })).rejects.toMatchObject<TeamInviteDeliveryError>({ code: "DELIVERY_NOT_CONFIGURED" });
+    })).rejects.toMatchObject({ code: "DELIVERY_NOT_CONFIGURED" });
   });
 
   it("requires HTTPS delivery and site URLs in production", async () => {
-    process.env.NODE_ENV = "production";
+    process.env = { ...process.env, NODE_ENV: "production" };
     process.env.TEAM_INVITE_DELIVERY_WEBHOOK_URL = "http://delivery.internal/invites";
     process.env.TEAM_INVITE_DELIVERY_WEBHOOK_SECRET = "delivery-secret";
     process.env.NEXT_PUBLIC_SITE_URL = "https://audit.example.com";
@@ -39,7 +39,7 @@ describe("team invite delivery", () => {
       organizationName: "Example Org",
       token: "b".repeat(64),
       expiresAt: new Date("2026-08-12T00:00:00.000Z"),
-    })).rejects.toMatchObject<TeamInviteDeliveryError>({ code: "DELIVERY_NOT_CONFIGURED" });
+    })).rejects.toMatchObject({ code: "DELIVERY_NOT_CONFIGURED" });
   });
 
   it("sends the raw token only to the configured delivery webhook", async () => {
@@ -90,6 +90,6 @@ describe("team invite delivery", () => {
       organizationName: "Example Org",
       token: "d".repeat(64),
       expiresAt: new Date("2026-08-12T00:00:00.000Z"),
-    })).rejects.toMatchObject<TeamInviteDeliveryError>({ code: "DELIVERY_FAILED" });
+    })).rejects.toMatchObject({ code: "DELIVERY_FAILED" });
   });
 });

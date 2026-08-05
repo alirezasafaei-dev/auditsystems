@@ -1,7 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "./db";
 import {
-  TeamInviteError,
   acceptTeamInvite,
   createTeamInvite,
   hashTeamInviteToken,
@@ -99,7 +98,7 @@ describePostgres("team invite lifecycle — PostgreSQL", () => {
       userId: fixture.other.id,
       userEmail: fixture.other.email,
       now: new Date("2026-08-05T12:01:00.000Z"),
-    })).rejects.toMatchObject<TeamInviteError>({ code: "INVITE_EMAIL_MISMATCH" });
+    })).rejects.toMatchObject({ code: "INVITE_EMAIL_MISMATCH" });
 
     expect(await prisma.membership.count({
       where: { userId: fixture.other.id, organizationId: fixture.organization.id },
@@ -157,7 +156,7 @@ describePostgres("team invite lifecycle — PostgreSQL", () => {
       userId: fixture.invitee.id,
       userEmail: fixture.invitee.email,
       now: new Date("2026-08-06T12:01:00.000Z"),
-    })).rejects.toMatchObject<TeamInviteError>({ code: "INVITE_NOT_FOUND" });
+    })).rejects.toMatchObject({ code: "INVITE_NOT_FOUND" });
 
     await expect(acceptTeamInvite({
       token: secondToken,
@@ -184,7 +183,7 @@ describePostgres("team invite lifecycle — PostgreSQL", () => {
       userId: fixture.invitee.id,
       userEmail: fixture.invitee.email,
       now: new Date("2026-08-05T12:10:01.000Z"),
-    })).rejects.toMatchObject<TeamInviteError>({ code: "INVITE_EXPIRED" });
+    })).rejects.toMatchObject({ code: "INVITE_EXPIRED" });
     expect(await prisma.membership.count({
       where: { userId: fixture.invitee.id, organizationId: fixture.organization.id },
     })).toBe(0);
@@ -202,7 +201,7 @@ describePostgres("team invite lifecycle — PostgreSQL", () => {
       role: "ADMIN",
       deliver: async () => { throw new Error("DELIVERY_FAILED"); },
       now,
-    })).rejects.toMatchObject<TeamInviteError>({ code: "DELIVERY_FAILED" });
+    })).rejects.toMatchObject({ code: "DELIVERY_FAILED" });
 
     const invite = await prisma.teamMemberInvite.findUniqueOrThrow({
       where: {
@@ -241,7 +240,7 @@ describePostgres("team invite lifecycle — PostgreSQL", () => {
       userId: fixture.invitee.id,
       userEmail: fixture.invitee.email,
       now: new Date("2026-08-05T12:00:00.000Z"),
-    })).rejects.toMatchObject<TeamInviteError>({ code: "INVALID_ROLE" });
+    })).rejects.toMatchObject({ code: "INVALID_ROLE" });
     expect(await prisma.membership.count({
       where: { userId: fixture.invitee.id, organizationId: fixture.organization.id },
     })).toBe(0);

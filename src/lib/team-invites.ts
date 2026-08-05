@@ -57,7 +57,9 @@ export function hashTeamInviteToken(token: string): string {
 }
 
 function emailDigest(email: string): string {
-  return crypto.createHash("sha256").update(email).digest("hex");
+  const salt = String(process.env.IP_HASH_SALT ?? "").trim();
+  if (!salt) throw new Error("IP_HASH_SALT environment variable is required but not set");
+  return crypto.createHmac("sha256", salt).update(email).digest("hex");
 }
 
 function isRetryableTransactionError(error: unknown): boolean {

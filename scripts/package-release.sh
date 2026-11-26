@@ -16,8 +16,17 @@ tar -C "$SOURCE_DIR" -czf "$ARCHIVE_PATH" \
   --exclude='./artifacts' \
   --exclude='./reports' \
   --exclude='./logs' \
-  --exclude='./.env' \
-  --exclude='./.env.local' \
-  --exclude='./.env.production' \
-  --exclude='./.env.staging' \
+  --exclude='playwright-report' \
+  --exclude='test-results' \
+  --exclude='ops/backups' \
+  --exclude='*.sql.gz' \
+  --exclude='*.pem' \
+  --exclude='.state' \
+  --exclude='.env*' \
+  --exclude='*.db' \
+  --exclude='*.db-*' \
+  --exclude='*.sqlite' \
+  --exclude='*.sqlite-*' \
+  --exclude='*.sqlite3' \
+  --exclude='*.sqlite3-*' \
   .

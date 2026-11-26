@@ -1,6 +1,9 @@
 # Auto Generated Project Status
 
-Generated at: 2026-11-10T12:52:08.243Z
+Generated at: 2026-11-11T12:26:20.137Z
+
+This is a source/configuration inventory, not production verification. Phase labels are declarations, not evidence of a deployed or tested release.
+See [current recovery status](recovery/CURRENT_STATUS.md) for verified findings, open work and release gates.
 
 ## Overview
 - API routes: 50
@@ -8,8 +11,8 @@ Generated at: 2026-11-10T12:52:08.243Z
 - Test files: 128
 - NPM scripts: 68
 
-## Roadmap Phases
-- Done: 10
+## Declared Roadmap Phases
+- Declared done: 10
 - In Progress: 0
 - Planned: 0
 

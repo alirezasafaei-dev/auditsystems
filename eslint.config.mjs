@@ -10,6 +10,7 @@ const config = [
   {
     ignores: [
       ".next/**",
+      ".state/**",
       "node_modules/**",
       "docs/blueprints/**",
       "next-env.d.ts",

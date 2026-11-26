@@ -134,7 +134,7 @@ export default async function ReportPage({ params }: { params: Promise<{ token: 
         </section>
       )}
 
-      {share.run.status === "SUCCEEDED" ? <EmailCapture token={token} /> : null}
+      {share.run.status === "SUCCEEDED" ? <EmailCapture /> : null}
 
       {topIssues.length > 0 && (
         <section className="card">

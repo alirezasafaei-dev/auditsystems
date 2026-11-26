@@ -4,11 +4,11 @@ set -euo pipefail
 node <<'NODE'
 const { execFileSync } = require('node:child_process')
 
-const raw = execFileSync(
-  'pnpm',
-  ['list', 'deepmerge-ts', '--prod', '--depth', '100', '--json'],
-  { encoding: 'utf8' },
-)
+const pnpmScript = process.env.npm_execpath
+const args = ['list', 'deepmerge-ts', '--prod', '--depth', '100', '--json']
+const raw = pnpmScript && /(?:^|[\\/])pnpm\.[cm]?js$/.test(pnpmScript)
+  ? execFileSync(process.execPath, [pnpmScript, ...args], { encoding: 'utf8' })
+  : execFileSync('pnpm', args, { encoding: 'utf8' })
 const graph = JSON.parse(raw)
 const versions = new Set()
 

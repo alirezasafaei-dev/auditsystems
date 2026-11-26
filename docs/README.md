@@ -1,3 +1,5 @@
+ > Current recovery status (2026-11-11): [recovery/CURRENT_STATUS.md](recovery/CURRENT_STATUS.md). Historical roadmap completion does not establish current production readiness.
+
 # Docs Index
 
 این فایل، نقطه شروع مستندات پروژه است و وضعیت واقعی پیاده‌سازی را نشان می‌دهد.

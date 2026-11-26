@@ -232,3 +232,11 @@ src/
 ├── scripts/          # Automation scripts
 └── __tests__/        # Test files
 ```
+
+## Owner instruction — project-contained work (2026-11-11)
+
+All task-created reports, screenshots, scripts, tooling downloads, temporary files, validation logs and isolated working copies on LOCAL_PC must stay inside the owning project directory. Do not write task outputs to the user's home-directory root or unrelated temporary folders. Configure task-specific TEMP/TMP/cache/store locations under the project's ignored .state directory when invoking tooling. Existing installed host tools may be used without copying or modifying their installation.
+
+Private operational evidence belongs under .state/audit-recovery and must never be staged, packaged or published. Sanitized status and execution records belong under docs/recovery. Follow docs/recovery/CURRENT_STATUS.md for the recovery scope; historical/generated phase labels are not production verification.
+
+The current recovery implementation lives in the project-contained .state/recovery-source checkout on codex/audit-recovery-20261111. Preserve unrelated root-checkout changes and do not stage nested repositories or reset the original checkout.

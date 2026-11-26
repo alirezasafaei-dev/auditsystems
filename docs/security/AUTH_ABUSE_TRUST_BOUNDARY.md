@@ -17,10 +17,14 @@ Production authentication endpoints fail closed unless:
 
 ```dotenv
 AUTH_TRUST_PROXY_HEADERS="true"
-AUTH_CLIENT_IP_HEADER="x-forwarded-for"
+AUTH_CLIENT_IP_HEADER="x-real-ip"
 ```
 
-or the header is explicitly set to `x-real-ip`.
+`x-real-ip` is the supported setting for the repository-provided Nginx
+configuration because Nginx overwrites it from `$remote_addr`. Do not select
+`x-forwarded-for` unless the authoritative ingress strips it before setting it
+from the observed client address. A client-controlled `X-Forwarded-For` value
+must never create a fresh report-capture quota.
 
 Enabling these variables is safe only after the authoritative ingress configuration proves all of the following:
 

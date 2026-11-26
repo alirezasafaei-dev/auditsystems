@@ -5,6 +5,8 @@ coverage
 /test-results/
 .env
 .env.local
+.env.*
+!.env.example
 *.log
 *.tsbuildinfo
 worktrees/
@@ -24,3 +26,5 @@ logs/deploy/last-readiness.md
 .mimocode/
 ops/backups/
 *.sql.gz
+
+.state/

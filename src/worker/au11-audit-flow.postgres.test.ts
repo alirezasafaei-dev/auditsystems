@@ -88,6 +88,11 @@ describePostgres("AU-11 audit flow — disposable PostgreSQL", () => {
     const persisted = await prisma.auditRun.findUniqueOrThrow({ where: { id: submitted.body.runId }, include: { findings: true } });
     expect(persisted.status).toBe("SUCCEEDED");
     expect(persisted.reportStatus).toBe("REVIEW");
+    const seoFiles = {
+      robots: { status: "VERIFIED", httpStatus: 200, url: `${baseUrl}/robots.txt` },
+      sitemap: { status: "VERIFIED", httpStatus: 200, url: `${baseUrl}/sitemap.xml` },
+    };
+    expect(persisted.summary).toMatchObject({ seoFiles });
 
     await prisma.reportShare.update({ where: { token: submitted.body.token }, data: { passwordHash: hashPassword("synthetic-au11-password") } });
     const { GET: getReport } = await import("../app/api/reports/[token]/route");
@@ -102,6 +107,7 @@ describePostgres("AU-11 audit flow — disposable PostgreSQL", () => {
     expect(authorized.status).toBe(200);
     expect(authorized.headers.get("cache-control")).toContain("no-store");
     const report = await authorized.json() as { result: { availability: string; coverage: { ratio: number | null } } };
+    expect(report).toMatchObject({ run: { summary: { seoFiles } } });
     expect(report.result.availability).toBe("PARTIAL");
     expect(report.result.coverage.ratio).not.toBe(1);
 

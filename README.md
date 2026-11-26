@@ -1,3 +1,5 @@
+ > Current recovery status (2026-11-11): [docs/recovery/CURRENT_STATUS.md](docs/recovery/CURRENT_STATUS.md). Historical roadmap completion does not establish current production readiness.
+
 # AuditSystems
 
 **Technical SEO and Website Audit Platform**

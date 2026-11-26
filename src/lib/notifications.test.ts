@@ -11,8 +11,6 @@ vi.mock("./observability", () => ({ logEvent: mocks.logEvent }));
 describe("audit completion notification coverage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubEnv("CSRF_SECRET", "synthetic-notification-secret");
-    vi.spyOn(console, "log").mockImplementation(() => undefined);
     mocks.findFirst.mockResolvedValue({
       organization: { id: "org-1", name: "Synthetic org", notificationPreference: { emailEnabled: true } },
       user: { email: "synthetic@example.invalid", name: "Synthetic user" },
@@ -20,18 +18,16 @@ describe("audit completion notification coverage", () => {
     mocks.create.mockResolvedValue({});
   });
 
-  it("renders unavailable category scores without a synthetic 100", async () => {
+  it("fails closed without a delivery provider without requiring delivery secrets or persisting a sent-email record", async () => {
     const { sendAuditCompleteNotification } = await import("./notifications");
-    await sendAuditCompleteNotification("user-1", {
+
+    const delivered = await sendAuditCompleteNotification("user-1", {
       auditId: "audit-1", url: "https://synthetic.invalid", score: 100, grade: "EXCELLENT", totalFindings: 0,
-      severityCounts: {}, categoryScores: { SEO: 100, PERFORMANCE: null, UX: null },
-      resultAvailability: "PARTIAL", coverageRatio: 4 / 6,
+      severityCounts: {}, categoryScores: { SEO: 100 }, resultAvailability: "AVAILABLE", coverageRatio: 1,
     });
 
-    const body = mocks.create.mock.calls[0][0].data.body as string;
-    expect(body).toContain("Availability: PARTIAL");
-    expect(body).toContain("PERFORMANCE: unavailable");
-    expect(body).toContain("UX: unavailable");
-    expect(body).not.toContain("PERFORMANCE: 100/100");
+    expect(delivered).toBe(false);
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(JSON.stringify(mocks.logEvent.mock.calls)).not.toContain("synthetic@example.invalid");
   });
 });

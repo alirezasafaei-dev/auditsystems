@@ -70,7 +70,7 @@ async function main(): Promise<void> {
 
   const appFiles = await walkFiles(APP_DIR);
   const apiRoutes = appFiles
-    .filter((f) => f.startsWith(API_DIR) && f.endsWith("/route.ts"))
+    .filter((f) => f.startsWith(`${API_DIR}${path.sep}`) && path.basename(f) === "route.ts")
     .map(routeFromApiFile)
     .sort((a, b) => a.localeCompare(b));
 
@@ -106,6 +106,9 @@ async function main(): Promise<void> {
   lines.push("");
   lines.push(`Generated at: ${generatedAt}`);
   lines.push("");
+  lines.push("This is a source/configuration inventory, not production verification. Phase labels are declarations, not evidence of a deployed or tested release.");
+  lines.push("See [current recovery status](recovery/CURRENT_STATUS.md) for verified findings, open work and release gates.");
+  lines.push("");
 
   lines.push("## Overview");
   lines.push(`- API routes: ${apiRoutes.length}`);
@@ -114,8 +117,8 @@ async function main(): Promise<void> {
   lines.push(`- NPM scripts: ${Object.keys(packageJson.scripts ?? {}).length}`);
   lines.push("");
 
-  lines.push("## Roadmap Phases");
-  lines.push(`- Done: ${statuses.done}`);
+  lines.push("## Declared Roadmap Phases");
+  lines.push(`- Declared done: ${statuses.done}`);
   lines.push(`- In Progress: ${statuses.inProgress}`);
   lines.push(`- Planned: ${statuses.planned}`);
   if (lastRun) {

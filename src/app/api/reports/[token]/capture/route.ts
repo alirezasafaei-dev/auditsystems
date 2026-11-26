@@ -1,74 +1,58 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { prisma } from "../../../../../lib/db";
-import { isReportShareAccessible } from "../../../../../lib/reportShare";
-import { hasPassword } from "../../../../../lib/reportShare";
+import { isReportShareAccessible, hasPassword } from "../../../../../lib/reportShare";
 import { getReportAccessCookieName, verifyReportAccessCredential } from "../../../../../lib/report-access";
+import { csrfProtection } from "../../../../../lib/csrf";
+import { enforceAuthAbuseLimit } from "../../../../../lib/authRateLimit";
+import { createRequestId, respondJson } from "../../../../../lib/observability";
+import { parseReportCaptureInput } from "../../../../../lib/report-capture-schema";
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
+  const requestId = createRequestId();
+  const csrfCheck = await csrfProtection(request);
+  if (!csrfCheck.valid) {
+    return respondJson({ error: "FORBIDDEN", requestId }, requestId, { status: 403, headers: { "Cache-Control": "no-store" } });
+  }
+
   const { token } = await params;
-
-  const share = await prisma.reportShare.findUnique({
-    where: { token },
-    include: { run: true }
+  const rateLimit = await enforceAuthAbuseLimit({
+    action: "report-capture",
+    subject: token,
+    request,
   });
-
-  if (!share || !isReportShareAccessible(share)) {
-    return NextResponse.json({ error: "NOT_FOUND" }, { status: 404, headers: { "Cache-Control": "no-store" } });
+  if (!rateLimit.allowed) {
+    return respondJson({ error: "RATE_LIMITED", requestId }, requestId, {
+      status: 429,
+      headers: { "Cache-Control": "no-store", "Retry-After": String(rateLimit.retryAfterSec) },
+    });
   }
 
-  if (
-    hasPassword(share)
-    && !verifyReportAccessCredential(request.cookies.get(getReportAccessCookieName(token))?.value, token)
-  ) {
-    return NextResponse.json({ error: "NOT_FOUND" }, { status: 404, headers: { "Cache-Control": "no-store" } });
-  }
-
-  if (share.run.status !== "SUCCEEDED") {
-    return NextResponse.json({ error: "REPORT_NOT_READY" }, { status: 409 });
-  }
-
-  let body: { email?: string; name?: string; consentPrivacy?: boolean };
+  let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "INVALID_BODY" }, { status: 400 });
+    return respondJson({ error: "INVALID_BODY", requestId }, requestId, { status: 400, headers: { "Cache-Control": "no-store" } });
+  }
+  if (!parseReportCaptureInput(body)) {
+    return respondJson({ error: "INVALID_PAYLOAD", requestId }, requestId, { status: 400, headers: { "Cache-Control": "no-store" } });
   }
 
-  const email = body.email?.trim().toLowerCase();
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ error: "INVALID_EMAIL" }, { status: 400 });
-  }
-  if (body.consentPrivacy !== true) {
-    return NextResponse.json({ error: "CONSENT_REQUIRED" }, { status: 400 });
-  }
-
-  const existing = await prisma.auditLead.findFirst({
-    where: { runId: share.runId, email }
+  const share = await prisma.reportShare.findUnique({
+    where: { token },
+    include: { run: true },
   });
-
-  if (existing) {
-    return NextResponse.json({ ok: true, message: "ALREADY_CAPTURED" });
+  if (!share || !isReportShareAccessible(share)) {
+    return respondJson({ error: "NOT_FOUND", requestId }, requestId, { status: 404, headers: { "Cache-Control": "no-store" } });
+  }
+  if (hasPassword(share) && !verifyReportAccessCredential(request.cookies.get(getReportAccessCookieName(token))?.value, token)) {
+    return respondJson({ error: "NOT_FOUND", requestId }, requestId, { status: 404, headers: { "Cache-Control": "no-store" } });
+  }
+  if (share.run.status !== "SUCCEEDED") {
+    return respondJson({ error: "REPORT_NOT_READY", requestId }, requestId, { status: 409, headers: { "Cache-Control": "no-store" } });
   }
 
-  await prisma.auditLead.create({
-    data: {
-      runId: share.runId,
-      email,
-      name: body.name?.trim() || null,
-      domain: share.run.normalizedUrl ?? share.run.url,
-      normalizedUrl: share.run.normalizedUrl,
-      businessType: "unknown",
-      primaryConcern: "Captured from report page",
-      consentPrivacy: body.consentPrivacy,
-      leadSource: "report_capture",
-      sourcePlacement: "report_page",
-      sourceOffer: "follow_up",
-      status: 'REPORT_READY',
-    }
-  });
-
-  return NextResponse.json({ ok: true });
+  return respondJson({ error: "DELIVERY_NOT_CONFIGURED", requestId }, requestId, { status: 503, headers: { "Cache-Control": "no-store" } });
 }

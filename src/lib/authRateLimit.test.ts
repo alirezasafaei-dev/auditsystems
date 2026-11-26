@@ -74,6 +74,20 @@ describe("distributed authentication abuse controls", () => {
     }
   });
 
+  it("fails closed for report capture when a production proxy identity is not explicitly trusted", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    const { enforceAuthAbuseLimit } = await import("./authRateLimit");
+
+    const result = await enforceAuthAbuseLimit({
+      action: "report-capture",
+      subject: "private-report-token",
+      request: request({ "x-forwarded-for": "198.51.100.44, 10.0.0.3" }),
+    });
+
+    expect(result).toMatchObject({ allowed: false, reason: "CLIENT_IDENTITY_UNAVAILABLE" });
+    expect(mocks.consumeDistributedRateLimit).not.toHaveBeenCalled();
+  });
+
   it("does not create a subject-only lock shared by different clients", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("AUTH_TRUST_PROXY_HEADERS", "true");
@@ -99,6 +113,30 @@ describe("distributed authentication abuse controls", () => {
     expect(secondKeys).toHaveLength(2);
     expect(new Set([...firstKeys, ...secondKeys]).size).toBe(4);
     expect([...firstKeys, ...secondKeys].every((key) => !key.includes("subject:"))).toBe(true);
+  });
+
+  it("keeps the report-capture quota when a caller changes X-Forwarded-For", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("AUTH_TRUST_PROXY_HEADERS", "true");
+    vi.stubEnv("AUTH_CLIENT_IP_HEADER", "x-real-ip");
+    const { enforceAuthAbuseLimit } = await import("./authRateLimit");
+
+    await enforceAuthAbuseLimit({
+      action: "report-capture",
+      subject: "private-report-token",
+      request: request({ "x-real-ip": "203.0.113.9", "x-forwarded-for": "198.51.100.1" }),
+    });
+    const firstKeys = mocks.consumeDistributedRateLimit.mock.calls.map(([input]) => input.key);
+    mocks.consumeDistributedRateLimit.mockClear();
+
+    await enforceAuthAbuseLimit({
+      action: "report-capture",
+      subject: "private-report-token",
+      request: request({ "x-real-ip": "203.0.113.9", "x-forwarded-for": "198.51.100.250" }),
+    });
+    const changedForwardedForKeys = mocks.consumeDistributedRateLimit.mock.calls.map(([input]) => input.key);
+
+    expect(changedForwardedForKeys).toEqual(firstKeys);
   });
 
   it("fails closed when the distributed backend is unavailable in production", async () => {

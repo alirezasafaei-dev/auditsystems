@@ -1,4 +1,3 @@
-import { signUnsubToken } from "./hmac-tokens";
 import { prisma } from "./db";
 import { logEvent } from "./observability";
 
@@ -21,110 +20,23 @@ export async function sendAuditCompleteNotification(
   const membership = await prisma.membership.findFirst({
     where: { userId },
     include: {
-      organization: {
-        include: {
-          notificationPreference: true
-        }
-      },
+      organization: { include: { notificationPreference: true } },
       user: { select: { email: true, name: true } }
     }
   });
 
   if (!membership) return false;
 
-  const org = membership.organization;
-  const pref = org.notificationPreference;
-
-  if (!pref?.emailEnabled) {
-    logEvent("info", "notification_skipped_disabled", {
-      organizationId: org.id,
-      auditId: auditData.auditId
-    });
+  const organizationId = membership.organization.id;
+  if (!membership.organization.notificationPreference?.emailEnabled) {
+    logEvent("info", "notification_skipped_disabled", { organizationId, auditId: auditData.auditId });
+    return false;
+  }
+  if (!membership.user?.email) {
+    logEvent("warn", "notification_no_email", { organizationId, auditId: auditData.auditId });
     return false;
   }
 
-  const email = membership.user?.email;
-  if (!email) {
-    logEvent("warn", "notification_no_email", {
-      organizationId: org.id,
-      auditId: auditData.auditId
-    });
-    return false;
-  }
-
-  const coverageLabel = auditData.resultAvailability === "PARTIAL" ? "پوشش ناقص" : auditData.resultAvailability === "AVAILABLE" ? "پوشش کامل" : "پوشش نامشخص";
-  const subject = `ممیزی تکمیل شد — امتیاز: ${auditData.score}/100 (${coverageLabel})`;
-  const body = renderEmailBody(org.name, auditData, org.id);
-
-  // Email service integration placeholder
-  // When integrating with an email provider, replace this console.log with actual sending
-  console.log(
-    JSON.stringify({
-      event: "audit_complete_email",
-      to: email,
-      subject,
-      body,
-      auditId: auditData.auditId,
-      organizationId: org.id
-    })
-  );
-
-  logEvent("info", "notification_email_sent", {
-    organizationId: org.id,
-    auditId: auditData.auditId,
-    email
-  });
-
-  await prisma.notificationHistory.create({
-    data: {
-      organizationId: org.id,
-      type: "AUDIT_COMPLETE",
-      subject,
-      body,
-      email
-    }
-  });
-
-  return true;
-}
-
-function renderEmailBody(
-  orgName: string,
-  data: AuditCompletionData,
-  organizationId: string
-): string {
-  const severityLines = Object.entries(data.severityCounts)
-    .filter(([, count]) => count > 0)
-    .map(([sev, count]) => `  - ${sev}: ${count}`)
-    .join("\n");
-
-  const categoryLines = Object.entries(data.categoryScores)
-    .map(([cat, score]) => `  - ${cat}: ${score === null ? "unavailable" : `${score}/100`}`)
-    .join("\n");
-
-  const unsubSecret = process.env.CSRF_SECRET; if (!unsubSecret) throw new Error("CSRF_SECRET required"); const unsubscribeToken = signUnsubToken(organizationId, unsubSecret);
-  const unsubscribeUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://auditsystems.ir"}/api/notifications/unsubscribe?token=${unsubscribeToken}`;
-
-  return [
-    `ASDEV Audit Platform — Audit Complete`,
-    ``,
-    `Organization: ${orgName}`,
-    `URL: ${data.url}`,
-    ``,
-    `Score: ${data.score}/100 (${data.grade})`,
-    `Availability: ${data.resultAvailability}`,
-    `Coverage: ${data.coverageRatio === null ? "unknown" : `${Math.round(data.coverageRatio * 100)}%`}`,
-    `Total Findings: ${data.totalFindings}`,
-    ``,
-    `Severity Distribution:`,
-    severityLines || "  (none)",
-    ``,
-    `Category Scores:`,
-    categoryLines,
-    ``,
-    `View report: ${process.env.NEXT_PUBLIC_APP_URL || "https://auditsystems.ir"}/app`,
-    ``,
-    `---`,
-    `To unsubscribe: ${unsubscribeUrl}`
-  ].join("\n");
+  logEvent("warn", "notification_delivery_not_configured", { organizationId, auditId: auditData.auditId });
+  return false;
 }

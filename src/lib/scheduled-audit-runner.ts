@@ -63,7 +63,11 @@ function jsonDetails(value: Record<string, unknown>): Prisma.InputJsonValue {
 }
 
 function isRetryableTransactionError(error: unknown): boolean {
-  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2034";
+  if (!(error instanceof Prisma.PrismaClientKnownRequestError)) return false;
+  if (error.code === "P2034") return true;
+  if (error.code !== "P2010") return false;
+  const sqlState = error.meta?.code;
+  return sqlState === "40001" || sqlState === "40P01";
 }
 
 async function claimOne(

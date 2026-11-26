@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { consumeDistributedRateLimit, type RateLimitResult } from "./rateLimit";
 
-export type AuthAbuseAction = "user-login" | "signup" | "admin-login" | "billing-checkout";
+export type AuthAbuseAction = "user-login" | "signup" | "admin-login" | "billing-checkout" | "report-capture";
 
 export type AuthAbuseLimitResult = {
   allowed: boolean;
@@ -23,6 +23,7 @@ const ACTION_CONFIG: Record<AuthAbuseAction, ActionConfig> = {
   signup: { clientLimit: 12, pairLimit: 4, windowSec: 60 * 60 },
   "admin-login": { clientLimit: 12, pairLimit: 8, windowSec: 15 * 60 },
   "billing-checkout": { clientLimit: 20, pairLimit: 10, windowSec: 15 * 60 },
+  "report-capture": { clientLimit: 3, pairLimit: 3, windowSec: 60 * 60 },
 };
 
 const ALLOWED_PROXY_HEADERS = new Set(["x-forwarded-for", "x-real-ip"]);

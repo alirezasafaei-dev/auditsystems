@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const chromiumExecutable = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -7,6 +9,7 @@ export default defineConfig({
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: "http://127.0.0.1:3111",
+    launchOptions: chromiumExecutable ? { executablePath: chromiumExecutable } : undefined,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
